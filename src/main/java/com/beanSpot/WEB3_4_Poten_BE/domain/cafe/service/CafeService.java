@@ -1,9 +1,12 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.CafeInfoResponse;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.CafeUpdateRequest;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.exception.CafeNotFoundException;
@@ -17,6 +20,45 @@ import lombok.RequiredArgsConstructor;
 public class CafeService {
 
 	private final CafeRepository cafeRepository;
+
+	@Transactional
+	public Cafe createDummyCafe() {
+		Cafe cafe = Cafe.builder()
+			.ownerId(1L)
+			.name("테스트 카페")
+			.address("서울 강남구")
+			.phone("010-1111-2222")
+			.description("테스트 설명")
+			.image("test_image.jpg")
+			.latitude(37.12345)
+			.longitude(127.12345)
+			.createdAt(LocalDateTime.now())
+			.updatedAt(LocalDateTime.now())
+			.disabled(false)
+			.build();
+
+		return cafeRepository.save(cafe);
+	}
+
+	@Transactional
+	public List<CafeInfoResponse> getCafeList() {
+		return cafeRepository.findAll().stream()
+			.map(cafe -> CafeInfoResponse.builder()
+				.cafeId(cafe.getCafeId())
+				.ownerId(cafe.getOwnerId())
+				.name(cafe.getName())
+				.address(cafe.getAddress())
+				.latitude(cafe.getLatitude())
+				.longitude(cafe.getLongitude())
+				.phone(cafe.getPhone())
+				.description(cafe.getDescription())
+				.createdAt(cafe.getCreatedAt())
+				.updatedAt(cafe.getUpdatedAt())
+				.image(cafe.getImage())
+				.disabled(cafe.getDisabled())
+				.build())
+			.collect(Collectors.toList());
+	}
 
 	@Transactional
 	public Cafe updateCafe(Long id, CafeUpdateRequest request) {
