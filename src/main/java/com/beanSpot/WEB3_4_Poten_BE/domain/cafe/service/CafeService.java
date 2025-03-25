@@ -3,15 +3,12 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
-
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.CafeInfoResponse;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.CafeUpdateRequest;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.exception.CafeNotFoundException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -20,25 +17,6 @@ import lombok.RequiredArgsConstructor;
 public class CafeService {
 
 	private final CafeRepository cafeRepository;
-
-	@Transactional
-	public Cafe createDummyCafe() {
-		Cafe cafe = Cafe.builder()
-			.ownerId(1L)
-			.name("테스트 카페")
-			.address("서울 강남구")
-			.phone("010-1111-2222")
-			.description("테스트 설명")
-			.image("test_image.jpg")
-			.latitude(37.12345)
-			.longitude(127.12345)
-			.createdAt(LocalDateTime.now())
-			.updatedAt(LocalDateTime.now())
-			.disabled(false)
-			.build();
-
-		return cafeRepository.save(cafe);
-	}
 
 	@Transactional
 	public List<CafeInfoResponse> getCafeList() {
