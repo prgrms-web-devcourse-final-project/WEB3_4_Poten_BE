@@ -21,20 +21,7 @@ public class CafeService {
 	@Transactional
 	public List<CafeInfoRes> getCafeList() {
 		return cafeRepository.findAll().stream()
-			.map(cafe -> CafeInfoRes.builder()
-				.cafeId(cafe.getCafeId())
-				.ownerId(cafe.getOwnerId())
-				.name(cafe.getName())
-				.address(cafe.getAddress())
-				.latitude(cafe.getLatitude())
-				.longitude(cafe.getLongitude())
-				.phone(cafe.getPhone())
-				.description(cafe.getDescription())
-				.createdAt(cafe.getCreatedAt())
-				.updatedAt(cafe.getUpdatedAt())
-				.image(cafe.getImage())
-				.disabled(cafe.getDisabled())
-				.build())
+			.map(CafeInfoRes::fromEntity)
 			.collect(Collectors.toList());
 	}
 

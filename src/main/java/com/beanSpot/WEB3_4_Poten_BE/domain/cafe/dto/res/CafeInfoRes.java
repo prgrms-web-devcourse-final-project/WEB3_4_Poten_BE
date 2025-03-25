@@ -5,6 +5,8 @@ import lombok.NonNull;
 
 import java.time.LocalDateTime;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
+
 @Builder
 public record CafeInfoRes(
 	@NonNull
@@ -22,4 +24,23 @@ public record CafeInfoRes(
 	String image,
 	Boolean disabled
 ) {
+
+	public static CafeInfoRes fromEntity(Cafe cafe) {
+		return CafeInfoRes.builder()
+			.cafeId(cafe.getCafeId())
+			.ownerId(cafe.getOwnerId())
+			.name(cafe.getName())
+			.address(cafe.getAddress())
+			.latitude(cafe.getLatitude())
+			.longitude(cafe.getLongitude())
+			.phone(cafe.getPhone())
+			.description(cafe.getDescription())
+			.createdAt(cafe.getCreatedAt())
+			.updatedAt(cafe.getUpdatedAt())
+			.image(cafe.getImage())
+			.disabled(cafe.getDisabled())
+			.build();
+	}
 }
+
+
