@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +27,7 @@ public class Cafe {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long cafeId;
 
-	@NotEmpty
+	@NotNull
 	private Long ownerId;
 
 	private String name;
