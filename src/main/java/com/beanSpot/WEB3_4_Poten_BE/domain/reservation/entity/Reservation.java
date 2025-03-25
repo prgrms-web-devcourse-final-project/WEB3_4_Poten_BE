@@ -1,4 +1,4 @@
-package com.beanSpot.WEB3_4_Poten_BE.reservation.entity;
+package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

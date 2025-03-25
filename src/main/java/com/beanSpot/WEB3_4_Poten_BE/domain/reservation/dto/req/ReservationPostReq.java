@@ -1,4 +1,4 @@
-package com.beanSpot.WEB3_4_Poten_BE.reservation.dto.req;
+package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package com.beanSpot.WEB3_4_Poten_BE.reservation.entity;
+package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity;
 
 public enum ReservationStatus {
 	PENDING,    // 예약 대기

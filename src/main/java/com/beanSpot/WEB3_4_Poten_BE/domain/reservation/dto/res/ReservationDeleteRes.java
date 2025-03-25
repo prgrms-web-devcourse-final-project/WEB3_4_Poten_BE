@@ -1,6 +1,6 @@
-package com.beanSpot.WEB3_4_Poten_BE.reservation.dto.res;
+package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res;
 
-import com.beanSpot.WEB3_4_Poten_BE.reservation.entity.ReservationStatus;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.ReservationStatus;
 import lombok.Builder;
 import lombok.Getter;
 
