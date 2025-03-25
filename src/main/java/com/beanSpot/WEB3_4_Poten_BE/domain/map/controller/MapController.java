@@ -1,7 +1,11 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.map.controller;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.map.service.MapService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -15,4 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/map")
 public class MapController {
 
+    private final MapService mapService;
+
+    @GetMapping
+    public ResponseEntity<String> getGeocode(@RequestParam String address) {
+        String geocode = mapService.getGeocode(address);
+        return ResponseEntity.ok(geocode);
+    }
 }
