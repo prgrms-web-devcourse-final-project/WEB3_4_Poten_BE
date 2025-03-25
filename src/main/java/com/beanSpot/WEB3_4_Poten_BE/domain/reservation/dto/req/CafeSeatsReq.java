@@ -7,6 +7,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+//카페 좌석 조회 요청 dto
 @Getter
 public class CafeSeatsReq {
     @NotNull(message = "카페 ID는 필수입니다.")

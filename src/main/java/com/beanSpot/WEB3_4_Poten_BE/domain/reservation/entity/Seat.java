@@ -14,6 +14,7 @@ public class Seat {
     @Column(nullable = false)
     private String seatNumber;
 
+    //capacity 가 2이상이면 공유 좌석
     @Column(nullable = false)
     private int capacity;
 
