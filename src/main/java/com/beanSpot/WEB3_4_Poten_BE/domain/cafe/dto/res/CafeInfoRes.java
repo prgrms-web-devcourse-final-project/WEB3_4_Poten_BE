@@ -1,4 +1,4 @@
-package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto;
+package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.res;
 
 import lombok.Builder;
 import lombok.NonNull;
@@ -6,7 +6,7 @@ import lombok.NonNull;
 import java.time.LocalDateTime;
 
 @Builder
-public record CafeInfoResponse(
+public record CafeInfoRes(
 	@NonNull
 	Long cafeId,
 	@NonNull

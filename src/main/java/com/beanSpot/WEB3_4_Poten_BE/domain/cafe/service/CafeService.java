@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
-import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.CafeInfoResponse;
-import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.CafeUpdateRequest;
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.res.CafeInfoRes;
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.exception.CafeNotFoundException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
@@ -19,9 +19,9 @@ public class CafeService {
 	private final CafeRepository cafeRepository;
 
 	@Transactional
-	public List<CafeInfoResponse> getCafeList() {
+	public List<CafeInfoRes> getCafeList() {
 		return cafeRepository.findAll().stream()
-			.map(cafe -> CafeInfoResponse.builder()
+			.map(cafe -> CafeInfoRes.builder()
 				.cafeId(cafe.getCafeId())
 				.ownerId(cafe.getOwnerId())
 				.name(cafe.getName())
@@ -39,7 +39,7 @@ public class CafeService {
 	}
 
 	@Transactional
-	public Cafe updateCafe(Long id, CafeUpdateRequest request) {
+	public Cafe updateCafe(Long id, CafeUpdateReq request) {
 		Cafe cafe = cafeRepository.findById(id)
 			.orElseThrow(() -> new CafeNotFoundException(id));
 
