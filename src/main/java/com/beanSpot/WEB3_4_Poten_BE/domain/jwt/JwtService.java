@@ -5,13 +5,12 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import com.ll.nbe342team8.domain.member.member.entity.Member;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -41,6 +40,7 @@ public class JwtService {
 			.claim("id", member.getId())
 			.claim("email", member.getEmail())
 			.claim("name", member.getName())
+			.claim("role", member.getMemberType().toString())
 			.setIssuedAt(now)
 			.setExpiration(validity)
 			.signWith(key)
@@ -48,6 +48,21 @@ public class JwtService {
 
 		// URL 안전한 형태로 인코딩
 		return URLEncoder.encode(token, StandardCharsets.UTF_8);
+	}
+
+	public Map<String, Object> getAllClaimsFromToken(String token) {
+		try {
+			String decodedToken = URLDecoder.decode(token, StandardCharsets.UTF_8);
+			return Jwts.parserBuilder()
+				.setSigningKey(key)
+				.build()
+				.parseClaimsJws(decodedToken)
+				.getBody();
+		} catch (Exception e) {
+			log.error("토큰에서 클레임 추출 실패: ", e);
+			throw e;
+		}
+
 	}
 
 	public String generateRefreshToken(Member member) {
@@ -86,7 +101,7 @@ public class JwtService {
 		}
 	}
 
-	public String getKakaoIdFromToken(String token) {
+	public String getOAuthIdFromToken(String token) {
 		try {
 			String decodedToken = URLDecoder.decode(token, StandardCharsets.UTF_8);
 			return Jwts.parserBuilder()
