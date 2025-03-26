@@ -2,6 +2,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -9,7 +10,6 @@ import java.time.LocalTime;
 @Entity
 @Table(name = "reservations")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -61,5 +61,35 @@ public class Reservation {
 	@PreUpdate
 	protected void onUpdate() {
 		this.updatedAt = LocalDateTime.now();
+	}
+
+	// 예약 취소 메서드 (CHECKED_IN 상태일 때 취소 불가)
+	public void cancelReservation() {
+		if (this.status == ReservationStatus.CHECKED_IN) {
+			throw new IllegalStateException("체크인된 예약은 취소할 수 없습니다.");
+		}
+		this.status = ReservationStatus.CANCELLED;
+	}
+
+	// 예약 시간 변경 메서드 (시작/종료 시간 변경 가능)
+	public void updateReservationTime(LocalTime newStartTime, LocalTime newEndTime) {
+		if (this.status != ReservationStatus.PENDING && this.status != ReservationStatus.CONFIRMED) {
+			throw new IllegalStateException("진행 중이거나 종료된 예약은 변경할 수 없습니다.");
+		}
+		this.startTime = newStartTime;
+		this.endTime = newEndTime;
+	}
+
+	// 좌석 변경 메서드
+	public void updateSeat(Long newSeatId) {
+		if (this.status != ReservationStatus.PENDING && this.status != ReservationStatus.CONFIRMED) {
+			throw new IllegalStateException("진행 중이거나 종료된 예약은 좌석을 변경할 수 없습니다.");
+		}
+		this.seatId = newSeatId;
+	}
+
+	// 예약 상태 변경 메서드
+	public void updateStatus(ReservationStatus newStatus) {
+		this.status = newStatus;
 	}
 }
