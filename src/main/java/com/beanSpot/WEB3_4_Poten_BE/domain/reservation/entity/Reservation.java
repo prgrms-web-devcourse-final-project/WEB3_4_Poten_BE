@@ -35,9 +35,6 @@ public class Reservation {
 	@Column(nullable = false)
 	private Long seatId; // 예약한 좌석 ID
 
-//	@Column(nullable = false)
-//	private LocalDate reservationDate; // 예약 날짜
-
 	//TODO: 날짜시간 으로 하면좋을지 시간으로 하면 좋을지
 	@Column(nullable = false)
 	private LocalDateTime startTime; // 예약 시작 시간
