@@ -14,7 +14,7 @@ import java.time.LocalTime;
 @Builder
 @Table(
 		indexes = {
-				@Index(name = "idx_column1_column2", columnList = "column1, column2")
+				@Index(columnList = "seat_id, start_time, end_time")
 		}
 )
 public class Reservation {
@@ -61,6 +61,9 @@ public class Reservation {
 	protected void onCreate() {
 		this.createdAt = LocalDateTime.now();
 		this.updatedAt = LocalDateTime.now();
+		if (this.valid == null) { // valid 값이 설정되지 않았다면 기본값 설정
+			this.valid = this.status.isValid();
+		}
 	}
 
 	// 예약 수정 시 updatedAt 자동 갱신
@@ -99,6 +102,7 @@ public class Reservation {
 		this.status = newStatus;
 		this.valid = newStatus.isValid();
 	}
+
 	@Builder
 	public Reservation(Long paymentId, Long userId, Long cafeId, Long seatId,
 					   LocalDateTime startTime, LocalDateTime endTime,
@@ -116,3 +120,5 @@ public class Reservation {
 		this.updatedAt = LocalDateTime.now();
 	}
 }
+
+
