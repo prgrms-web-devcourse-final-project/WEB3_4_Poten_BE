@@ -16,6 +16,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.member.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
 
+
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
@@ -52,29 +53,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			profileImg = (String) response.getOrDefault("profile_image", "");
 		}
 
-		// 기존 회원 확인
-		Optional<Member> existingMember = memberService.findByOAuthId(oAuthId);
-
-		Member member;
-		if (existingMember.isPresent()) {
-			// 기존 회원 정보 업데이트
-			member = existingMember.get();
-			member.setName(name);
-			member.setEmail(email);
-			member.setProfileImg(profileImg);
-			member = memberService.save(member);
-		} else {
-			// 신규 회원 가입
-			member = Member.builder()
-				.oAuthId(oAuthId)
-				.name(name)
-				.email(email)
-				.profileImg(profileImg)
-				.snsType(snsType)
-				.memberType(Member.MemberType.USER) // 기본 사용자 타입
-				.build();
-			member = memberService.save(member);
-		}
+		// modifyOrJoin 메서드를 사용하여 회원 정보 저장
+		Member member = memberService.modifyOrJoin(oAuthId, email, name, profileImg, snsType);
 
 		// 리프레시 토큰 생성
 		String refreshToken = jwtService.generateRefreshToken(member);

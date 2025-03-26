@@ -1,5 +1,13 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.member.entity;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,7 +27,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class Member {
+public class Member implements UserDetails {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -50,5 +58,28 @@ public class Member {
 
 	public enum SnsType {
 		KAKAO, NAVER
+	}
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+
+		// 기본적으로 모든 일반 사용자는 USER 권한을 가집니다
+		if (this.memberType == MemberType.USER) {
+			authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+		}
+
+		// OWNER는 USER 권한도 가지고 OWNER 권한도 가집니다
+		if (this.memberType == MemberType.OWNER) {
+			authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+			authorities.add(new SimpleGrantedAuthority("ROLE_OWNER"));
+		}
+
+		// ADMIN은 ADMIN 권한을 가집니다
+		if (this.memberType == MemberType.ADMIN) {
+			authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+		}
+
+		return authorities;
 	}
 }
