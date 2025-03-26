@@ -1,5 +1,6 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity;
 
+//TODO: 상태추가시 isValid 함수도 변경되야 합니다!!
 public enum ReservationStatus {
 	//PENDING,     예약 대기
 	CONFIRMED,  // 예약 확정 (결제 완료)
