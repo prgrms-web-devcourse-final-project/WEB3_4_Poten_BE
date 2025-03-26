@@ -43,7 +43,7 @@ public class Application {
 	private Status status = Status.PENDING;
 
 	@Column(nullable = false)
-	private LocalDateTime createdAt = LocalDateTime.now();
+	private LocalDateTime createdAt;
 
 	public void approve() {
 		this.status = Status.APPROVED;
