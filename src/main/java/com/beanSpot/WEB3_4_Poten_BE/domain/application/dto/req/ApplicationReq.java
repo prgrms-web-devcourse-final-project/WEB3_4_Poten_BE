@@ -2,7 +2,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.req;
 
 import jakarta.validation.constraints.NotEmpty;
 
-public record ApplicationReq (
+public record ApplicationReq(
 	@NotEmpty
 	String name,
 
@@ -11,5 +11,5 @@ public record ApplicationReq (
 
 	@NotEmpty
 	String phone
-){
+) {
 }

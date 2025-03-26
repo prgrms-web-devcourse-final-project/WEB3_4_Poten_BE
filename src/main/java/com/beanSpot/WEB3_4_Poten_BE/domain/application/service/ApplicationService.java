@@ -45,7 +45,7 @@ public class ApplicationService {
 		Application application = applicationRepository.findById(applicationId)
 			.orElseThrow(() -> new ApplicationNotFoundException(applicationId));
 
-		if(application.getStatus() == Status.REJECTED) {
+		if (application.getStatus() == Status.REJECTED) {
 			applicationRepository.delete(application);
 		} else {
 			throw new IllegalStateException("거부된 신청이 아닙니다.");
