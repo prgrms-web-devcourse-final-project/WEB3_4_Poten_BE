@@ -27,7 +27,7 @@ public class ApplicationService {
 	// private final UserRepository userRepository;
 
 	@Transactional
-	public ApplicationRes CreateApplication(ApplicationReq applicationReq) {
+	public ApplicationRes createApplication(ApplicationReq applicationReq) {
 		Application application = Application.builder()
 			.name(applicationReq.name())
 			.address(applicationReq.address())
@@ -38,6 +38,18 @@ public class ApplicationService {
 
 		applicationRepository.save(application);
 		return ApplicationRes.fromEntity(application);
+	}
+
+	@Transactional
+	public void deleteRejectedApplication(Long applicationId) {
+		Application application = applicationRepository.findById(applicationId)
+			.orElseThrow(() -> new ApplicationNotFoundException(applicationId));
+
+		if(application.getStatus() == Status.REJECTED) {
+			applicationRepository.delete(application);
+		} else {
+			throw new IllegalStateException("거부된 신청이 아닙니다.");
+		}
 	}
 
 	public List<ApplicationRes> getPendingRequests() {
