@@ -3,12 +3,15 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.application.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.req.ApplicationReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.res.ApplicationApprovedRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.res.ApplicationRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.service.ApplicationService;
@@ -20,6 +23,19 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ApplicationController {
 	private final ApplicationService applicationService;
+
+	@PostMapping
+	public ResponseEntity<ApplicationRes> createApplication(@RequestBody ApplicationReq applicationReq) {
+		ApplicationRes applicationRes = applicationService.createApplication(applicationReq);
+		return ResponseEntity.ok(applicationRes);
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteRejectedApplication(@PathVariable Long id) {
+		applicationService.deleteRejectedApplication(id);
+		return ResponseEntity.noContent()
+			.build();
+	}
 
 	@GetMapping("/pending")
 	public ResponseEntity<List<ApplicationRes>> getPendingRequests() {
