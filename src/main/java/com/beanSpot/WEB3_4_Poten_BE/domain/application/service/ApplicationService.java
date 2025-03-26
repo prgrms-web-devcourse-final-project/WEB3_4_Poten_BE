@@ -1,10 +1,12 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.application.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.req.ApplicationReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.res.ApplicationApprovedRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.res.ApplicationRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
@@ -24,6 +26,20 @@ public class ApplicationService {
 	private final CafeRepository cafeRepository;
 	// private final UserRepository userRepository;
 
+	@Transactional
+	public ApplicationRes CreateApplication(ApplicationReq applicationReq) {
+		Application application = Application.builder()
+			.name(applicationReq.name())
+			.address(applicationReq.address())
+			.phone(applicationReq.phone())
+			.status(Status.PENDING)
+			.createdAt(LocalDateTime.now())
+			.build();
+
+		applicationRepository.save(application);
+		return ApplicationRes.fromEntity(application);
+	}
+
 	public List<ApplicationRes> getPendingRequests() {
 		return applicationRepository.findByStatus(Status.PENDING)
 			.stream()
@@ -38,6 +54,7 @@ public class ApplicationService {
 
 		application.approve();
 
+		// Owner 관련 코드 추후 수정필요
 		//User updatedOwner = application.getUser().changeRoleToOwner();
 		//userRepository.save(updatedOwner);
 
