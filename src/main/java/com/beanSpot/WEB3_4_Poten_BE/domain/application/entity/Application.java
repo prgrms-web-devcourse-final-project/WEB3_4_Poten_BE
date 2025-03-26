@@ -2,6 +2,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.application.entity;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -28,14 +29,19 @@ public class Application {
 	// @ManyToOne
 	// @JoinColumn(name = "user_id", nullable = false)
 	// private User user;
-
+	@Column(nullable = false)
 	private String name;
+
+	@Column(nullable = false)
 	private String address;
+
+	@Column(nullable = false)
 	private String phone;
 
 	@Enumerated(EnumType.STRING)
 	private Status status = Status.PENDING;
 
+	@Column(nullable = false)
 	private LocalDateTime createdAt = LocalDateTime.now();
 
 	public void approve() {
