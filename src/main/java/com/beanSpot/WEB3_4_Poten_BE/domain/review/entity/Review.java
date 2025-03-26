@@ -40,4 +40,9 @@ public class Review {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
+	public void updateReview(int rating, String comment) {
+		this.rating = rating;
+		this.comment = comment;
+		this.updatedAt = LocalDateTime.now();
+	}
 }
