@@ -1,6 +1,6 @@
 ---
-name: 팀 포텐 PR 템플릿
-about: 팀 포텐 PR 템플릿입니다
+name: 팀포텐 PR 템플릿
+about: 팀포텐 PR 템플릿 입니다
 title: ''
 labels: ''
 assignees: ''
