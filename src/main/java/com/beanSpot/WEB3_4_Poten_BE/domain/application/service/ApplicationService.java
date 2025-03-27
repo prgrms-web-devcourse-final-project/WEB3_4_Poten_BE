@@ -27,11 +27,11 @@ public class ApplicationService {
 	// private final UserRepository userRepository;
 
 	@Transactional
-	public ApplicationRes createApplication(ApplicationReq applicationReq) {
+	public ApplicationRes createApplication(ApplicationReq request) {
 		Application application = Application.builder()
-			.name(applicationReq.name())
-			.address(applicationReq.address())
-			.phone(applicationReq.phone())
+			.name(request.name())
+			.address(request.address())
+			.phone(request.phone())
 			.status(Status.PENDING)
 			.createdAt(LocalDateTime.now())
 			.build();
