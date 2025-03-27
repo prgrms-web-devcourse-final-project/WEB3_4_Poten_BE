@@ -1,8 +1,10 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -23,17 +25,29 @@ public class Reservation {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id; // 예약 ID
 
+	//Payment 생기면 이걸로 적용
+	//	@Column(nullable = false)
+	//	@JoinColumn(nullable = false)
+	//	private Payment payment;
+
 	@Column(nullable = false)
 	private Long paymentId; // 결제 ID (결제 시스템 연동)
+
+	//유저 생기면 이걸로 사용
+//	@Column(nullable = false)
+//	@JoinColumn(nullable = false)
+//	private User user;
 
 	@Column(nullable = false)
 	private Long userId; // 예약한 사용자 ID
 
 	@Column(nullable = false)
-	private Long cafeId; // 카페 ID
+	@JoinColumn(nullable = false)
+	private Cafe cafe;
 
 	@Column(nullable = false)
-	private Long seatId; // 예약한 좌석 ID
+	@JoinColumn(nullable = false)
+	private Seat seat;
 
 	//TODO: 날짜시간 으로 하면좋을지 시간으로 하면 좋을지
 	@Column(nullable = false)
@@ -72,11 +86,15 @@ public class Reservation {
 		this.updatedAt = LocalDateTime.now();
 	}
 
+	//예약 업데이트 메소드
+	public void update(Seat seat, LocalDateTime startTime, LocalDateTime endTime) {
+		this.seat = seat;
+		this.startTime = startTime;
+		this.endTime = endTime;
+	}
+
 	// 예약 취소 메서드 (CHECKED_IN 상태일 때 취소 불가)
 	public void cancelReservation() {
-		if (this.status == ReservationStatus.CHECKED_IN) {
-			throw new IllegalStateException("체크인된 예약은 취소할 수 없습니다.");
-		}
 		this.status = ReservationStatus.CANCELLED;
 	}
 
@@ -89,28 +107,34 @@ public class Reservation {
 		this.endTime = newEndTime;
 	}
 
-	// 좌석 변경 메서드
-	public void updateSeat(Long newSeatId) {
-		if (this.status != ReservationStatus.CONFIRMED) {
-			throw new IllegalStateException("진행 중이거나 종료된 예약은 좌석을 변경할 수 없습니다.");
-		}
-		this.seatId = newSeatId;
-	}
-
 	// 예약 상태 변경 메서드
 	public void updateStatus(ReservationStatus newStatus) {
 		this.status = newStatus;
 		this.valid = newStatus.isValid();
 	}
 
+	// 시작하기 beforeStartMinutes 전인지 판별, 변경이나 삭제 가능한지 확인하는 메소드
+	// 예약 변경 불가능 여부 확인 메소드
+	public boolean cannotModify(int beforeStartMinutes) {
+		if (this.startTime == null) {
+			throw new IllegalStateException("예약 시작 시간이 설정되지 않았습니다.");
+		}
+
+		LocalDateTime now = LocalDateTime.now();
+
+		// 예약 변경 불가능: 예약 시간이 beforeStartMinutes 이내로 남았으면 true
+		return Duration.between(now, this.startTime).toMinutes() < beforeStartMinutes;
+	}
+
+
 	@Builder
-	public Reservation(Long paymentId, Long userId, Long cafeId, Long seatId,
+	public Reservation(Long paymentId, Long userId, Cafe cafe, Seat seat,
 					   LocalDateTime startTime, LocalDateTime endTime,
 					   ReservationStatus status) {
 		this.paymentId = paymentId;
 		this.userId = userId;
-		this.cafeId = cafeId;
-		this.seatId = seatId;
+		this.cafe = cafe;
+		this.seat = seat;
 
 		this.startTime = startTime;
 		this.endTime = endTime;
