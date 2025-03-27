@@ -1,11 +1,13 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.ReservationStatus;
 
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
@@ -15,6 +17,16 @@ public class ReservationPostRes {
 	private Long reservationId;
 	private ReservationStatus status;
 	private LocalDate reservationDate;
-	private LocalTime startTime;
-	private LocalTime endTime;
+	private LocalDateTime startTime;
+	private LocalDateTime endTime;
+
+	public static ReservationPostRes from(Reservation reservation) {
+		return ReservationPostRes.builder()
+				.reservationId(reservation.getId())
+				.status(reservation.getStatus())
+				.reservationDate(reservation.getStartTime().toLocalDate())  // 날짜 부분만 추출
+				.startTime(reservation.getStartTime())  // 시간 부분만 추출
+				.endTime(reservation.getEndTime())  // 시간 부분만 추출
+				.build();
+	}
 }
