@@ -26,7 +26,6 @@ public class Reservation {
 	private Long id; // 예약 ID
 
 	//Payment 생기면 이걸로 적용
-	//	@Column(nullable = false)
 	//	@JoinColumn(nullable = false)
 	//	private Payment payment;
 
@@ -34,7 +33,6 @@ public class Reservation {
 	private Long paymentId; // 결제 ID (결제 시스템 연동)
 
 	//유저 생기면 이걸로 사용
-//	@Column(nullable = false)
 //	@JoinColumn(nullable = false)
 //	private User user;
 
@@ -49,7 +47,6 @@ public class Reservation {
 	@JoinColumn(nullable = false)
 	private Seat seat;
 
-	//TODO: 날짜시간 으로 하면좋을지 시간으로 하면 좋을지
 	@Column(nullable = false)
 	private LocalDateTime startTime; // 예약 시작 시간
 
