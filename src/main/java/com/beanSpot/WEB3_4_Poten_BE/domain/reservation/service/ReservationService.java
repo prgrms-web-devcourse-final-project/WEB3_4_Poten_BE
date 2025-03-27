@@ -49,6 +49,25 @@ public class ReservationService {
     }
 
     // ✅ 2. 예약 수정
+    @Transactional
+    public ReservationPostRes updateReservation(Long reservationId, ReservationPostReq dto) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("해당 예약을 찾을 수 없습니다."));
+
+        // 예약 가능 여부 확인 (변경된 시간 기준)
+        boolean isAvailable = !reservationRepository.existsOverlappingReservation(
+                dto.getSeatId(), dto.getStartTime(), dto.getEndTime());
+
+        if (!isAvailable) {
+            throw new RuntimeException("해당 시간에 이미 예약된 좌석입니다.");
+        }
+
+        // 예약 정보 업데이트
+//        reservation.update(dto.getPaymentId(), dto.getUserId(), dto.getCafeId(),
+//                dto.getSeatId(), dto.getStartTime(), dto.getEndTime());
+
+        return ReservationPostRes.from(reservation);
+    }
     // ✅ 3. 예약 취소
     // ✅ 4. 예약 상세 조회
     // ✅ 5. 특정 사용자의 예약 목록 조회
