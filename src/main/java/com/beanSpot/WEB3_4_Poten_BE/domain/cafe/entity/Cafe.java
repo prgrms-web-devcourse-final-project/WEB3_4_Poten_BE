@@ -1,20 +1,10 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity;
 
-import java.time.LocalDateTime;
-
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
+import jakarta.persistence.*;
+import lombok.*;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
 @Entity
 @Builder
@@ -27,7 +17,7 @@ public class Cafe {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long cafeId;
 
-	@NotNull
+//	@NotNull
 	private Long ownerId;
 
 	private String name;
