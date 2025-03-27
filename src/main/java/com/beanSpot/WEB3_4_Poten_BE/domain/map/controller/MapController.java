@@ -25,8 +25,11 @@ public class MapController {
     private final MapService mapService;
 
     @GetMapping
-    public ResponseEntity<List<Cafe>> searchAndSaveCafes(@RequestParam String address) {
-        List<Cafe> savedCafes = mapService.searchAndSaveCafes(address);
-        return ResponseEntity.ok(savedCafes);
+    public ResponseEntity<List<Cafe>> searchAndSaveCafes(
+            @RequestParam double x,
+            @RequestParam double y,
+            @RequestParam int page) {
+        List<Cafe> Cafes = mapService.searchAndSaveCafes(x, y, page);
+        return ResponseEntity.ok(Cafes);
     }
 }
