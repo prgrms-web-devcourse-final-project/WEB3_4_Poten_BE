@@ -1,10 +1,12 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeCreateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.res.CafeInfoRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
@@ -19,6 +21,25 @@ import lombok.RequiredArgsConstructor;
 public class CafeService {
 
 	private final CafeRepository cafeRepository;
+
+	@Transactional
+	public CafeInfoRes createCafe(CafeCreateReq request) {
+		Cafe cafe = Cafe.builder()
+			.name(request.name())
+			.address(request.address())
+			.latitude(request.latitude())
+			.longitude(request.longitude())
+			.phone(request.phone())
+			.description(request.description())
+			.createdAt(LocalDateTime.now())
+			.updatedAt(request.updatedAt())
+			.image(request.image())
+			.disabled(request.disabled())
+			.build();
+
+		cafeRepository.save(cafe);
+		return CafeInfoRes.fromEntity(cafe);
+	}
 
 	@Transactional
 	public List<CafeInfoRes> getCafeList() {
