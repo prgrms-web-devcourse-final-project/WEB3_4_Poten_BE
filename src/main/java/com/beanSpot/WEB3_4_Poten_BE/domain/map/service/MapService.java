@@ -11,7 +11,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,12 +32,17 @@ public class MapService {
     @Value("${kakao.url}")
     private String kakaoUrl;
 
-    public List<Cafe> searchAndSaveCafes(String address) {
+    public List<Cafe> searchAndSaveCafes(double x, double y, int page) {
         RestTemplate restTemplate = new RestTemplate();
-
-        // 요청 URL 생성 (키워드 기반 카페 검색)
+        // 요청 URL 생성
         String apiUrl = UriComponentsBuilder.fromHttpUrl(kakaoUrl)
-                .queryParam("query", address)
+                .queryParam("query", "cafe")
+                .queryParam("x", x)
+                .queryParam("y", y)
+                .queryParam("radius", "2000")
+                .queryParam("category_group_code", "CE7")
+                .queryParam("size", 15)
+                .queryParam("page", page)
                 .toUriString();
 
         // HTTP 요청 헤더 설정
@@ -49,23 +53,20 @@ public class MapService {
         // API 요청 및 응답 처리
         ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, Map.class);
         if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
-            System.out.println("카카오 API 요청 실패: " + response.getStatusCode());
-            throw new RuntimeException("카카오 API 요청 실패");
+            throw new RuntimeException("카카오 API 요청 실패: " + response.getStatusCode());
         }
 
-        // 카카오 API 응답 데이터 출력 (디버깅용)
+        // 디버깅용 카카오 API 응답 데이터
         System.out.println("카카오 API 응답: " + response.getBody());
 
-        // 응답 데이터에서 'documents' 리스트 추출
+        // documents 리스트 추출
         List<Map<String, Object>> documents = (List<Map<String, Object>>) response.getBody().get("documents");
         if (documents == null || documents.isEmpty()) {
-            System.out.println("조회된 카페 정보가 없습니다.");
-            return Collections.emptyList(); // 빈 리스트 반환
+            throw new RuntimeException("조회된 카페 정보가 없습니다.");
         }
 
+        // 응답 데이터 저장
         List<Cafe> savedCafes = new ArrayList<>();
-
-        // 카페 정보 저장
         for (Map<String, Object> doc : documents) {
             Cafe cafe = saveCafeFromApiResponse(doc);
             if (cafe != null) {
@@ -73,7 +74,7 @@ public class MapService {
             }
         }
 
-        return savedCafes; // 저장된 카페 목록 반환
+        return savedCafes;
     }
 
     /**
@@ -86,9 +87,9 @@ public class MapService {
         Double latitude = Double.valueOf(doc.get("y").toString());
         Double longitude = Double.valueOf(doc.get("x").toString());
 
-        // 이미 존재하는 카페인지 확인 (주소로 중복 체크)
-        if (cafeRepository.existsByAddress(address)) {
-            System.out.println("이미 존재하는 카페: " + address);
+        // 이미 존재하는 카페인지 확인 (이름, 주소로 확인)
+        if (cafeRepository.existsByNameAndAddress(name, address)) {
+            System.out.println("이미 존재하는 카페: " + name + " (" + address + ")");
             return null;
         }
 
@@ -103,7 +104,6 @@ public class MapService {
                 .disabled(false)
                 .build();
 
-        // 카페 저장 후 반환
         return cafeRepository.save(cafe);
     }
 }
