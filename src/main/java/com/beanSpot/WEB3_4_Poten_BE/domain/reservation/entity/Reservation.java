@@ -125,6 +125,10 @@ public class Reservation {
 		return Duration.between(now, this.startTime).toMinutes() < beforeStartMinutes;
     }
 
+	//체크아웃 시간 가능 유무
+	public boolean isCheckoutTimeValid(LocalDateTime checkoutTime) {
+		return !checkoutTime.isBefore(this.startTime) && checkoutTime.isBefore(this.endTime);
+	}
 
 	@Builder
 	public Reservation(Cafe cafe,

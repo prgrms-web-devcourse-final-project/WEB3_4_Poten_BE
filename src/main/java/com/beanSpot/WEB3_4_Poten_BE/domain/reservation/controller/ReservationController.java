@@ -1,5 +1,6 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.controller;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationCheckoutReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
@@ -39,6 +40,15 @@ public class ReservationController {
 
         ReservationPostRes response = reservationService.updateReservation(reservationId, dto);
         return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/checkout/{reservationId}")
+    public ResponseEntity<Void> checkout(
+            @PathVariable Long reservationId,
+            @RequestBody ReservationCheckoutReq req
+    ) {
+        reservationService.checkout(reservationId, req);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{reservationId}")

@@ -2,6 +2,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationCheckoutReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
@@ -55,7 +56,6 @@ public class ReservationService {
     // ✅ 2. 예약 수정
     //TODO: 동시성 문제 해결하기
     //TODO: 검증하기
-    //TODO: 중간에 체크아웃 하는로직??
     @Transactional
     public ReservationPostRes updateReservation(Long reservationId, ReservationPatchReq dto) {
 
@@ -63,8 +63,8 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("해당 예약을 찾을 수 없습니다."));
 
-        //원래 예약시간 1시간 전에만 변경 가능하게 체크
-        if (reservation.cannotModify(60)) {
+        //원래 예약시간 0분전 변경 가능하게 체크
+        if (reservation.cannotModify(0)) {
             throw new RuntimeException("변경이 불가능합니다. 점주님께 문의하세요.");
         }
 
@@ -86,6 +86,21 @@ public class ReservationService {
         return ReservationPostRes.from(reservation);
     }
 
+    //사용중간에 체크아웃 하는 메소드
+    @Transactional
+    public void checkout(long reservationId, ReservationCheckoutReq req) {
+        // 예약 조회
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
+
+        //시작시간 60분전 취소 불가능
+        if (!reservation.isCheckoutTimeValid(req.checkoutTime())) {
+            throw new RuntimeException("잘못된 체크아웃 시간대 입니다");
+        }
+
+        reservation.update(reservation.getStartTime(), req.checkoutTime());
+    }
+
     // ✅ 3. 예약 취소
     @Transactional
     public void cancelReservation(long reservationId) {
@@ -93,8 +108,8 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
 
-        //시작시간 60분전 취소 불가능
-        if (!reservation.cannotModify(60)) {
+        //시작시간 0분전 취소 불가능
+        if (!reservation.cannotModify(0)) {
             throw new RuntimeException("취소가 불가능합니다. 점주님께 문의하세요.");
         }
 
