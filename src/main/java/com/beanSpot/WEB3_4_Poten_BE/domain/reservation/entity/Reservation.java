@@ -112,18 +112,16 @@ public class Reservation {
 		this.valid = newStatus.isValid();
 	}
 
-	// 시작하기 beforeStartMinutes 전인지 판별, 변경이나 삭제 가능한지 확인하는 메소드
-	// 예약 변경 불가능 여부 확인 메소드
-	public boolean cannotModify(int beforeStartMinutes) {
+	public boolean isModifiable(int minutesBeforeStart) {
 		if (this.startTime == null) {
 			throw new IllegalStateException("예약 시작 시간이 설정되지 않았습니다.");
 		}
 
 		LocalDateTime now = LocalDateTime.now();
 
-		// 예약 변경 불가능: 예약 시간이 beforeStartMinutes 이내로 남았으면 true
-		return Duration.between(now, this.startTime).toMinutes() < beforeStartMinutes;
-    }
+		// 예약 변경/삭제 불가능: 예약 시간이 beforeStartMinutes 이내로 남았으면 false
+		return Duration.between(now, this.startTime).toMinutes() >= minutesBeforeStart;
+	}
 
 	//체크아웃 시간 가능 유무
 	public boolean isCheckoutTimeValid(LocalDateTime checkoutTime) {

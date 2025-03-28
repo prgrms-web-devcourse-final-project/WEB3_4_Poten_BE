@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
-//TODO: 현재 가능한자리 수 던져주는 api 작성하기
-//TODO: 중간체크아웃, 예약연장등 api 작성
+//TODO: 예약시 현재 사용중인 좌석수와 기타정보 던져주는 api 작성하기
+//TODO: 시간연장 api 작성?? 꼭 필요한지는 모르겠음
 @RestController
 @RequestMapping("/reservations")
 @RequiredArgsConstructor

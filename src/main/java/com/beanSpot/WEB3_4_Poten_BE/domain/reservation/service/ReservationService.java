@@ -24,7 +24,7 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final CafeRepository cafeRepository;
-
+    //TODO: 시간관련 엣지케이스 고려하기
     // ✅ 1. 예약 생성
     //TODO: 동시성 문제 해결하기
     @Transactional
@@ -64,7 +64,7 @@ public class ReservationService {
                 .orElseThrow(() -> new RuntimeException("해당 예약을 찾을 수 없습니다."));
 
         //원래 예약시간 0분전 변경 가능하게 체크
-        if (reservation.cannotModify(0)) {
+        if (!reservation.isModifiable(0)) {
             throw new RuntimeException("변경이 불가능합니다. 점주님께 문의하세요.");
         }
 
@@ -93,7 +93,7 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
 
-        //시작시간 60분전 취소 불가능
+
         if (!reservation.isCheckoutTimeValid(req.checkoutTime())) {
             throw new RuntimeException("잘못된 체크아웃 시간대 입니다");
         }
@@ -109,13 +109,14 @@ public class ReservationService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
 
         //시작시간 0분전 취소 불가능
-        if (!reservation.cannotModify(0)) {
+        if (!reservation.isModifiable(0)) {
             throw new RuntimeException("취소가 불가능합니다. 점주님께 문의하세요.");
         }
 
         reservation.cancelReservation();
     }
 
+    // 사용중인 좌석수 조회
     @Transactional(readOnly = true)
     public int getOccupiedSeatsNumber(long cafeId, LocalDateTime start, LocalDateTime end) {
         cafeRepository.findById(cafeId)
