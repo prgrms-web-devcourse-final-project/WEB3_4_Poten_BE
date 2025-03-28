@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.dto.req.UpdateMemberMyPageDto;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 
@@ -53,6 +54,35 @@ public class MemberService implements UserDetailsService {
 					.build();
 				return memberRepository.save(member);
 			});
+	}
+
+	@Transactional
+	public Member updateMemberInfo(String oAuthId, UpdateMemberMyPageDto dto, String currentEmail) {
+		return memberRepository.findByOAuthId(oAuthId)
+			.map(member -> {
+				// 이메일 중복 확인 (현재 자신의 이메일이 아닌 다른 이메일로 변경하려는 경우)
+				if (dto.getEmail() != null && !dto.getEmail().equals(currentEmail)) {
+					memberRepository.findByEmail(dto.getEmail())
+						.ifPresent(m -> {
+							// 다른 사용자가 이미 사용 중인 이메일인 경우
+							if (!m.getOAuthId().equals(oAuthId)) {
+								throw new ServiceException("이미 사용 중인 이메일입니다.");
+							}
+						});
+					member.setEmail(dto.getEmail());
+				}
+
+				// 기존 회원 정보 업데이트
+				if (dto.getName() != null) {
+					member.setName(dto.getName());
+				}
+				if (dto.getPhoneNumber() != null) {
+					member.setPhoneNumber(dto.getPhoneNumber());
+				}
+
+				return memberRepository.save(member);
+			})
+			.orElseThrow(() -> new ServiceException("사용자를 찾을 수 없습니다."));
 	}
 
 	public Member getMemberById(Long id) {
