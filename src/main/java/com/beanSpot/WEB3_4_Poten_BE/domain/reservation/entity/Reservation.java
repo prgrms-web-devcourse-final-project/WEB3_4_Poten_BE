@@ -14,11 +14,12 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(
-		indexes = {
-				@Index(columnList = "seat_id, start_time, end_time")
-		}
-)
+//TODO: 필요한 인덱스 추가하기
+//@Table(
+//		indexes = {
+//				@Index(columnList = "seat_id, start_time, end_time")
+//		}
+//)
 public class Reservation {
 
 	@Id
@@ -30,8 +31,8 @@ public class Reservation {
 	//@JoinColumn(nullable = false)
 	//private Payment payment;
 
-	@Column(nullable = false)
-	private Long paymentId; // 결제 ID (결제 시스템 연동)
+//	@Column(nullable = false)
+//	private Long paymentId; // 결제 ID (결제 시스템 연동)
 
 	//유저 생기면 이걸로 사용
     //@ManyToOne
@@ -44,10 +45,6 @@ public class Reservation {
     @ManyToOne
 	@JoinColumn(nullable = false)
 	private Cafe cafe;
-
-    @ManyToOne
-	@JoinColumn(nullable = false)
-	private Seat seat;
 
 
 	//TODO: 날짜시간 으로 하면좋을지 시간으로 하면 좋을지
@@ -88,8 +85,7 @@ public class Reservation {
 	}
 
 	//예약 업데이트 메소드
-	public void update(Seat seat, LocalDateTime startTime, LocalDateTime endTime) {
-		this.seat = seat;
+	public void update(LocalDateTime startTime, LocalDateTime endTime) {
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}
@@ -99,6 +95,10 @@ public class Reservation {
 		this.status = ReservationStatus.CANCELLED;
 	}
 
+	public boolean isOverlapping(LocalDateTime otherStartTime, LocalDateTime otherEndTime) {
+		return this.startTime.isBefore(otherEndTime) && this.endTime.isAfter(otherStartTime);
+	}
+
 	// 예약 시간 변경 메서드 (시작/종료 시간 변경 가능)
 	public void updateReservationTime(LocalDateTime newStartTime, LocalDateTime newEndTime) {
 		if (this.status != ReservationStatus.CONFIRMED) {
@@ -106,14 +106,6 @@ public class Reservation {
 		}
 		this.startTime = newStartTime;
 		this.endTime = newEndTime;
-	}
-
-	// 좌석 변경 메서드
-	public void updateSeat(Seat newSeat) {
-		if (this.status != ReservationStatus.CONFIRMED) {
-			throw new IllegalStateException("진행 중이거나 종료된 예약은 좌석을 변경할 수 없습니다.");
-		}
-		this.seat = newSeat;
 	}
 
 	// 예약 상태 변경 메서드
@@ -137,14 +129,11 @@ public class Reservation {
 
 
 	@Builder
-	public Reservation(Long paymentId, Long userId, Cafe cafe, Seat seat,
+	public Reservation(Long userId, Cafe cafe,
 					   LocalDateTime startTime, LocalDateTime endTime,
 					   ReservationStatus status) {
-		this.paymentId = paymentId;
 		this.userId = userId;
 		this.cafe = cafe;
-		this.seat = seat;
-
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.status = status;

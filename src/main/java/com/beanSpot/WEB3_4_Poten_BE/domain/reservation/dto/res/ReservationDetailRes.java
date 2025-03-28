@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public record ReservationDetailRes(
         Long id,
         //String username,
+        //String userId
         Long cafeId,
         String cafeName,
         String cafeAddress,

@@ -1,13 +1,12 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.ReservationStatus;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Seat;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.repository.ReservationRepository;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
-    private final SeatRepository seatRepository;
     private final CafeRepository cafeRepository;
 
     // ✅ 1. 예약 생성
@@ -31,22 +29,20 @@ public class ReservationService {
     public ReservationPostRes createReservation(ReservationPostReq dto) {
 
         //좌석 조회
-        Seat seat = seatRepository.findWithLockById(dto.getSeatId())
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 좌석입니다."));
+        Cafe cafe = cafeRepository.findById(dto.getCafeId())
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 카페 Id 입니다."));
 
         // 예약 가능 여부 확인
         int overlapCount = reservationRepository.countOverlappingReservations(
-                dto.getSeatId(), dto.getStartTime(), dto.getEndTime());
+                dto.getCafeId(), dto.getStartTime(), dto.getEndTime());
 
-        if (overlapCount > 0) {
-            throw new IllegalStateException("해당 시간에 이미 예약된 좌석입니다.");
+        if (overlapCount >= cafe.getCapacity()) {
+            throw new IllegalStateException("선택한 예약시간에 빈좌석이 없습니다.");
         }
 
         Reservation reservation = Reservation.builder()
-                .paymentId(dto.getPaymentId())
                 .userId(dto.getUserId())
-                .cafe(seat.getCafe())
-                .seat(seat)
+                .cafe(cafe)
                 .startTime(dto.getStartTime())
                 .endTime(dto.getEndTime())
                 .status(ReservationStatus.CONFIRMED)
@@ -57,6 +53,9 @@ public class ReservationService {
     }
 
     // ✅ 2. 예약 수정
+    //TODO: 동시성 문제 해결하기
+    //TODO: 검증하기
+    //TODO: 중간에 체크아웃 하는로직??
     @Transactional
     public ReservationPostRes updateReservation(Long reservationId, ReservationPostReq dto) {
 
@@ -69,20 +68,19 @@ public class ReservationService {
             throw new RuntimeException("변경이 불가능합니다. 점주님께 문의하세요.");
         }
 
-        //좌석 조회
-        Seat seat = seatRepository.findWithLockById(dto.getSeatId())
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 좌석입니다."));
-
-        // 예약 가능 여부 확인 (변경된 시간 기준)
+        // 예약 가능 여부 확인
         int overlapCount = reservationRepository.countOverlappingReservations(
-                dto.getSeatId(), dto.getStartTime(), dto.getEndTime());
+                dto.getCafeId(), dto.getStartTime(), dto.getEndTime());
 
-        if (overlapCount > 0) {
-            throw new IllegalStateException("해당 시간에 이미 예약된 좌석입니다.");
+        //만약 변경예약이 원래예약과 겹치면 overlapCount 에서 1을 빼줌
+        overlapCount -= reservation.isOverlapping(dto.getStartTime(), dto.getEndTime()) ? 1 : 0;
+
+        if (overlapCount >= reservation.getCafe().getCapacity()) {
+            throw new IllegalStateException("선택한 예약시간에 빈좌석이 없습니다.");
         }
 
         // 예약 정보 업데이트
-        reservation.update(seat, dto.getStartTime(), dto.getEndTime());
+        reservation.update(dto.getStartTime(), dto.getEndTime());
 
         return ReservationPostRes.from(reservation);
     }
@@ -95,15 +93,12 @@ public class ReservationService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
 
         //시작시간 60분전 취소 불가능
-        // 추후 수수료 내고 취소 하도록 변경
         if (!reservation.cannotModify(60)) {
             throw new RuntimeException("취소가 불가능합니다. 점주님께 문의하세요.");
         }
 
         reservation.cancelReservation();
     }
-
-
 
     // ✅ 4. 예약 상세 조회
     @Transactional(readOnly = true)
