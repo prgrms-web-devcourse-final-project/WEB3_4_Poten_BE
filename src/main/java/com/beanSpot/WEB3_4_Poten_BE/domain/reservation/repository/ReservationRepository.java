@@ -1,7 +1,10 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.repository;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.ReservationStatus;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Seat;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,6 +14,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
@@ -27,9 +34,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         AND (:startDateTime < r.endDateTime AND :endDateTime > r.startDateTime)
     """)
     boolean existsOverlappingReservation(
-            @Param("seatId") long seatId,
-            @Param("startDateTime") LocalDateTime startDateTime,
-            @Param("endDateTime") LocalDateTime endDateTime
+        @Param("seatId") long seatId,
+        @Param("startDateTime") LocalDateTime startDateTime,
+        @Param("endDateTime") LocalDateTime endDateTime
     );
 
     //특정카페 날짜별로 조회
@@ -40,9 +47,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     ORDER BY r.startTime DESC
 """)
     List<Reservation> findByCafeIdAndDate(
-            @Param("cafeId") Long cafeId,
-            @Param("startDateTime") LocalDateTime startDateTime,
-            @Param("endDateTime") LocalDateTime endDateTime
+        @Param("cafeId") Long cafeId,
+        @Param("startDateTime") LocalDateTime startDateTime,
+        @Param("endDateTime") LocalDateTime endDateTime
     );
 
     @Query("""

@@ -8,9 +8,13 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Seat;
+
 @Getter
 @Setter
 public class ReservationPostReq {
+
 	@NotNull(message = "User ID는 필수입니다.")
 	private Long userId;
 

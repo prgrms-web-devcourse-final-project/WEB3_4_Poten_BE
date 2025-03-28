@@ -3,6 +3,8 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.oauth;
 import java.util.Collections;
 import java.util.Map;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+
 import lombok.Builder;
 import lombok.Getter;
 
@@ -54,7 +56,6 @@ public class OAuthAttributes {
 			.email(email)
 			.phoneNumber("")
 			.memberType(Member.MemberType.USER)
-			.deliveryInformations(Collections.emptyList())
 			.profileImageUrl(profileImageUrl)
 			.build();
 	}

@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -30,10 +32,12 @@ public class Reservation {
 	private Long userId; // 예약한 사용자 ID
 
 	@Column(nullable = false)
-	private Long cafeId; // 카페 ID
+	@JoinColumn(nullable = false)
+	private Cafe cafe;
 
 	@Column(nullable = false)
-	private Long seatId; // 예약한 좌석 ID
+	@JoinColumn(nullable = false)
+	private Seat seat;
 
 	//TODO: 날짜시간 으로 하면좋을지 시간으로 하면 좋을지
 	@Column(nullable = false)
@@ -90,11 +94,11 @@ public class Reservation {
 	}
 
 	// 좌석 변경 메서드
-	public void updateSeat(Long newSeatId) {
+	public void updateSeat(Seat newSeat) {
 		if (this.status != ReservationStatus.CONFIRMED) {
 			throw new IllegalStateException("진행 중이거나 종료된 예약은 좌석을 변경할 수 없습니다.");
 		}
-		this.seatId = newSeatId;
+		this.seat = newSeat;
 	}
 
 	// 예약 상태 변경 메서드
@@ -104,13 +108,13 @@ public class Reservation {
 	}
 
 	@Builder
-	public Reservation(Long paymentId, Long userId, Long cafeId, Long seatId,
+	public Reservation(Long paymentId, Long userId, Cafe cafe, Seat seat,
 					   LocalDateTime startTime, LocalDateTime endTime,
 					   ReservationStatus status) {
 		this.paymentId = paymentId;
 		this.userId = userId;
-		this.cafeId = cafeId;
-		this.seatId = seatId;
+		this.cafe = cafe;
+		this.seat = seat;
 
 		this.startTime = startTime;
 		this.endTime = endTime;
