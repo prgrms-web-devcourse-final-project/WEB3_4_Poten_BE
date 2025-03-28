@@ -2,6 +2,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
@@ -41,7 +42,6 @@ public class ReservationService {
         }
 
         Reservation reservation = Reservation.builder()
-                .userId(dto.getUserId())
                 .cafe(cafe)
                 .startTime(dto.getStartTime())
                 .endTime(dto.getEndTime())
@@ -57,7 +57,7 @@ public class ReservationService {
     //TODO: 검증하기
     //TODO: 중간에 체크아웃 하는로직??
     @Transactional
-    public ReservationPostRes updateReservation(Long reservationId, ReservationPostReq dto) {
+    public ReservationPostRes updateReservation(Long reservationId, ReservationPatchReq dto) {
 
         //예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
@@ -70,11 +70,12 @@ public class ReservationService {
 
         // 예약 가능 여부 확인
         int overlapCount = reservationRepository.countOverlappingReservations(
-                dto.getCafeId(), dto.getStartTime(), dto.getEndTime());
+                reservation.getCafe().getCafeId(), dto.getStartTime(), dto.getEndTime());
 
         //만약 변경예약이 원래예약과 겹치면 overlapCount 에서 1을 빼줌
         overlapCount -= reservation.isOverlapping(dto.getStartTime(), dto.getEndTime()) ? 1 : 0;
 
+        //자리가 다차면 에러
         if (overlapCount >= reservation.getCafe().getCapacity()) {
             throw new IllegalStateException("선택한 예약시간에 빈좌석이 없습니다.");
         }

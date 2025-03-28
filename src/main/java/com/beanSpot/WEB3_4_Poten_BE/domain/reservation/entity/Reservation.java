@@ -39,15 +39,13 @@ public class Reservation {
 	//@JoinColumn(nullable = false)
     //private User user;
 
-	@Column(nullable = false)
-	private Long userId; // 예약한 사용자 ID
+//	@Column(nullable = false)
+//	private Long userId; // 예약한 사용자 ID
 
     @ManyToOne
 	@JoinColumn(nullable = false)
 	private Cafe cafe;
 
-
-	//TODO: 날짜시간 으로 하면좋을지 시간으로 하면 좋을지
 	@Column(nullable = false)
 	private LocalDateTime startTime; // 예약 시작 시간
 
@@ -129,10 +127,9 @@ public class Reservation {
 
 
 	@Builder
-	public Reservation(Long userId, Cafe cafe,
+	public Reservation(Cafe cafe,
 					   LocalDateTime startTime, LocalDateTime endTime,
 					   ReservationStatus status) {
-		this.userId = userId;
 		this.cafe = cafe;
 		this.startTime = startTime;
 		this.endTime = endTime;

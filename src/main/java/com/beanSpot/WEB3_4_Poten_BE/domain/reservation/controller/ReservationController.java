@@ -1,10 +1,8 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.controller;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.CafeReservationRes;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.ReservationDetailRes;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.ReservationPostRes;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.UserReservationRes;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+//TODO: 현재 가능한자리 수 던져주는 api 작성하기
+//TODO: 중간체크아웃, 예약연장등 api 작성
 @RestController
 @RequestMapping("/reservations")
 @RequiredArgsConstructor
@@ -29,9 +29,9 @@ public class ReservationController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{reservationId}")
+    @PatchMapping("/{reservationId}")
     public ResponseEntity<ReservationPostRes> updateReservation(
-            @RequestBody ReservationPostReq dto,
+            @RequestBody ReservationPatchReq dto,
             @PathVariable Long reservationId
     ) {
         //TODO: 추후 리팩토링 하기

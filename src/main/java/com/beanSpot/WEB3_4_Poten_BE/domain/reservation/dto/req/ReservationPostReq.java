@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @Setter
 public class ReservationPostReq {
 
-	@NotNull(message = "User ID는 필수입니다.")
-	private Long userId;
+//	@NotNull(message = "User ID는 필수입니다.")
+//	private Long userId;
 
 	@NotNull(message = "Cafe ID는 필수입니다.")
 	private Long cafeId;
