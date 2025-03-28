@@ -2,7 +2,6 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.ReservationStatus;
@@ -109,6 +108,7 @@ public class ReservationService {
     // ✅ 4. 예약 상세 조회
     @Transactional(readOnly = true)
     public ReservationDetailRes getReservationDetail(Long reservationId) {
+
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
 
@@ -119,13 +119,9 @@ public class ReservationService {
     @Transactional(readOnly = true)
     public List<UserReservationRes> getUserReservations(Long userId) {
         List<Reservation> reservations = reservationRepository.findByUserIdOrderByStartTimeDesc(userId);
-        // ✅ userId로 사용자 이름 조회 (예제: "홍길동" 반환)
-        String userName = memberRepository.findById(userId)
-            .map(member -> member.getName())
-            .orElse("알 수 없음");
 
         return reservations.stream()
-            .map(reservation -> UserReservationRes.from(reservation, userName))
+            .map(UserReservationRes::from)
             .collect(Collectors.toList());
     }
 
@@ -134,12 +130,6 @@ public class ReservationService {
     public List<CafeReservationRes> getCafeReservations(Long cafeId, LocalDate date) {
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(23, 59, 59);
-
-        // TODO: cafeId가 존재하는지 검증하는 로직
-        boolean cafeExists = cafeRepository.existsById(cafeId);
-        if (!cafeExists) {
-            throw new RuntimeException("존재하지 않는 카페Id 입니다");
-        }
 
         List<Reservation> reservations = reservationRepository.findByCafeIdAndDate(cafeId, startOfDay, endOfDay);
         return reservations.stream()

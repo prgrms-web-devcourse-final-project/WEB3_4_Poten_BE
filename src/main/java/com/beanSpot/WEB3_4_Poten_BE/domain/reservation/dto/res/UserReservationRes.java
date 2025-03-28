@@ -11,14 +11,15 @@ import java.time.LocalDateTime;
 @Builder
 public class UserReservationRes {
 	private Long reservationId;
+	//private String userName;
 	private ReservationStatus status;
 	private LocalDateTime startTime;
 	private LocalDateTime endTime;
-	private String cafeName;  // ✅ 카페 이름 추가
-	private String seatNumber;  // ✅ 좌석 번호 추가
-	private String userName;  // ✅ 사용자 이름 추가
+	private String cafeName;
+	private String seatNumber;
 
-	public static UserReservationRes from(Reservation reservation, String userName) {
+
+	public static UserReservationRes from(Reservation reservation) {
 		return UserReservationRes.builder()
 			.reservationId(reservation.getId())
 			.status(reservation.getStatus())
@@ -26,7 +27,7 @@ public class UserReservationRes {
 			.endTime(reservation.getEndTime())
 			.cafeName(reservation.getCafe().getName())
 			.seatNumber(reservation.getSeat().getSeatNumber())
-			.userName(userName)
+			//.userName(userName)
 			.build();
 	}
 }
