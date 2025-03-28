@@ -88,7 +88,7 @@ public class ReservationService {
 
     // ✅ 3. 예약 취소
     @Transactional
-    public void cancelReservation(Long reservationId) {
+    public void cancelReservation(long reservationId) {
         // 예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
@@ -99,6 +99,14 @@ public class ReservationService {
         }
 
         reservation.cancelReservation();
+    }
+
+    @Transactional(readOnly = true)
+    public int getOccupiedSeatsNumber(long cafeId, LocalDateTime start, LocalDateTime end) {
+        cafeRepository.findById(cafeId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 카페입니다"));
+
+        return reservationRepository.countOverlappingReservations(cafeId, start, end);
     }
 
     // ✅ 4. 예약 상세 조회
