@@ -20,13 +20,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     // 예약할 좌석, 시작시간, 끝나는시간을 받고 겹치는 시간이 있는지 확인하는 쿼리
     //TODO: 서비스에서 처리하는게 좋을자 아니면 repository 에서 처리하면 좋을지 물어보기
     @Query("""
-        SELECT COUNT(r) > 0
+        SELECT COUNT(r)
         FROM Reservation r
-        WHERE r.seatId = :seatId
+        WHERE r.seat.id = :seatId
         AND r.valid = true
-        AND (:startDateTime < r.endDateTime AND :endDateTime > r.startDateTime)
+        AND (:startDateTime < r.endTime AND :endDateTime > r.startTime)
     """)
-    boolean existsOverlappingReservation(
+    int countOverlappingReservations(
             @Param("seatId") long seatId,
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("endDateTime") LocalDateTime endDateTime
@@ -35,7 +35,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     //특정카페 날짜별로 조회
     @Query("""
     SELECT r FROM Reservation r
-    WHERE r.cafeId = :cafeId
+    WHERE r.cafe.id = :cafeId
     AND r.startTime BETWEEN :startDateTime AND :endDateTime
     ORDER BY r.startTime DESC
 """)
@@ -47,7 +47,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     @Query("""
         SELECT r FROM Reservation r
-        WHERE r.seatId = :seatId
+        WHERE r.seat.id = :seatId
         AND DATE(r.startTime) = :date
         AND r.valid = true
         ORDER BY r.startTime DESC

@@ -37,10 +37,10 @@ public class ReservationService {
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 좌석입니다."));
 
         // 예약 가능 여부 확인
-        boolean isAvailable = !reservationRepository.existsOverlappingReservation(
+        int overlapCount = reservationRepository.countOverlappingReservations(
                 dto.getSeatId(), dto.getStartTime(), dto.getEndTime());
 
-        if (!isAvailable) {
+        if (overlapCount > 0) {
             throw new IllegalStateException("해당 시간에 이미 예약된 좌석입니다.");
         }
 
@@ -76,11 +76,11 @@ public class ReservationService {
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 좌석입니다."));
 
         // 예약 가능 여부 확인 (변경된 시간 기준)
-        boolean isAvailable = !reservationRepository.existsOverlappingReservation(
+        int overlapCount = reservationRepository.countOverlappingReservations(
                 dto.getSeatId(), dto.getStartTime(), dto.getEndTime());
 
-        if (!isAvailable) {
-            throw new RuntimeException("해당 시간에 이미 예약된 좌석입니다.");
+        if (overlapCount > 0) {
+            throw new IllegalStateException("해당 시간에 이미 예약된 좌석입니다.");
         }
 
         // 예약 정보 업데이트
