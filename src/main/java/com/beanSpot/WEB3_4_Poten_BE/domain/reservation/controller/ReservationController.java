@@ -1,6 +1,7 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.controller;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.ReservationDetailRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.ReservationPostRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service.ReservationService;
 import lombok.RequiredArgsConstructor;
@@ -42,5 +43,14 @@ public class ReservationController {
     ) {
         reservationService.cancelReservation(reservationId);
         return ResponseEntity.ok().build();
+    }
+
+    //예약 디테일 조회
+    @GetMapping("/{reservationId}")
+    public ResponseEntity<ReservationDetailRes> getReservationDetail(
+            @PathVariable Long reservationId
+    ) {
+        ReservationDetailRes res = reservationService.getReservationDetail(reservationId);
+        return ResponseEntity.ok(res);
     }
 }

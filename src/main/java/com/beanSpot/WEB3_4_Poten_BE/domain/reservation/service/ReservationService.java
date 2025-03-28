@@ -3,6 +3,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.ReservationDetailRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.ReservationPostRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.ReservationPatchRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
@@ -61,7 +62,6 @@ public class ReservationService {
     @Transactional
     public ReservationPostRes updateReservation(Long reservationId, ReservationPostReq dto) {
 
-
         //예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("해당 예약을 찾을 수 없습니다."));
@@ -106,13 +106,13 @@ public class ReservationService {
     }
 
     // ✅ 4. 예약 상세 조회
-//    @Transactional(readOnly = true)
-//    public ReservationDetailDto getReservationDetail(Long reservationId) {
-//        Reservation reservation = reservationRepository.findById(reservationId)
-//                .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
-//
-//        return ReservationDetailDto.from(reservation);
-//    }
+    @Transactional(readOnly = true)
+    public ReservationDetailRes getReservationDetail(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
+
+        return ReservationDetailRes.from(reservation);
+    }
 
     // ✅ 5. 특정 사용자의 예약 목록 조회
     // ✅ 6. 특정 카페의 예약 조회

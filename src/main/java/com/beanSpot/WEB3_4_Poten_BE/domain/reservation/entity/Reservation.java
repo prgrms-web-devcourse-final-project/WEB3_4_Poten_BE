@@ -39,11 +39,9 @@ public class Reservation {
 	@Column(nullable = false)
 	private Long userId; // 예약한 사용자 ID
 
-	@Column(nullable = false)
 	@JoinColumn(nullable = false)
 	private Cafe cafe;
 
-	@Column(nullable = false)
 	@JoinColumn(nullable = false)
 	private Seat seat;
 
