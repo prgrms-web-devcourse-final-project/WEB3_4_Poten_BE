@@ -26,25 +26,31 @@ public class Reservation {
 	private Long id; // 예약 ID
 
 	//Payment 생기면 이걸로 적용
-	//	@JoinColumn(nullable = false)
-	//	private Payment payment;
+    //@ManyToOne
+	//@JoinColumn(nullable = false)
+	//private Payment payment;
 
 	@Column(nullable = false)
 	private Long paymentId; // 결제 ID (결제 시스템 연동)
 
 	//유저 생기면 이걸로 사용
-//	@JoinColumn(nullable = false)
-//	private User user;
+    //@ManyToOne
+	//@JoinColumn(nullable = false)
+    //private User user;
 
 	@Column(nullable = false)
 	private Long userId; // 예약한 사용자 ID
 
+    @ManyToOne
 	@JoinColumn(nullable = false)
 	private Cafe cafe;
 
+    @ManyToOne
 	@JoinColumn(nullable = false)
 	private Seat seat;
 
+
+	//TODO: 날짜시간 으로 하면좋을지 시간으로 하면 좋을지
 	@Column(nullable = false)
 	private LocalDateTime startTime; // 예약 시작 시간
 
@@ -102,6 +108,14 @@ public class Reservation {
 		this.endTime = newEndTime;
 	}
 
+	// 좌석 변경 메서드
+	public void updateSeat(Seat newSeat) {
+		if (this.status != ReservationStatus.CONFIRMED) {
+			throw new IllegalStateException("진행 중이거나 종료된 예약은 좌석을 변경할 수 없습니다.");
+		}
+		this.seat = newSeat;
+	}
+
 	// 예약 상태 변경 메서드
 	public void updateStatus(ReservationStatus newStatus) {
 		this.status = newStatus;
@@ -119,7 +133,7 @@ public class Reservation {
 
 		// 예약 변경 불가능: 예약 시간이 beforeStartMinutes 이내로 남았으면 true
 		return Duration.between(now, this.startTime).toMinutes() < beforeStartMinutes;
-	}
+    }
 
 
 	@Builder
