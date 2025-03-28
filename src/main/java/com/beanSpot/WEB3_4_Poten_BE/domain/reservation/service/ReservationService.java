@@ -52,5 +52,23 @@ public class ReservationService {
     // ✅ 3. 예약 취소
     // ✅ 4. 예약 상세 조회
     // ✅ 5. 특정 사용자의 예약 목록 조회
-    // ✅ 6. 특정 카페의 예약 조회
+    @Transactional(readOnly = true)
+    public List<ReservationPostRes> getUserReservations(Long userId) {
+        List<Reservation> reservations = reservationRepository.findByUserIdOrderByStartTimeDesc(userId);
+        return reservations.stream()
+            .map(ReservationPostRes::from)
+            .collect(Collectors.toList());
+    }
+
+    // ✅ 6. 특정 카페의 예약 조회 (날짜 기준 필터링)
+    @Transactional(readOnly = true)
+    public List<ReservationPostRes> getCafeReservations(Long cafeId, LocalDate date) {
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(23, 59, 59);
+
+        List<Reservation> reservations = reservationRepository.findByCafeIdAndDate(cafeId, startOfDay, endOfDay);
+        return reservations.stream()
+            .map(ReservationPostRes::from)
+            .collect(Collectors.toList());
+    }
 }
