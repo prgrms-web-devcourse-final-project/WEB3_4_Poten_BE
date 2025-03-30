@@ -29,13 +29,16 @@ public class MapService {
     @Value("${kakao.key}")
     private String kakaoKey;
 
-    @Value("${kakao.url}")
-    private String kakaoUrl;
+    @Value("${kakao.placeurl}")
+    private String kakaoPlaceUrl;
+
+    @Value("${kakao.imageurl}")
+    private String kakaoImageUrl;
 
     public List<Cafe> searchAndSaveCafes(double x, double y, int page) {
         RestTemplate restTemplate = new RestTemplate();
         // 요청 URL 생성
-        String apiUrl = UriComponentsBuilder.fromHttpUrl(kakaoUrl)
+        String apiUrl = UriComponentsBuilder.fromHttpUrl(kakaoPlaceUrl)
                 .queryParam("query", "cafe")
                 .queryParam("x", x)
                 .queryParam("y", y)
@@ -78,6 +81,37 @@ public class MapService {
     }
 
     /**
+     * 카페 이름으로 카카오 이미지 검색 API를 호출하여 대표 이미지 URL을 가져옴
+     */
+    private String searchCafeImage(String cafeName, String address) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        String apiUrl = UriComponentsBuilder.fromHttpUrl(kakaoImageUrl)
+                .queryParam("query", address)
+                .queryParam("size", 1)
+                .toUriString();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "KakaoAK " + kakaoKey);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, Map.class);
+
+        if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
+            System.out.println("이미지 검색 API 요청 실패: " + response.getStatusCode());
+            return null;
+        }
+
+        List<Map<String, Object>> documents = (List<Map<String, Object>>) response.getBody().get("documents");
+        if (documents == null || documents.isEmpty()) {
+            System.out.println("이미지 검색 결과 없음: " + cafeName);
+            return null;
+        }
+
+        return (String) documents.get(0).get("image_url"); // 첫 번째 이미지 URL 반환
+    }
+
+    /**
      * API 응답 데이터를 Cafe 엔티티로 변환 후 저장
      */
     private Cafe saveCafeFromApiResponse(Map<String, Object> doc) {
@@ -87,11 +121,14 @@ public class MapService {
         Double latitude = Double.valueOf(doc.get("y").toString());
         Double longitude = Double.valueOf(doc.get("x").toString());
 
-        // 이미 존재하는 카페인지 확인 (이름, 주소로 확인)
+        // 이미 존재하는 카페인지 확인
         if (cafeRepository.existsByNameAndAddress(name, address)) {
             System.out.println("이미 존재하는 카페: " + name + " (" + address + ")");
             return null;
         }
+
+        // 📌 이미지 검색 추가
+        String imageUrl = searchCafeImage(name, address);
 
         // 카페 엔티티 생성
         Cafe cafe = Cafe.builder()
@@ -101,6 +138,7 @@ public class MapService {
                 .latitude(latitude)
                 .longitude(longitude)
                 .createdAt(LocalDateTime.now())
+                .image(imageUrl) // 📌 이미지 저장
                 .disabled(false)
                 .build();
 
