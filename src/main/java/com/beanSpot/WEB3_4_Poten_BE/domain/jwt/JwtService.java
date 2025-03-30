@@ -1,5 +1,4 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.jwt;
-
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -8,11 +7,14 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -51,19 +53,28 @@ public class JwtService {
 		return URLEncoder.encode(token, StandardCharsets.UTF_8);
 	}
 
-	public Map<String, Object> getAllClaimsFromToken(String token) {
+	// 토큰에서 특정 정보를 추출하는 통합 메소드
+	private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
 		try {
 			String decodedToken = URLDecoder.decode(token, StandardCharsets.UTF_8);
-			return Jwts.parserBuilder()
+			Claims claims = Jwts.parserBuilder()
 				.setSigningKey(key)
 				.build()
 				.parseClaimsJws(decodedToken)
 				.getBody();
+			return claimsResolver.apply(claims);
 		} catch (Exception e) {
-			log.error("토큰에서 클레임 추출 실패: ", e);
-			throw e;
+			log.error("토큰에서 정보 추출 실패: {}", e.getMessage());
+			throw new ServiceException(401, "토큰 정보 추출 실패: " + e.getMessage());
 		}
+	}
 
+	public Map<String, Object> getAllClaimsFromToken(String token) {
+		return extractClaim(token, claims -> claims);
+	}
+
+	public String getOAuthIdFromToken(String token) {
+		return extractClaim(token, Claims::getSubject);
 	}
 
 	public String generateRefreshToken(Member member) {
@@ -96,24 +107,8 @@ public class JwtService {
 			log.debug("토큰 검증 성공");
 			return true;
 		} catch (Exception e) {
-			log.error("토큰 검증 실패: ", e);
-			log.error("상세 에러: ", e);
+			log.error("토큰 검증 실패: {}", e.getMessage());
 			return false;
-		}
-	}
-
-	public String getOAuthIdFromToken(String token) {
-		try {
-			String decodedToken = URLDecoder.decode(token, StandardCharsets.UTF_8);
-			return Jwts.parserBuilder()
-				.setSigningKey(key)
-				.build()
-				.parseClaimsJws(decodedToken)
-				.getBody()
-				.getSubject();
-		} catch (Exception e) {
-			log.error("토큰에서 카카오 ID 추출 실패: ", e);
-			throw e;
 		}
 	}
 }
