@@ -28,7 +28,7 @@ public class Reservation {
 	// 추후 member 와 payment 추가하기
 
     @ManyToOne
-	@JoinColumn(nullable = false)
+	@JoinColumn(name = "cafe_id", nullable = false)
 	private Cafe cafe;
 
 	@Column(nullable = false)

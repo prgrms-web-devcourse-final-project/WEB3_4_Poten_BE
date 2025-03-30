@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -144,7 +145,10 @@ public class ReservationService {
     // ✅ 5. 특정 사용자의 예약 목록 조회
     @Transactional(readOnly = true)
     public List<UserReservationRes> getUserReservations(Long userId) {
-        List<Reservation> reservations = reservationRepository.findByUserIdOrderByStartTimeDesc(userId);
+        //TODO: 멤버 추가시 수정 주석처리된거 사용하기
+        //List<Reservation> reservations = reservationRepository.findByUserIdOrderByStartTimeDesc(userId);
+        List<Reservation> reservations = new ArrayList<>();
+        reservations.add(new Reservation());
 
         return reservations.stream()
             .map(UserReservationRes::from)

@@ -13,8 +13,8 @@ import java.util.List;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-    //특정 사용자의 예약 목록 조회
-    List<Reservation> findByUserIdOrderByStartTimeDesc(Long userId);
+    //TODO: 멤버 추가시 수정 주석처리된거 되돌리기
+    //List<Reservation> findByUserIdOrderByStartTimeDesc(Long userId);
 
     // 해당 사용시간에 몇명이 동시에 사용하는지 확인하는 쿼리
     String COUNT_OVERLAPPING_RESERVATIONS = """
