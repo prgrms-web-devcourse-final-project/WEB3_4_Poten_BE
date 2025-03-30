@@ -18,11 +18,11 @@ public class OAuthAttributes {
 
 	@Builder
 	public OAuthAttributes(Map<String, Object> attributes,
-						   String nameAttributeKey,
-						   String oAuthId,
-						   String name,
-						   String email,
-						   String profileImg) {
+		String nameAttributeKey,
+		String oAuthId,
+		String name,
+		String email,
+		String profileImg) {
 		this.attributes = attributes;
 		this.nameAttributeKey = nameAttributeKey;
 		this.oAuthId = oAuthId;
@@ -39,33 +39,33 @@ public class OAuthAttributes {
 		Map<String, Object> profile = (Map<String, Object>)kakaoAccount.get("profile");
 
 		return OAuthAttributes.builder()
-				.name((String)profile.get("nickname"))
-				.profileImg((String)profile.get("profile_img"))
-				.email((String)kakaoAccount.get("email"))
-				.oAuthId(String.valueOf(attributes.get("id")))  //
-				.attributes(attributes)
-				.nameAttributeKey(userNameAttributeName)
-				.build();
+			.name((String)profile.get("nickname"))
+			.profileImg((String)profile.get("profile_img"))
+			.email((String)kakaoAccount.get("email"))
+			.oAuthId(String.valueOf(attributes.get("id")))  //
+			.attributes(attributes)
+			.nameAttributeKey(userNameAttributeName)
+			.build();
 	}
 
 	public Member toEntity() {
 		return Member.builder()
-				.oAuthId(oAuthId)
-				.name(name)
-				.email(email)
-				.phoneNumber("")
-				.memberType(Member.MemberType.USER)
-				.profileImg(profileImg)
-				.build();
+			.oAuthId(oAuthId)
+			.name(name)
+			.email(email)
+			.phoneNumber("")
+			.memberType(Member.MemberType.USER)
+			.profileImg(profileImg)
+			.build();
 	}
 
 	// OAuth2User의 attributes를 만들기 위한 메소드 추가
 	public Map<String, Object> getAttributes() {
 		return Map.of(
-				"id", oAuthId,
-				"name", name,
-				"email", email,
-				"profileImg", profileImg
+			"id", oAuthId,
+			"name", name,
+			"email", email,
+			"profileImg", profileImg
 		);
 	}
 }
