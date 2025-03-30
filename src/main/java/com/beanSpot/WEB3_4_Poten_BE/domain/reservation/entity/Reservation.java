@@ -15,32 +15,18 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Builder
 //TODO: 필요한 인덱스 추가하기
-//@Table(
-//		indexes = {
-//				@Index(columnList = "seat_id, start_time, end_time")
-//		}
-//)
+@Table(
+		indexes = {
+				@Index(columnList = "cafe_id, start_time, end_time")
+		}
+)
 public class Reservation {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id; // 예약 ID
 
-	//Payment 생기면 이걸로 적용
-    //@ManyToOne
-	//@JoinColumn(nullable = false)
-	//private Payment payment;
-
-//	@Column(nullable = false)
-//	private Long paymentId; // 결제 ID (결제 시스템 연동)
-
-	//유저 생기면 이걸로 사용
-    //@ManyToOne
-	//@JoinColumn(nullable = false)
-    //private User user;
-
-//	@Column(nullable = false)
-//	private Long userId; // 예약한 사용자 ID
+	// 추후 member 와 payment 추가하기
 
     @ManyToOne
 	@JoinColumn(nullable = false)
@@ -112,14 +98,9 @@ public class Reservation {
 		this.valid = newStatus.isValid();
 	}
 
+	// (예약 시작 시간) - (현재시간) >= beforeStartMinutes 이면 true -> 변경 가능
 	public boolean isModifiable(int minutesBeforeStart) {
-		if (this.startTime == null) {
-			throw new IllegalStateException("예약 시작 시간이 설정되지 않았습니다.");
-		}
-
 		LocalDateTime now = LocalDateTime.now();
-
-		// 예약 변경/삭제 불가능: 예약 시간이 beforeStartMinutes 이내로 남았으면 false
 		return Duration.between(now, this.startTime).toMinutes() >= minutesBeforeStart;
 	}
 

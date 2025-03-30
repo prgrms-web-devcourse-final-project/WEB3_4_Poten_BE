@@ -10,6 +10,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.ReservationStatus;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +36,11 @@ public class ReservationService {
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 카페 Id 입니다."));
 
         // 예약 가능 여부 확인
-        int overlapCount = reservationRepository.countOverlappingReservations(
-                dto.getCafeId(), dto.getStartTime(), dto.getEndTime());
+        int overlapCount = reservationRepository.countOverlappingReservationsWithLock(
+                dto.getCafeId(),
+                dto.getStartTime(),
+                dto.getEndTime(),
+                startTimeToOpeningTime(dto.getStartTime()));
 
         if (overlapCount >= cafe.getCapacity()) {
             throw new IllegalStateException("선택한 예약시간에 빈좌석이 없습니다.");
@@ -69,8 +73,11 @@ public class ReservationService {
         }
 
         // 예약 가능 여부 확인
-        int overlapCount = reservationRepository.countOverlappingReservations(
-                reservation.getCafe().getCafeId(), dto.getStartTime(), dto.getEndTime());
+        int overlapCount = reservationRepository.countOverlappingReservationsWithLock(
+                reservation.getCafe().getCafeId(),
+                dto.getStartTime(),
+                dto.getEndTime(),
+                startTimeToOpeningTime(dto.getStartTime()));
 
         //만약 변경예약이 원래예약과 겹치면 overlapCount 에서 1을 빼줌
         overlapCount -= reservation.isOverlapping(dto.getStartTime(), dto.getEndTime()) ? 1 : 0;
@@ -122,7 +129,7 @@ public class ReservationService {
         cafeRepository.findById(cafeId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 카페입니다"));
 
-        return reservationRepository.countOverlappingReservations(cafeId, start, end);
+        return reservationRepository.countOverlappingReservations(cafeId, start, end, startTimeToOpeningTime(start));
     }
 
     // ✅ 4. 예약 상세 조회
@@ -155,5 +162,9 @@ public class ReservationService {
         return reservations.stream()
             .map(CafeReservationRes::from)
             .toList();
+    }
+
+    private LocalDateTime startTimeToOpeningTime(LocalDateTime startTime) {
+        return startTime.toLocalDate().atStartOfDay();
     }
 }

@@ -2,7 +2,9 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.repository;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.ReservationStatus;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -18,17 +20,32 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findByUserIdOrderByStartTimeDesc(Long userId);
 
     // 해당 사용시간에 몇명이 동시에 사용하는지 확인하는 쿼리
-    @Query("""
+    String COUNT_OVERLAPPING_RESERVATIONS = """
         SELECT COUNT(r)
         FROM Reservation r
         WHERE r.cafe.id = :cafeId
+        AND (r.startTime BETWEEN :openingTime AND :endDateTime)
+        AND (r.endTime >= :startDateTime)
         AND r.valid = true
-        AND (:startDateTime < r.endTime AND :endDateTime > r.startTime)
-    """)
+    """;
+
+    // 락이 없는 버전
+    @Query(COUNT_OVERLAPPING_RESERVATIONS)
     int countOverlappingReservations(
             @Param("cafeId") long cafeId,
             @Param("startDateTime") LocalDateTime startTime,
-            @Param("endDateTime") LocalDateTime endTime
+            @Param("endDateTime") LocalDateTime endTime,
+            @Param("openingTime") LocalDateTime openingTime
+    );
+
+    // 락이 있는 버전
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query(COUNT_OVERLAPPING_RESERVATIONS)
+    int countOverlappingReservationsWithLock(
+            @Param("cafeId") long cafeId,
+            @Param("startDateTime") LocalDateTime startTime,
+            @Param("endDateTime") LocalDateTime endTime,
+            @Param("openingTime") LocalDateTime openingTime
     );
 
     //특정카페 날짜별로 조회
