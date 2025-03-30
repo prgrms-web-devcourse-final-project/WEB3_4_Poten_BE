@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.AuthService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.dto.MemberDto;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.dto.req.UpdateMemberMyPageDto;
@@ -22,6 +24,12 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.service.MemberService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.oauth.SecurityUser;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -103,7 +111,7 @@ public class MemberController {
 			Member member = memberService.getMemberById(securityUser.getMember().getId());
 
 			// 회원 정보 업데이트
-			memberService.modifyOrJoin(member.getOAuthId(), updateMemberMyPageDto, member.getEmail());
+			memberService.updateMemberInfo(member.getOAuthId(), updateMemberMyPageDto, member.getEmail());
 			Member updatedMember = memberService.getMemberById(member.getId());
 			ResponseMemberMyPageDto responseMemberMyPageDto = new ResponseMemberMyPageDto(updatedMember);
 
