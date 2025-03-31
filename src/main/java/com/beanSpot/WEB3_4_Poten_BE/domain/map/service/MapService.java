@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -76,18 +75,21 @@ public class MapService {
     }
 
     /**
-     * 카페 이름으로 카카오 이미지 검색 API를 호출하여 대표 이미지 URL을 가져옴
+     * 카페 주소로 카카오 이미지 검색 API를 호출하여 대표 이미지 URL을 가져옴
      */
-    private String searchCafeImage(String cafeName, String address) {
+    private String searchCafeImage(String address) {
         RestTemplate restTemplate = new RestTemplate();
 
-        String apiUrl = String.format("%s?query=%s&size=1", kakaoImageUrl, name);
+        String apiUrl = String.format("%s?query=%s&size=1", kakaoImageUrl, address);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "KakaoAK " + kakaoKey);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, Map.class);
+
+        // 디버깅용 응답 데이터
+        System.out.println("응답: " + response.getBody());
 
         if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
             System.out.println("이미지 검색 API 요청 실패: " + response.getStatusCode());
@@ -96,7 +98,7 @@ public class MapService {
 
         List<Map<String, Object>> documents = (List<Map<String, Object>>) response.getBody().get("documents");
         if (documents == null || documents.isEmpty()) {
-            System.out.println("이미지 검색 결과 없음: " + cafeName);
+            System.out.println("이미지 검색 결과 없음: " + address);
             return null;
         }
 
@@ -119,8 +121,8 @@ public class MapService {
             return null;
         }
 
-        // 📌 이미지 검색 추가
-        String imageUrl = searchCafeImage(name, address);
+        // 이미지 검색 추가
+        String imageUrl = searchCafeImage(address);
 
         // 카페 엔티티 생성
         Cafe cafe = Cafe.builder()
@@ -130,7 +132,7 @@ public class MapService {
                 .latitude(latitude)
                 .longitude(longitude)
                 .createdAt(LocalDateTime.now())
-                .image(imageUrl) // 📌 이미지 저장
+                .image(imageUrl)
                 .disabled(false)
                 .build();
 
