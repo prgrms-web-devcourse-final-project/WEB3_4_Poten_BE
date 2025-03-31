@@ -29,6 +29,7 @@ public class Application {
 	// @ManyToOne
 	// @JoinColumn(name = "user_id", nullable = false)
 	// private User user;
+
 	@Column(nullable = false)
 	private String name;
 
@@ -42,7 +43,7 @@ public class Application {
 	private Status status = Status.PENDING;
 
 	@Column(nullable = false)
-	private LocalDateTime createdAt = LocalDateTime.now();
+	private LocalDateTime createdAt;
 
 	public void approve() {
 		this.status = Status.APPROVED;
