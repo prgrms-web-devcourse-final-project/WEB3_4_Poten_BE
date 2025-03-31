@@ -75,7 +75,7 @@ logging:
     org.springframework.transaction.interceptor: TRACE
 custom:
   jwt:
-    secretKey: abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789
+    secretKey: ON_SECRET
   dev:
     cookieDomain: localhost
     frontUrl: "http://${custom.dev.cookieDomain}:3000"

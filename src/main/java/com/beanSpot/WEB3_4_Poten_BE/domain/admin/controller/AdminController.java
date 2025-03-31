@@ -32,7 +32,8 @@ public class AdminController {
 	public ResponseEntity<?> adminLogin(@RequestBody AdminLoginDto loginDto) {
 		try {
 			// 관리자 계정 조회 (이메일 기준)
-			Optional<Member> optionalMember = memberRepository.findByEmailAndMemberType(loginDto.email(), Member.MemberType.ADMIN);
+			Optional<Member> optionalMember = memberRepository.findByEmailAndMemberType(loginDto.email(),
+				Member.MemberType.ADMIN);
 			if (optionalMember.isEmpty()) {
 				log.error("로그인 실패: 해당 이메일의 관리자 계정이 존재하지 않음");
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패 - 계정을 찾을 수 없음");
