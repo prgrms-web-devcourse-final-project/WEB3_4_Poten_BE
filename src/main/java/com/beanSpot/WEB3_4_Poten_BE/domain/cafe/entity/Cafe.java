@@ -54,6 +54,8 @@ public class Cafe {
 
 	private Boolean disabled;
 
+	private int capacity;
+
 	public void update(CafeUpdateReq request) {
 		if (request.name() != null) {
 			this.name = request.name();
@@ -70,6 +72,7 @@ public class Cafe {
 		if (request.image() != null) {
 			this.image = request.image();
 		}
+    
 		this.updatedAt = LocalDateTime.now();
 	}
 }
