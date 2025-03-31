@@ -37,6 +37,7 @@ public class Cafe {
 
 	private LocalDateTime updatedAt;
 
+	@Column(columnDefinition = "TEXT")
 	private String image;
 
 	private Boolean disabled;
