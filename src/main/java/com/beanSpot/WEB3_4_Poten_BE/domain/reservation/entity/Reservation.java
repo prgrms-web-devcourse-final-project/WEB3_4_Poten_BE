@@ -8,11 +8,15 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "reservations")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(
+		indexes = {
+				@Index(columnList = "seat_id, start_time, end_time")
+		}
+)
 public class Reservation {
 
 	@Id
@@ -31,18 +35,20 @@ public class Reservation {
 	@Column(nullable = false)
 	private Long seatId; // 예약한 좌석 ID
 
+	//TODO: 날짜시간 으로 하면좋을지 시간으로 하면 좋을지
 	@Column(nullable = false)
-	private LocalDate reservationDate; // 예약 날짜
+	private LocalDateTime startTime; // 예약 시작 시간
 
 	@Column(nullable = false)
-	private LocalTime startTime; // 예약 시작 시간
-
-	@Column(nullable = false)
-	private LocalTime endTime; // 예약 종료 시간
+	private LocalDateTime endTime; // 예약 종료 시간
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private ReservationStatus status; // 예약 상태 (Enum)
+
+	// valid = true 일때 유효한 예약
+	@Column(nullable = false)
+	private Boolean valid;
 
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt; // 생성된 시간
@@ -55,6 +61,9 @@ public class Reservation {
 	protected void onCreate() {
 		this.createdAt = LocalDateTime.now();
 		this.updatedAt = LocalDateTime.now();
+		if (this.valid == null) { // valid 값이 설정되지 않았다면 기본값 설정
+			this.valid = this.status.isValid();
+		}
 	}
 
 	// 예약 수정 시 updatedAt 자동 갱신
@@ -72,8 +81,8 @@ public class Reservation {
 	}
 
 	// 예약 시간 변경 메서드 (시작/종료 시간 변경 가능)
-	public void updateReservationTime(LocalTime newStartTime, LocalTime newEndTime) {
-		if (this.status != ReservationStatus.PENDING && this.status != ReservationStatus.CONFIRMED) {
+	public void updateReservationTime(LocalDateTime newStartTime, LocalDateTime newEndTime) {
+		if (this.status != ReservationStatus.CONFIRMED) {
 			throw new IllegalStateException("진행 중이거나 종료된 예약은 변경할 수 없습니다.");
 		}
 		this.startTime = newStartTime;
@@ -82,7 +91,7 @@ public class Reservation {
 
 	// 좌석 변경 메서드
 	public void updateSeat(Long newSeatId) {
-		if (this.status != ReservationStatus.PENDING && this.status != ReservationStatus.CONFIRMED) {
+		if (this.status != ReservationStatus.CONFIRMED) {
 			throw new IllegalStateException("진행 중이거나 종료된 예약은 좌석을 변경할 수 없습니다.");
 		}
 		this.seatId = newSeatId;
@@ -91,5 +100,25 @@ public class Reservation {
 	// 예약 상태 변경 메서드
 	public void updateStatus(ReservationStatus newStatus) {
 		this.status = newStatus;
+		this.valid = newStatus.isValid();
+	}
+
+	@Builder
+	public Reservation(Long paymentId, Long userId, Long cafeId, Long seatId,
+					   LocalDateTime startTime, LocalDateTime endTime,
+					   ReservationStatus status) {
+		this.paymentId = paymentId;
+		this.userId = userId;
+		this.cafeId = cafeId;
+		this.seatId = seatId;
+
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.status = status;
+		this.valid = status.isValid(); // ✅ 예약 생성 시 상태에 따라 valid 자동 설정
+		this.createdAt = LocalDateTime.now();
+		this.updatedAt = LocalDateTime.now();
 	}
 }
+
+
