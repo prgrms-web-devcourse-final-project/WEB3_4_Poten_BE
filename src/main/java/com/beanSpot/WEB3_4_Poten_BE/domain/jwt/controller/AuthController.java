@@ -36,7 +36,7 @@ public class AuthController {
 
 		try {
 			String oAuthId = jwtService.getOAuthIdFromToken(refreshToken);
-			Member member = memberRepository.findByOAuthId(oAuthId)
+			Member member = memberRepository.findByoAuthId(oAuthId)
 				.orElseThrow(() -> new ServiceException(404, "사용자를 찾을 수 없습니다."));
 
 			// 새로운 액세스 토큰 생성
