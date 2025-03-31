@@ -32,8 +32,8 @@ public class OAuthAttributes {
 	}
 
 	public static OAuthAttributes attributes(String registrationId,
-		String userNameAttributeName,
-		Map<String, Object> attributes) {
+											 String userNameAttributeName,
+											 Map<String, Object> attributes) {
 		// kakao_account에서 필요한 정보 추출
 		Map<String, Object> kakaoAccount = (Map<String, Object>)attributes.get("kakao_account");
 		Map<String, Object> profile = (Map<String, Object>)kakaoAccount.get("profile");

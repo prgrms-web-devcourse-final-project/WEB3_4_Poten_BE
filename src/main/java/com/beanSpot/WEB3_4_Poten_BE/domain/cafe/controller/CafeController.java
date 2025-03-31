@@ -5,10 +5,12 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.res.CafeInfoRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
@@ -32,6 +34,12 @@ public class CafeController {
 	@GetMapping
 	public List<CafeInfoRes> getCafeList() {
 		return cafeService.getCafeList();
+	}
+
+	@GetMapping("/search")
+	public ResponseEntity<List<CafeInfoRes>> searchCafe(@RequestBody String keyword) {
+		List<CafeInfoRes> result = cafeService.searchCafe(keyword);
+		return ResponseEntity.ok(result);
 	}
 }
 

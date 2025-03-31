@@ -27,8 +27,9 @@ public class Cafe {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long cafeId;
 
-	@NotNull
-	private Long ownerId;
+	// @NotNull
+	// @Column(name = "owner_id", nullable = false)
+	// private Long ownerId;
 
 	private String name;
 
@@ -43,13 +44,17 @@ public class Cafe {
 	@Column(columnDefinition = "TEXT")
 	private String description;
 
-	private LocalDateTime createdAt;
+	@Column(name = "created_at", nullable = false)
+	private LocalDateTime createdAt = LocalDateTime.now();
 
+	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
 	private String image;
 
 	private Boolean disabled;
+
+	private int capacity;
 
 	public void update(CafeUpdateReq request) {
 		if (request.name() != null) {
@@ -67,7 +72,8 @@ public class Cafe {
 		if (request.image() != null) {
 			this.image = request.image();
 		}
-		this.updatedAt = LocalDateTime.now(); // 업데이트 시간 갱신
+    
+		this.updatedAt = LocalDateTime.now();
 	}
 }
 
