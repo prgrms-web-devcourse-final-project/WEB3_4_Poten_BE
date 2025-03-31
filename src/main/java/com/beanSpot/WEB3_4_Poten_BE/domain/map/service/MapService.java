@@ -37,16 +37,11 @@ public class MapService {
 
     public List<Cafe> searchAndSaveCafes(double x, double y, int page) {
         RestTemplate restTemplate = new RestTemplate();
-        // 요청 URL 생성
-        String apiUrl = UriComponentsBuilder.fromHttpUrl(kakaoPlaceUrl)
-                .queryParam("query", "cafe")
-                .queryParam("x", x)
-                .queryParam("y", y)
-                .queryParam("radius", "2000")
-                .queryParam("category_group_code", "CE7")
-                .queryParam("size", 15)
-                .queryParam("page", page)
-                .toUriString();
+
+        String apiUrl = String.format(
+                "%s?query=%s&x=%f&y=%f&radius=%d&category_group_code=%s&size=%d&page=%d",
+                kakaoPlaceUrl, "cafe", x, y, 2000, "CE7", 15, page
+        );
 
         // HTTP 요청 헤더 설정
         HttpHeaders headers = new HttpHeaders();
@@ -86,10 +81,7 @@ public class MapService {
     private String searchCafeImage(String cafeName, String address) {
         RestTemplate restTemplate = new RestTemplate();
 
-        String apiUrl = UriComponentsBuilder.fromHttpUrl(kakaoImageUrl)
-                .queryParam("query", address)
-                .queryParam("size", 1)
-                .toUriString();
+        String apiUrl = String.format("%s?query=%s&size=1", kakaoImageUrl, name);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "KakaoAK " + kakaoKey);
