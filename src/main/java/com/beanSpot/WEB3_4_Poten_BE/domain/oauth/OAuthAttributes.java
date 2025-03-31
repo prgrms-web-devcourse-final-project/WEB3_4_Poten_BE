@@ -1,7 +1,8 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.oauth;
 
-import java.util.Collections;
 import java.util.Map;
+
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +14,7 @@ public class OAuthAttributes {
 	private final String oAuthId;  // kakaoId를 oAuthId로 변경
 	private final String name;
 	private final String email;   //
-	private final String profileImageUrl;
+	private final String profileImg;
 
 	@Builder
 	public OAuthAttributes(Map<String, Object> attributes,
@@ -21,13 +22,13 @@ public class OAuthAttributes {
 		String oAuthId,
 		String name,
 		String email,
-		String profileImageUrl) {
+		String profileImg) {
 		this.attributes = attributes;
 		this.nameAttributeKey = nameAttributeKey;
 		this.oAuthId = oAuthId;
 		this.name = name;
 		this.email = email;
-		this.profileImageUrl = profileImageUrl;
+		this.profileImg = profileImg;
 	}
 
 	public static OAuthAttributes attributes(String registrationId,
@@ -39,7 +40,7 @@ public class OAuthAttributes {
 
 		return OAuthAttributes.builder()
 			.name((String)profile.get("nickname"))
-			.profileImageUrl((String)profile.get("profile_image_url"))
+			.profileImg((String)profile.get("profile_img"))
 			.email((String)kakaoAccount.get("email"))
 			.oAuthId(String.valueOf(attributes.get("id")))  //
 			.attributes(attributes)
@@ -54,8 +55,7 @@ public class OAuthAttributes {
 			.email(email)
 			.phoneNumber("")
 			.memberType(Member.MemberType.USER)
-			.deliveryInformations(Collections.emptyList())
-			.profileImageUrl(profileImageUrl)
+			.profileImg(profileImg)
 			.build();
 	}
 
@@ -65,7 +65,7 @@ public class OAuthAttributes {
 			"id", oAuthId,
 			"name", name,
 			"email", email,
-			"profileImageUrl", profileImageUrl
+			"profileImg", profileImg
 		);
 	}
 }
