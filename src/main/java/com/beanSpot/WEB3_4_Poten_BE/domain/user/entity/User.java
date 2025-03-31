@@ -3,6 +3,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.user.entity;
 import java.time.LocalDateTime;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.dto.req.UserUpdateReq;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -54,4 +55,21 @@ public class User {
 
 	private String profileImageName;
 
+	public void update(UserUpdateReq request) {
+
+		if (request.name() != null) {
+			this.name = request.name();
+		}
+		if (request.email() != null) {
+			this.email = request.email();
+		}
+		if (request.password() != null) {
+			this.password = request.password();
+		}
+		if (request.email() != null) {
+			this.email = request.email();
+		}
+		this.updatedAt = LocalDateTime.now();
+//컨트롤러 자겅ㅂ
+	}
 }

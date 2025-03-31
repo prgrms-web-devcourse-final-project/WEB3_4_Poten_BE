@@ -7,7 +7,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.exception.CafeNotFoundException;
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.dto.req.UserCreateReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.dto.req.UserUpdateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.dto.res.UserRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.exception.UserNotFoundException;
@@ -21,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
 	private final UserRepository userRepository;
+	private final CafeRepository cafeRepository;
 
 	@Transactional
 	public UserRes createUser(UserCreateReq request) {
@@ -50,5 +55,15 @@ public class UserService {
 		Optional<User> user = userRepository.findById(id);
 		return user.map(UserRes::fromEntity)
 			.orElseThrow(() -> new UserNotFoundException(id));
+	}
+
+	@Transactional
+	public User updateUser(Long id, UserUpdateReq request) {
+		User user = userRepository.findById(id)
+			.orElseThrow(() -> new UserNotFoundException(id));
+
+		user.update(request);
+
+		return userRepository.save(user);
 	}
 }
