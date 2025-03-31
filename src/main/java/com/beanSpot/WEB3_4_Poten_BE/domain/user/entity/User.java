@@ -1,0 +1,55 @@
+package com.beanSpot.WEB3_4_Poten_BE.domain.user.entity;
+
+import java.time.LocalDateTime;
+
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Builder
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+public class User {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+
+	@Column(nullable = false)
+	private String name;
+
+	@Column(nullable = false)
+	private String email;
+
+	@Column(nullable = false)
+	private String password;
+
+	@Column(nullable = false)
+	private String role;
+
+	@Column(nullable = false)
+	private LocalDateTime createdAt;
+
+	private LocalDateTime updatedAt;
+
+	private String oAuthId;
+
+	@Enumerated(EnumType.STRING)
+	private Member.SnsType snsType;
+
+	private String profileImageName;
+
+}
