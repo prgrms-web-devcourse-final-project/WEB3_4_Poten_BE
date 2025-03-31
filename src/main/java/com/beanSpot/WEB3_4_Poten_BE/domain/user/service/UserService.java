@@ -1,6 +1,8 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.user.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -32,5 +34,12 @@ public class UserService {
 		User savedUser = userRepository.save(user);
 		return UserRes.fromEntity(savedUser);
 
+	}
+
+	@Transactional
+	public List<UserRes> getUserList() {
+		return userRepository.findAll().stream()
+			.map(UserRes::fromEntity)
+			.collect(Collectors.toList());
 	}
 }
