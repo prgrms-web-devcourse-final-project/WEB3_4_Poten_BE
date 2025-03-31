@@ -19,7 +19,8 @@ public record ApplicationRes(
 	String phone,
 
 	@NotEmpty
-	String status) {
+	String status
+) {
 
 	public static ApplicationRes fromEntity(Application application) {
 		return new ApplicationRes(
