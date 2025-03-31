@@ -71,4 +71,13 @@ public class CafeService {
 			.map(CafeInfoRes::fromEntity)
 			.collect(Collectors.toList());
 	}
+
+	@Transactional
+	public void deleteCafe(Long id) {
+		Cafe cafe = cafeRepository.findById(id)
+			.orElseThrow(() -> new CafeNotFoundException(id));
+
+		cafeRepository.delete(cafe);
+	}
+
 }

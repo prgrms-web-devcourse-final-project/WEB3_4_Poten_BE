@@ -2,7 +2,9 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -48,6 +50,12 @@ public class CafeController {
 	public ResponseEntity<List<CafeInfoRes>> searchCafe(@RequestBody String keyword) {
 		List<CafeInfoRes> result = cafeService.searchCafe(keyword);
 		return ResponseEntity.ok(result);
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteCafe(@PathVariable Long id) {
+		cafeService.deleteCafe(id);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }
 
