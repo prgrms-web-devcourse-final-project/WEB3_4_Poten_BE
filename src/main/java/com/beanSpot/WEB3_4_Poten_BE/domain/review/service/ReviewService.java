@@ -44,7 +44,10 @@ public class ReviewService {
 	}
 
 	public void deleteReview(Long reviewId) {
-		reviewRepository.deleteById(reviewId);
+		Review review = reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new ReviewNotFoundException(reviewId));
+
+		reviewRepository.delete(review);
 	}
 
 	public List<ReviewRes> getReviewsByCafeId(Long cafeId) {
