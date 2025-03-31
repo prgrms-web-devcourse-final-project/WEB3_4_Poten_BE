@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 //TODO: 예약시 현재 사용중인 좌석수와 기타정보 던져주는 api 작성하기
@@ -38,7 +39,7 @@ public class ReservationController {
         //TODO: 추후 리팩토링 하기
         if (dto.isValidTimeRange()) throw new RuntimeException("끝시간이 시작시간보다 앞에있을수 없습니다");
 
-        ReservationPostRes response = reservationService.updateReservation(reservationId, dto);
+        ReservationPostRes response = reservationService.updateReservation(reservationId, dto, LocalDateTime.now());
         return ResponseEntity.ok(response);
     }
 
@@ -56,7 +57,7 @@ public class ReservationController {
             @RequestBody ReservationPostReq dto,
             @PathVariable Long reservationId
     ) {
-        reservationService.cancelReservation(reservationId);
+        reservationService.cancelReservation(reservationId, LocalDateTime.now());
         return ResponseEntity.ok().build();
     }
 

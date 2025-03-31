@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,22 +28,21 @@ public class ReservationService {
     private final CafeRepository cafeRepository;
     //TODO: 시간관련 엣지케이스 고려하기
     // ✅ 1. 예약 생성
-    //TODO: 동시성 문제 해결하기
     @Transactional
     public ReservationPostRes createReservation(ReservationPostReq dto) {
 
-        //좌석 조회
+        //카페 조회
         Cafe cafe = cafeRepository.findById(dto.getCafeId())
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 카페 Id 입니다."));
 
         // 예약 가능 여부 확인
-        int overlapCount = reservationRepository.countOverlappingReservationsWithLock(
+        List<Reservation> overlappingReservations = reservationRepository.getOverlappingReservationsWithLock(
                 dto.getCafeId(),
                 dto.getStartTime(),
                 dto.getEndTime(),
-                startTimeToOpeningTime(dto.getStartTime()));
+                null);
 
-        if (overlapCount >= cafe.getCapacity()) {
+        if (getMaxOccupiedSeatsCount(overlappingReservations) >= cafe.getCapacity()) {
             throw new IllegalStateException("선택한 예약시간에 빈좌석이 없습니다.");
         }
 
@@ -58,32 +58,26 @@ public class ReservationService {
     }
 
     // ✅ 2. 예약 수정
-    //TODO: 동시성 문제 해결하기
-    //TODO: 검증하기
     @Transactional
-    public ReservationPostRes updateReservation(Long reservationId, ReservationPatchReq dto) {
+    public ReservationPostRes updateReservation(Long reservationId, ReservationPatchReq dto, LocalDateTime now) {
 
         //예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("해당 예약을 찾을 수 없습니다."));
 
         //원래 예약시간 0분전 변경 가능하게 체크
-        if (!reservation.isModifiable(0)) {
+        if (!reservation.isModifiable(now, 0)) {
             throw new RuntimeException("변경이 불가능합니다. 점주님께 문의하세요.");
         }
 
         // 예약 가능 여부 확인
-        int overlapCount = reservationRepository.countOverlappingReservationsWithLock(
+        List<Reservation> overlappingReservations = reservationRepository.getOverlappingReservationsWithLock(
                 reservation.getCafe().getCafeId(),
                 dto.getStartTime(),
                 dto.getEndTime(),
-                startTimeToOpeningTime(dto.getStartTime()));
+                reservationId);
 
-        //만약 변경예약이 원래예약과 겹치면 overlapCount 에서 1을 빼줌
-        overlapCount -= reservation.isOverlapping(dto.getStartTime(), dto.getEndTime()) ? 1 : 0;
-
-        //자리가 다차면 에러
-        if (overlapCount >= reservation.getCafe().getCapacity()) {
+        if (getMaxOccupiedSeatsCount(overlappingReservations) >= reservation.getCafe().getCapacity()) {
             throw new IllegalStateException("선택한 예약시간에 빈좌석이 없습니다.");
         }
 
@@ -110,26 +104,29 @@ public class ReservationService {
 
     // ✅ 3. 예약 취소
     @Transactional
-    public void cancelReservation(long reservationId) {
+    public void cancelReservation(long reservationId, LocalDateTime now) {
         // 예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
 
         //시작시간 0분전 취소 불가능
-        if (!reservation.isModifiable(0)) {
+        if (!reservation.isModifiable(now, 0)) {
             throw new RuntimeException("취소가 불가능합니다. 점주님께 문의하세요.");
         }
 
         reservation.cancelReservation();
     }
 
+    //TODO: 사용 가능한시간대 알려주는 기능
+
     // 사용중인 좌석수 조회
     @Transactional(readOnly = true)
-    public int getOccupiedSeatsNumber(long cafeId, LocalDateTime start, LocalDateTime end) {
+    public int getOccupiedSeatsCount(long cafeId, LocalDateTime start, LocalDateTime end) {
         cafeRepository.findById(cafeId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 카페입니다"));
 
-        return reservationRepository.countOverlappingReservations(cafeId, start, end, startTimeToOpeningTime(start));
+        List<Reservation> overlappingReservations = reservationRepository.getOverlappingReservations(cafeId, start, end, null);
+        return getMaxOccupiedSeatsCount(overlappingReservations);
     }
 
     // ✅ 4. 예약 상세 조회
@@ -151,8 +148,8 @@ public class ReservationService {
         reservations.add(new Reservation());
 
         return reservations.stream()
-            .map(UserReservationRes::from)
-            .collect(Collectors.toList());
+                .map(UserReservationRes::from)
+                .collect(Collectors.toList());
     }
 
     // ✅ 6. 특정 카페의 예약 조회 (날짜 기준 필터링)
@@ -163,11 +160,45 @@ public class ReservationService {
 
         List<Reservation> reservations = reservationRepository.findByCafeIdAndDate(cafeId, startOfDay, endOfDay);
         return reservations.stream()
-            .map(CafeReservationRes::from)
-            .toList();
+                .map(CafeReservationRes::from)
+                .toList();
     }
 
-    private LocalDateTime startTimeToOpeningTime(LocalDateTime startTime) {
-        return startTime.toLocalDate().atStartOfDay();
+    private int getMaxOccupiedSeatsCount(List<Reservation> overlappingReservations) {
+        List<LocalDateTime> startTimes = new ArrayList<>();
+        List<LocalDateTime> endTimes = new ArrayList<>();
+
+        for (Reservation reservation : overlappingReservations) {
+            startTimes.add(reservation.getStartTime());
+            endTimes.add(reservation.getEndTime());
+        }
+
+        Collections.sort(startTimes);
+        Collections.sort(endTimes);
+
+        int startTimesIndex = 0;
+        int endTimesIndex = 0;
+        int count = 0;
+        int res = 0;
+
+        while (startTimesIndex < startTimes.size() || endTimesIndex < endTimes.size()) {
+            LocalDateTime curStartTime = startTimesIndex < startTimes.size()
+                    ? startTimes.get(startTimesIndex) : LocalDateTime.MAX;
+
+            LocalDateTime curEndTime = endTimesIndex < endTimes.size()
+                    ? endTimes.get(endTimesIndex) : LocalDateTime.MAX;
+
+            if (curStartTime.isBefore(curEndTime)) {
+                ++startTimesIndex;
+                ++count;
+            } else {
+                ++endTimesIndex;
+                --count;
+            }
+
+            res = Math.max(res, count);
+        }
+
+        return res;
     }
 }

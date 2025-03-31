@@ -16,33 +16,33 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     //TODO: 멤버 추가시 수정 주석처리된거 되돌리기
     //List<Reservation> findByUserIdOrderByStartTimeDesc(Long userId);
 
-    // 해당 사용시간에 몇명이 동시에 사용하는지 확인하는 쿼리
-    String COUNT_OVERLAPPING_RESERVATIONS = """
-        SELECT COUNT(r)
+    String SELECT_OVERLAPPING_RESERVATIONS = """
+        SELECT r
         FROM Reservation r
         WHERE r.cafe.id = :cafeId
-        AND (r.startTime BETWEEN :openingTime AND :endDateTime)
-        AND (r.endTime >= :startDateTime)
-        AND r.valid = true
+        AND (r.startTime < :endTime)
+        AND (r.endTime > :startTime)
+        AND (r.valid = true)
+        AND (:reservationId IS NULL OR :reservationId != r.id)
     """;
 
     // 락이 없는 버전
-    @Query(COUNT_OVERLAPPING_RESERVATIONS)
-    int countOverlappingReservations(
+    @Query(SELECT_OVERLAPPING_RESERVATIONS)
+    List<Reservation> getOverlappingReservations(
             @Param("cafeId") long cafeId,
-            @Param("startDateTime") LocalDateTime startTime,
-            @Param("endDateTime") LocalDateTime endTime,
-            @Param("openingTime") LocalDateTime openingTime
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime,
+            @Param("reservationId") Long reservationIdForUpdate
     );
 
     // 락이 있는 버전
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query(COUNT_OVERLAPPING_RESERVATIONS)
-    int countOverlappingReservationsWithLock(
+    @Query(SELECT_OVERLAPPING_RESERVATIONS)
+    List<Reservation> getOverlappingReservationsWithLock(
             @Param("cafeId") long cafeId,
-            @Param("startDateTime") LocalDateTime startTime,
-            @Param("endDateTime") LocalDateTime endTime,
-            @Param("openingTime") LocalDateTime openingTime
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime,
+            @Param("reservationId") Long reservationIdForUpdate
     );
 
     //특정카페 날짜별로 조회

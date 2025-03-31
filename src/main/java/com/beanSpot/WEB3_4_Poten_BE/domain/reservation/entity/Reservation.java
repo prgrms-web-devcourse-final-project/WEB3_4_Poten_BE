@@ -98,8 +98,7 @@ public class Reservation {
 	}
 
 	// (예약 시작 시간) - (현재시간) >= beforeStartMinutes 이면 true -> 변경 가능
-	public boolean isModifiable(int minutesBeforeStart) {
-		LocalDateTime now = LocalDateTime.now();
+	public boolean isModifiable(LocalDateTime now, int minutesBeforeStart) {
 		return Duration.between(now, this.startTime).toMinutes() >= minutesBeforeStart;
 	}
 
