@@ -9,6 +9,9 @@ public record ApplicationApprovedRes(
 	@NonNull
 	Long id,
 
+	@NonNull
+	Long ownerId,
+
 	@NotEmpty
 	String name,
 
@@ -18,13 +21,14 @@ public record ApplicationApprovedRes(
 	@NotEmpty
 	String phone
 
-	// Long ownerId
+
 
 ) {
 
 	public static ApplicationApprovedRes fromEntity(Cafe cafe) {
 		return new ApplicationApprovedRes(
 			cafe.getCafeId(),
+			cafe.getOwner().getId(),
 			cafe.getName(),
 			cafe.getAddress(),
 			cafe.getPhone()

@@ -92,4 +92,9 @@ public class User {
 		}
 		this.updatedAt = LocalDateTime.now();
 	}
+
+	public void changeRoleToOwner() {
+		this.role = "ROLE_OWNER";
+		this.updatedAt = LocalDateTime.now();
+	}
 }

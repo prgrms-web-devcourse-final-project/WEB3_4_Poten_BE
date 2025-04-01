@@ -15,6 +15,9 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.application.exception.ApplicationNotF
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.repository.ApplicationRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.exception.UserNotFoundException;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +27,17 @@ import lombok.RequiredArgsConstructor;
 public class ApplicationService {
 	private final ApplicationRepository applicationRepository;
 	private final CafeRepository cafeRepository;
+	private final UserRepository userRepository;
 	// private final UserRepository userRepository;
 
 	@Transactional
-	public ApplicationRes createApplication(ApplicationReq request) {
+	public ApplicationRes createApplication(ApplicationReq request, Long userId) {
+
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new UserNotFoundException(userId));
+
 		Application application = Application.builder()
+			.user(user)
 			.name(request.name())
 			.address(request.address())
 			.phone(request.phone())
@@ -66,12 +75,11 @@ public class ApplicationService {
 
 		application.approve();
 
-		// Owner 관련 코드 추후 수정필요
-		//User updatedOwner = application.getUser().changeRoleToOwner();
-		//userRepository.save(updatedOwner);
+		User owner = application.getUser();
+		owner.changeRoleToOwner();
 
 		Cafe newCafe = Cafe.builder()
-			//.owner(ownerId)
+			.owner(owner)
 			.name(application.getName())
 			.address(application.getAddress())
 			.phone(application.getPhone())

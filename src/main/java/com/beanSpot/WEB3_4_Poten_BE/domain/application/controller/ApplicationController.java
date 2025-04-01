@@ -15,6 +15,8 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.req.ApplicationReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.res.ApplicationApprovedRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.res.ApplicationRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.service.ApplicationService;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,10 +25,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ApplicationController {
 	private final ApplicationService applicationService;
+	private final UserRepository userRepository;
 
+	//인증 방식에 따라서 수정해야합니다.
 	@PostMapping
 	public ResponseEntity<ApplicationRes> createApplication(@RequestBody ApplicationReq applicationReq) {
-		ApplicationRes applicationRes = applicationService.createApplication(applicationReq);
+		ApplicationRes applicationRes = applicationService.createApplication(applicationReq, 1L);
 		return ResponseEntity.ok(applicationRes);
 	}
 

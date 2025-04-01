@@ -9,6 +9,9 @@ public record ApplicationRes(
 	@NonNull
 	Long id,
 
+	@NonNull
+	Long userId,
+
 	@NotEmpty
 	String name,
 
@@ -25,6 +28,7 @@ public record ApplicationRes(
 	public static ApplicationRes fromEntity(Application application) {
 		return new ApplicationRes(
 			application.getId(),
+			application.getUser().getId(),
 			application.getName(),
 			application.getAddress(),
 			application.getPhone(),
