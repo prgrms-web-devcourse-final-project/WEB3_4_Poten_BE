@@ -2,11 +2,16 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.review.entity;
 
 import java.time.LocalDateTime;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,14 +29,16 @@ public class Review {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "user_id", nullable = false)
-	private Long userId; // 사용자 ID
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private User user;
 
-	@Column(name = "cafe_id", nullable = false)
-	private Long cafeId; // 카페 ID
+	@ManyToOne
+	@JoinColumn(name = "cafe_id")
+	private Cafe cafe;
 
 	@Column(nullable = false)
-	private int rating; // 평점
+	private int rating;
 
 	@Column(length = 1000) //추후 수정 가능
 	private String comment;
@@ -41,6 +48,8 @@ public class Review {
 
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
+
+
 
 	public void updateReview(int rating, String comment) {
 		this.rating = rating;
