@@ -45,4 +45,19 @@ public class FavoriteService {
 
         favoriteRepository.save(favorite);
     }
+
+    /**
+     * 즐겨찾기 삭제
+     */
+    public void removeFavorite(Long memberId, Long cafeId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        Cafe cafe = cafeRepository.findById(cafeId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카페입니다."));
+
+        Favorite favorite = favoriteRepository.findByMemberAndCafe(member, cafe)
+                .orElseThrow(() -> new IllegalArgumentException("즐겨찾기에 없는 카페입니다."));
+
+        favoriteRepository.delete(favorite);
+    }
 }
