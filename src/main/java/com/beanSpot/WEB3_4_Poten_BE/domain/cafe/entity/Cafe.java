@@ -1,10 +1,20 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity;
 
-import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
+
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Builder
@@ -17,8 +27,9 @@ public class Cafe {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long cafeId;
 
-//	@NotNull
-	private Long ownerId;
+	// @NotNull
+	// @Column(name = "owner_id", nullable = false)
+	// private Long ownerId;
 
 	private String name;
 
@@ -33,14 +44,18 @@ public class Cafe {
 	@Column(columnDefinition = "TEXT")
 	private String description;
 
-	private LocalDateTime createdAt;
+	@Column(name = "created_at", nullable = false)
+	private LocalDateTime createdAt = LocalDateTime.now();
 
+	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
 	@Column(columnDefinition = "TEXT")
 	private String image;
 
 	private Boolean disabled;
+
+	private int capacity;
 
 	public void update(CafeUpdateReq request) {
 		if (request.name() != null) {
@@ -58,7 +73,8 @@ public class Cafe {
 		if (request.image() != null) {
 			this.image = request.image();
 		}
-		this.updatedAt = LocalDateTime.now(); // 업데이트 시간 갱신
+
+		this.updatedAt = LocalDateTime.now();
 	}
 }
 
