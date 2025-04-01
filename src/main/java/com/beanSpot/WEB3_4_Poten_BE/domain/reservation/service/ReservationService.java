@@ -168,77 +168,75 @@ public class ReservationService {
 
     //예약가능 시간대들을 구하는 메소드
     private List<TimeSlot> getAvailableTimeSlots(List<Reservation> overlappingReservations, int capacity, int partySize, LocalDateTime start, LocalDateTime end) {
-        capacity = capacity - partySize;
 
-        List<TimeSlot> timeSlots = new ArrayList<>();
-        List<TimeWithPartySize> startTimes = new ArrayList<>();
-        List<TimeWithPartySize> endTimes = new ArrayList<>();
+        int remainingCapacity = capacity - partySize;
+
+        // 인원수가 capacity 보다 더 큰경우
+        if (remainingCapacity < 0) {
+            return Collections.emptyList();
+        }
+
+        // 만약 예약이 없다면 전체시간 반환
+        if (overlappingReservations.isEmpty()) {
+            return Collections.singletonList(new TimeSlot(start, end));
+        }
+
+        // 시간 이벤트 생성
+        List<TimeWithPartySize> events = new ArrayList<>();
 
         for (Reservation reservation : overlappingReservations) {
-            startTimes.add(new TimeWithPartySize(reservation.getStartTime(), reservation.getPartySize()));
-            endTimes.add(new TimeWithPartySize(reservation.getEndTime(), reservation.getPartySize()));
+            events.add(new TimeWithPartySize(reservation.getStartTime(), reservation.getPartySize()));
+            events.add(new TimeWithPartySize(reservation.getEndTime(), -1 * reservation.getPartySize()));
         }
 
-        // startTimes 기준으로 정렬 (시간만 비교)
-        startTimes.sort(Comparator.comparing(TimeWithPartySize::time));
-        // endTimes도 동일하게 정렬
-        endTimes.sort(Comparator.comparing(TimeWithPartySize::time));
+        events.sort(Comparator.comparing(TimeWithPartySize::time)
+                .thenComparingInt(TimeWithPartySize::partySize));
 
-        int startTimesIndex = 0;
-        int endTimesIndex = 0;
-        //현재 겹치는 예약수
-        int count = 0;
-        //쵀대로 겹치는 예약수
-        int maxCount = 0;
-        //현재 예약가능한지
-        boolean available = false;
+        List<TimeSlot> availableSlots = new ArrayList<>();
+        int currentOccupancy = 0;
+        LocalDateTime availableStart = events.getFirst().time();
+        boolean isCurrentlyAvailable = true;
 
-        while (startTimesIndex < startTimes.size() || endTimesIndex < endTimes.size()) {
-            LocalDateTime curStartTime = startTimesIndex < startTimes.size()
-                    ? startTimes.get(startTimesIndex).time() : LocalDateTime.MAX;
 
-            LocalDateTime curEndTime = endTimesIndex < endTimes.size()
-                    ? endTimes.get(endTimesIndex).time() : LocalDateTime.MAX;
+        for (TimeWithPartySize event : events) {
+            // 현 좌석 계산
+            currentOccupancy += event.partySize();
 
-            int curStartPartySize = startTimesIndex < startTimes.size()
-                    ? startTimes.get(startTimesIndex).partySize() : 0;
 
-            int curEndPartySize = endTimesIndex < endTimes.size()
-                    ? endTimes.get(endTimesIndex).partySize() : 0;
+            boolean willBeAvailable = currentOccupancy <= remainingCapacity;
 
-            //시작과 끝중 더먼저오는거. 만약 시작이면 겹치는 예약 증가, 끝나는거면 겹치는 예약 감소
-            if (curStartTime.isBefore(curEndTime)) {
-                ++startTimesIndex;
-                count += curStartPartySize;
-            } else {
-                ++endTimesIndex;
-                count -= curEndPartySize;
+            // 자리가 있다가 더이상 없는 순간
+            if (isCurrentlyAvailable && !willBeAvailable) {
+                availableSlots.add(new TimeSlot(
+                        availableStart,
+                        event.time()
+                ));
             }
 
-            maxCount = Math.max(maxCount, count);
-
-
-            if (available && count >= capacity) {
-                available = false;
-                TimeSlot timeSlot = timeSlots.getLast();
-                timeSlot.setEnd(curStartTime);
-            } else if (!available && count < capacity) {
-                available = true;
-                timeSlots.add(new TimeSlot(curEndTime, null));
+            // 자리가 없다가 생긴 순간
+            else if (!isCurrentlyAvailable && willBeAvailable) {
+                availableStart = event.time();
             }
+
+            isCurrentlyAvailable = willBeAvailable;
         }
 
-        if (maxCount < capacity) {
-            return Collections.singletonList(new TimeSlot(start, end));
+        // 만약 마지막 상태가 예약가능이면
+        if (isCurrentlyAvailable && availableStart.isBefore(end)) {
+            availableSlots.add(new TimeSlot(
+                    //만약 start 전에 시작하면 시작을 start 로 변경
+                    availableStart.isBefore(start) ? start : availableStart,
+                    end
+            ));
         }
 
         List<TimeSlot> filtered = new ArrayList<>();
         //timeSlot 필터링작업
-        for (TimeSlot slot : timeSlots) {
+        for (TimeSlot slot : availableSlots) {
             if (slot.getEnd().isBefore(start) || slot.getStart().isAfter(end)) continue;
 
             slot.setStart(slot.getStart().isBefore(start) ? start : slot.getStart());
-            slot.setEnd(slot.getEnd() == null || slot.getEnd().isAfter(end) ? end : slot.getEnd());
+            slot.setEnd(slot.getEnd().isAfter(end) ? end : slot.getEnd());
 
             if (slot.getStart().equals(slot.getEnd())) continue;
 
