@@ -60,4 +60,16 @@ public class FavoriteService {
 
         favoriteRepository.delete(favorite);
     }
+
+    /**
+     * 즐겨찾기 조회
+     */
+    public List<String> getFavoriteCafes(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        return favoriteRepository.findByMember(member).stream()
+                .map(favorite -> favorite.getCafe().getName()) // 카페 이름만 반환
+                .collect(Collectors.toList());
+    }
 }

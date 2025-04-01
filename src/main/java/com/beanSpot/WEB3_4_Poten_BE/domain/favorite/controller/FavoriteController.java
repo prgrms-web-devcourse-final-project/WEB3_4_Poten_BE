@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * -- 즐겨찾기 컨트롤러 --
  *
@@ -28,5 +30,11 @@ public class FavoriteController {
     public ResponseEntity<String> removeFavorite(@PathVariable Long memberId, @PathVariable Long cafeId) {
         favoriteService.removeFavorite(memberId, cafeId);
         return ResponseEntity.ok("즐겨찾기에서 삭제되었습니다.");
+    }
+
+    @GetMapping("/{memberId}")
+    public ResponseEntity<List<String>> getFavorites(@PathVariable Long memberId) {
+        List<String> favoriteCafes = favoriteService.getFavoriteCafes(memberId);
+        return ResponseEntity.ok(favoriteCafes);
     }
 }

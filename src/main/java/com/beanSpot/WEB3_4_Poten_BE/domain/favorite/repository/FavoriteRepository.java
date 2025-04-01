@@ -4,6 +4,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.favorite.entity.Favorite;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -16,4 +17,7 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
     // 특정 사용자가 특정 카페를 즐겨찾기 했는지 확인
     Optional<Favorite> findByMemberAndCafe(Member member, Cafe cafe);
+
+    // 특정 사용자의 즐겨찾기 목록 조회
+    List<Favorite> findByMember(Member member);
 }
