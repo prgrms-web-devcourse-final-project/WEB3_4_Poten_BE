@@ -26,7 +26,7 @@ public class AuthService {
 		}
 
 		String oAuthId = jwtService.getOAuthIdFromToken(token);
-		return memberRepository.findByOAuthId(oAuthId)
+		return memberRepository.findByoAuthId(oAuthId)
 			.orElseThrow(() -> new ServiceException(404, "사용자를 찾을 수 없습니다."));
 	}
 
@@ -54,7 +54,7 @@ public class AuthService {
 		}
 
 		String oAuthId = jwtService.getOAuthIdFromToken(token);
-		return memberRepository.findByOAuthId(oAuthId)
+		return memberRepository.findByoAuthId(oAuthId)
 			.orElseThrow(() -> new ServiceException(404, "사용자를 찾을 수 없습니다."));
 	}
 
