@@ -12,6 +12,10 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.exception.CafeNotFoundException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.UserRole;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.exception.UserNotFoundException;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +25,19 @@ import lombok.RequiredArgsConstructor;
 public class CafeService {
 
 	private final CafeRepository cafeRepository;
+	private final UserRepository userRepository;
 
 	@Transactional
-	public CafeInfoRes createCafe(CafeCreateReq request) {
+	public CafeInfoRes createCafe(CafeCreateReq request, Long ownerId) {
+		User owner = userRepository.findById(ownerId)
+			.orElseThrow(() -> new UserNotFoundException(ownerId));
+
+		if (owner.getRole() != UserRole.ROLE_OWNER) {
+			owner.changeRoleToOwner();
+		}
+
 		Cafe cafe = Cafe.builder()
+			.owner(owner)
 			.name(request.name())
 			.address(request.address())
 			.latitude(request.latitude())
