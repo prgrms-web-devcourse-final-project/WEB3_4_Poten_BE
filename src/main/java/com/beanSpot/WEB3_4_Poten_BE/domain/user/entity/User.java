@@ -70,6 +70,5 @@ public class User {
 			this.email = request.email();
 		}
 		this.updatedAt = LocalDateTime.now();
-//컨트롤러 자겅ㅂ
 	}
 }
