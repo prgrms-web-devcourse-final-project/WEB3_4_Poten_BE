@@ -57,7 +57,7 @@ public class Member implements UserDetails {
 	}
 
 	public enum SnsType {
-		KAKAO, NAVER
+		KAKAO, NAVER, GOOGLE
 	}
 
 	@Override

@@ -81,7 +81,6 @@ public class MemberController {
 	}
 
 	@PutMapping("/my")
-	@Operation(summary = "사용자 개인정보 수정 (이름, 이메일, 전화번호)")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "정보 수정 성공",
 			content = @Content(schema = @Schema(implementation = ResponseMemberMyPageDto.class))),
