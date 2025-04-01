@@ -37,6 +37,9 @@ public class Reservation {
 	@Column(nullable = false)
 	private LocalDateTime endTime; // 예약 종료 시간
 
+	@Column(nullable = false)
+	private Integer partySize;
+
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private ReservationStatus status; // 예약 상태 (Enum)

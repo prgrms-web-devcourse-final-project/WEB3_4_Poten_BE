@@ -9,6 +9,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.ReservationStatus;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.repository.ReservationRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.vo.TimeWithPartySize;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +44,7 @@ public class ReservationService {
                 dto.getEndTime(),
                 null);
 
-        if (getMaxOccupiedSeatsCount(overlappingReservations) >= cafe.getCapacity()) {
+        if (getMaxOccupiedSeatsCount(overlappingReservations) + dto.getPartySize() > cafe.getCapacity()) {
             throw new IllegalStateException("선택한 예약시간에 빈좌석이 없습니다.");
         }
 
@@ -77,7 +79,7 @@ public class ReservationService {
                 dto.getEndTime(),
                 reservationId);
 
-        if (getMaxOccupiedSeatsCount(overlappingReservations) >= reservation.getCafe().getCapacity()) {
+        if (getMaxOccupiedSeatsCount(overlappingReservations) + dto.getPartySize() > reservation.getCafe().getCapacity()) {
             throw new IllegalStateException("선택한 예약시간에 빈좌석이 없습니다.");
         }
 
@@ -121,12 +123,12 @@ public class ReservationService {
 
     // 사용중인 좌석수 조회
     @Transactional(readOnly = true)
-    public int getOccupiedSeatsCount(long cafeId, LocalDateTime start, LocalDateTime end) {
-        cafeRepository.findById(cafeId)
+    public int getAvailableSeatsCount(long cafeId, LocalDateTime start, LocalDateTime end) {
+        Cafe cafe = cafeRepository.findById(cafeId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 카페입니다"));
 
         List<Reservation> overlappingReservations = reservationRepository.getOverlappingReservations(cafeId, start, end, null);
-        return getMaxOccupiedSeatsCount(overlappingReservations);
+        return cafe.getCapacity() - getMaxOccupiedSeatsCount(overlappingReservations);
     }
 
     // ✅ 4. 예약 상세 조회
@@ -165,22 +167,22 @@ public class ReservationService {
     }
 
     //예약가능 시간대들을 구하는 메소드
-    private List<TimeSlot> getAvailableTimeSlots(List<Reservation> overlappingReservations, int capacity, LocalDateTime start, LocalDateTime end) {
-        List<TimeSlot> timeSlots = new ArrayList<>();
-        List<LocalDateTime> startTimes = new ArrayList<>();
-        List<LocalDateTime> endTimes = new ArrayList<>();
+    private List<TimeSlot> getAvailableTimeSlots(List<Reservation> overlappingReservations, int capacity, int partySize, LocalDateTime start, LocalDateTime end) {
+        capacity = capacity - partySize;
 
-        //시작시간과 끝시간을 분리해 각기다른 리스트에 저장
+        List<TimeSlot> timeSlots = new ArrayList<>();
+        List<TimeWithPartySize> startTimes = new ArrayList<>();
+        List<TimeWithPartySize> endTimes = new ArrayList<>();
+
         for (Reservation reservation : overlappingReservations) {
-            //시작과 끝이 같은거는 제외
-            if (reservation.getStartTime().isEqual(reservation.getEndTime())) continue;
-            startTimes.add(reservation.getStartTime());
-            endTimes.add(reservation.getEndTime());
+            startTimes.add(new TimeWithPartySize(reservation.getStartTime(), reservation.getPartySize()));
+            endTimes.add(new TimeWithPartySize(reservation.getEndTime(), reservation.getPartySize()));
         }
 
-        //정렬
-        Collections.sort(startTimes);
-        Collections.sort(endTimes);
+        // startTimes 기준으로 정렬 (시간만 비교)
+        startTimes.sort(Comparator.comparing(TimeWithPartySize::time));
+        // endTimes도 동일하게 정렬
+        endTimes.sort(Comparator.comparing(TimeWithPartySize::time));
 
         int startTimesIndex = 0;
         int endTimesIndex = 0;
@@ -193,18 +195,24 @@ public class ReservationService {
 
         while (startTimesIndex < startTimes.size() || endTimesIndex < endTimes.size()) {
             LocalDateTime curStartTime = startTimesIndex < startTimes.size()
-                    ? startTimes.get(startTimesIndex) : LocalDateTime.MAX;
+                    ? startTimes.get(startTimesIndex).time() : LocalDateTime.MAX;
 
             LocalDateTime curEndTime = endTimesIndex < endTimes.size()
-                    ? endTimes.get(endTimesIndex) : LocalDateTime.MAX;
+                    ? endTimes.get(endTimesIndex).time() : LocalDateTime.MAX;
+
+            int curStartPartySize = startTimesIndex < startTimes.size()
+                    ? startTimes.get(startTimesIndex).partySize() : 0;
+
+            int curEndPartySize = endTimesIndex < endTimes.size()
+                    ? endTimes.get(endTimesIndex).partySize() : 0;
 
             //시작과 끝중 더먼저오는거. 만약 시작이면 겹치는 예약 증가, 끝나는거면 겹치는 예약 감소
             if (curStartTime.isBefore(curEndTime)) {
                 ++startTimesIndex;
-                ++count;
+                count += curStartPartySize;
             } else {
                 ++endTimesIndex;
-                --count;
+                count -= curEndPartySize;
             }
 
             maxCount = Math.max(maxCount, count);
@@ -241,16 +249,19 @@ public class ReservationService {
     }
 
     private int getMaxOccupiedSeatsCount(List<Reservation> overlappingReservations) {
-        List<LocalDateTime> startTimes = new ArrayList<>();
-        List<LocalDateTime> endTimes = new ArrayList<>();
+        List<TimeWithPartySize> startTimes = new ArrayList<>();
+        List<TimeWithPartySize> endTimes = new ArrayList<>();
 
         for (Reservation reservation : overlappingReservations) {
-            startTimes.add(reservation.getStartTime());
-            endTimes.add(reservation.getEndTime());
+            startTimes.add(new TimeWithPartySize(reservation.getStartTime(), reservation.getPartySize()));
+            endTimes.add(new TimeWithPartySize(reservation.getEndTime(), reservation.getPartySize()));
         }
 
-        Collections.sort(startTimes);
-        Collections.sort(endTimes);
+        // startTimes 기준으로 정렬 (시간만 비교)
+        startTimes.sort(Comparator.comparing(TimeWithPartySize::time));
+
+        // endTimes도 동일하게 정렬
+        endTimes.sort(Comparator.comparing(TimeWithPartySize::time));
 
         int startTimesIndex = 0;
         int endTimesIndex = 0;
@@ -259,17 +270,23 @@ public class ReservationService {
 
         while (startTimesIndex < startTimes.size() || endTimesIndex < endTimes.size()) {
             LocalDateTime curStartTime = startTimesIndex < startTimes.size()
-                    ? startTimes.get(startTimesIndex) : LocalDateTime.MAX;
+                    ? startTimes.get(startTimesIndex).time() : LocalDateTime.MAX;
 
             LocalDateTime curEndTime = endTimesIndex < endTimes.size()
-                    ? endTimes.get(endTimesIndex) : LocalDateTime.MAX;
+                    ? endTimes.get(endTimesIndex).time() : LocalDateTime.MAX;
+
+            int curStartPartySize = startTimesIndex < startTimes.size()
+                    ? startTimes.get(startTimesIndex).partySize() : 0;
+
+            int curEndPartySize = endTimesIndex < endTimes.size()
+                    ? endTimes.get(endTimesIndex).partySize() : 0;
 
             if (curStartTime.isBefore(curEndTime)) {
                 ++startTimesIndex;
-                ++count;
+                count += curStartPartySize;
             } else {
                 ++endTimesIndex;
-                --count;
+                count -= curEndPartySize;
             }
 
             res = Math.max(res, count);
