@@ -1,8 +1,6 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.controller;
 
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationCheckoutReq;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchReq;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.*;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service.ReservationService;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-//TODO: 예약시 현재 사용중인 좌석수와 기타정보 던져주는 api 작성하기
-//TODO: 시간연장 api 작성?? 꼭 필요한지는 모르겠음
+
+//TODO: 시간 검증로직 꼼꼼하게 추가하기
 @RestController
 @RequestMapping("/reservations")
 @RequiredArgsConstructor
@@ -59,6 +57,25 @@ public class ReservationController {
     ) {
         reservationService.cancelReservation(reservationId, LocalDateTime.now());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/availableCounts/{cafeId}")
+    public ResponseEntity<AvailableSeatsCount> getAvailableSeatsCount(
+            @PathVariable Long cafeId,
+            @RequestBody SeatCountReq req
+            ) {
+
+        AvailableSeatsCount res = reservationService.getAvailableSeatsCount(cafeId, req.startTime(), req.endTime());
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/availableTimeSlots/{cafeId}")
+    public ResponseEntity<List<TimeSlot>> getAvailableTimeSlots(
+            @PathVariable Long cafeId,
+            @RequestBody TimeSlotsReq req
+            ) {
+        List<TimeSlot> res = reservationService.getAvailableTimeSlots(cafeId, req);
+        return ResponseEntity.ok(res);
     }
 
     //예약 디테일 조회

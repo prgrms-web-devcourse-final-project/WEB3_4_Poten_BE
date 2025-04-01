@@ -5,6 +5,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationCheckoutReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.TimeSlotsReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.ReservationStatus;
@@ -119,16 +120,33 @@ public class ReservationService {
         reservation.cancelReservation();
     }
 
-    //TODO: 사용 가능한시간대 알려주는 기능
+    //사용가능한 시간대 조회
+    @Transactional(readOnly = true)
+    public List<TimeSlot> getAvailableTimeSlots(long cafeId, TimeSlotsReq req) {
+
+        Cafe cafe = cafeRepository.findById(cafeId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 카페입니다"));
+        List<Reservation> overlappingReservations =
+                reservationRepository.getOverlappingReservations(cafeId, req.startTime(), req.endTime(), null);
+
+        return getAvailableTimeSlotsHelper(
+                overlappingReservations,
+                cafe.getCapacity(),
+                req.partySize(),
+                req.startTime(),
+                req.endTime()
+        );
+    }
 
     // 사용중인 좌석수 조회
     @Transactional(readOnly = true)
-    public int getAvailableSeatsCount(long cafeId, LocalDateTime start, LocalDateTime end) {
+    public AvailableSeatsCount getAvailableSeatsCount(long cafeId, LocalDateTime start, LocalDateTime end) {
         Cafe cafe = cafeRepository.findById(cafeId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 카페입니다"));
 
         List<Reservation> overlappingReservations = reservationRepository.getOverlappingReservations(cafeId, start, end, null);
-        return cafe.getCapacity() - getMaxOccupiedSeatsCount(overlappingReservations);
+        int availableSeats =  cafe.getCapacity() - getMaxOccupiedSeatsCount(overlappingReservations);
+        return new AvailableSeatsCount(availableSeats, cafe.getCapacity());
     }
 
     // ✅ 4. 예약 상세 조회
@@ -167,7 +185,7 @@ public class ReservationService {
     }
 
     //예약가능 시간대들을 구하는 메소드
-    private List<TimeSlot> getAvailableTimeSlots(List<Reservation> overlappingReservations, int capacity, int partySize, LocalDateTime start, LocalDateTime end) {
+    private List<TimeSlot> getAvailableTimeSlotsHelper(List<Reservation> overlappingReservations, int capacity, int partySize, LocalDateTime start, LocalDateTime end) {
 
         int remainingCapacity = capacity - partySize;
 
@@ -231,7 +249,8 @@ public class ReservationService {
         }
 
         List<TimeSlot> filtered = new ArrayList<>();
-        //timeSlot 필터링작업
+
+        //time slot이 범위 밖이거나 걸쳐있는경우 필터링해주거나 값조정하는 로직
         for (TimeSlot slot : availableSlots) {
             if (slot.getEnd().isBefore(start) || slot.getStart().isAfter(end)) continue;
 
