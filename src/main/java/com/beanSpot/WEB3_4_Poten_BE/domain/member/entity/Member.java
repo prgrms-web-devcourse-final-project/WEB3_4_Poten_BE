@@ -20,6 +20,8 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.entity.Review;
 
 import jakarta.persistence.Column;
+import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
