@@ -249,49 +249,28 @@ public class ReservationService {
     }
 
     private int getMaxOccupiedSeatsCount(List<Reservation> overlappingReservations) {
-        List<TimeWithPartySize> startTimes = new ArrayList<>();
-        List<TimeWithPartySize> endTimes = new ArrayList<>();
+        // 시작/종료 시간을 하나의 이벤트 리스트로 통합
+        List<TimeWithPartySize> events = new ArrayList<>();
 
         for (Reservation reservation : overlappingReservations) {
-            startTimes.add(new TimeWithPartySize(reservation.getStartTime(), reservation.getPartySize()));
-            endTimes.add(new TimeWithPartySize(reservation.getEndTime(), reservation.getPartySize()));
+            // 시작 이벤트는 좌석 추가
+            events.add(new TimeWithPartySize(reservation.getStartTime(), reservation.getPartySize()));
+            // 종료 이벤트는 좌석 감소
+            events.add(new TimeWithPartySize(reservation.getEndTime(), -reservation.getPartySize()));
         }
 
-        // startTimes 기준으로 정렬 (시간만 비교)
-        startTimes.sort(Comparator.comparing(TimeWithPartySize::time));
+        // 시간순으로 정렬, 같은 시간이면 종료 이벤트가 먼저 오도록 정렬
+        events.sort(Comparator.comparing(TimeWithPartySize::time)
+                .thenComparingInt(TimeWithPartySize::partySize));
 
-        // endTimes도 동일하게 정렬
-        endTimes.sort(Comparator.comparing(TimeWithPartySize::time));
+        int currentSeats = 0;
+        int maxSeats = 0;
 
-        int startTimesIndex = 0;
-        int endTimesIndex = 0;
-        int count = 0;
-        int res = 0;
-
-        while (startTimesIndex < startTimes.size() || endTimesIndex < endTimes.size()) {
-            LocalDateTime curStartTime = startTimesIndex < startTimes.size()
-                    ? startTimes.get(startTimesIndex).time() : LocalDateTime.MAX;
-
-            LocalDateTime curEndTime = endTimesIndex < endTimes.size()
-                    ? endTimes.get(endTimesIndex).time() : LocalDateTime.MAX;
-
-            int curStartPartySize = startTimesIndex < startTimes.size()
-                    ? startTimes.get(startTimesIndex).partySize() : 0;
-
-            int curEndPartySize = endTimesIndex < endTimes.size()
-                    ? endTimes.get(endTimesIndex).partySize() : 0;
-
-            if (curStartTime.isBefore(curEndTime)) {
-                ++startTimesIndex;
-                count += curStartPartySize;
-            } else {
-                ++endTimesIndex;
-                count -= curEndPartySize;
-            }
-
-            res = Math.max(res, count);
+        for (TimeWithPartySize event : events) {
+            currentSeats += event.partySize();
+            maxSeats = Math.max(maxSeats, currentSeats);
         }
 
-        return res;
+        return maxSeats;
     }
 }
