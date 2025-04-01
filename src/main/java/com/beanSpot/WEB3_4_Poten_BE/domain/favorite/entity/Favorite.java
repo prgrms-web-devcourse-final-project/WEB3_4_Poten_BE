@@ -3,6 +3,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.favorite.entity;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Favorite {
 
     @Id
