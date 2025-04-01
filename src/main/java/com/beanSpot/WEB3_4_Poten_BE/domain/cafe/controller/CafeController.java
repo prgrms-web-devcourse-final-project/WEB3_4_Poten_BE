@@ -31,7 +31,7 @@ public class CafeController {
 
 	@PostMapping
 	public ResponseEntity<CafeInfoRes> createCafe(@RequestBody CafeCreateReq cafeCreateReq) {
-		CafeInfoRes cafeInfoRes = cafeService.createCafe(cafeCreateReq);
+		CafeInfoRes cafeInfoRes = cafeService.createCafe(cafeCreateReq, 1L);
 		return ResponseEntity.ok(cafeInfoRes);
 	}
 
