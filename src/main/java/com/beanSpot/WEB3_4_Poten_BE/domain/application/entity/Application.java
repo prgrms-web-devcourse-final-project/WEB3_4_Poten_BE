@@ -2,6 +2,8 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.application.entity;
 
 import java.time.LocalDateTime;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,6 +11,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,9 +30,9 @@ public class Application {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	// @ManyToOne
-	// @JoinColumn(name = "user_id", nullable = false)
-	// private User user;
+	 @ManyToOne
+	 @JoinColumn(name = "user_id", nullable = false)
+	 private Member user;
 
 	@Column(nullable = false)
 	private String name;
@@ -51,5 +55,9 @@ public class Application {
 
 	public void reject() {
 		this.status = Status.REJECTED;
+	}
+
+	public Long getUserId() {
+		return user != null ? user.getId() : null;
 	}
 }

@@ -8,12 +8,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -51,6 +54,10 @@ public class Member implements UserDetails {
 
 	@Enumerated(EnumType.STRING)
 	private SnsType snsType;
+
+
+	@OneToMany(mappedBy = "user")
+	private List<Application> applications = new ArrayList<>();
 
 	public enum MemberType {
 		USER, ADMIN, OWNER
