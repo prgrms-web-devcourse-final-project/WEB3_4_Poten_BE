@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
+import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Status;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
@@ -48,8 +49,8 @@ public class User {
 	@Column(nullable = false)
 	private String password;
 
-	@Column(nullable = false)
-	private String role;
+	@Enumerated(EnumType.STRING)
+	private UserRole role = UserRole.ROLE_USER;
 
 	@Column(nullable = false)
 	private LocalDateTime createdAt;
@@ -74,7 +75,7 @@ public class User {
 
 	// 사용자가 카페 소유자인 경우
 	@OneToMany(mappedBy = "owner")
-	private List<Cafe> ownedCafes = new ArrayList<>();
+	private List<Cafe> owner = new ArrayList<>();
 
 	public void update(UserUpdateReq request) {
 
@@ -94,7 +95,7 @@ public class User {
 	}
 
 	public void changeRoleToOwner() {
-		this.role = "ROLE_OWNER";
+		this.role = UserRole.ROLE_OWNER;
 		this.updatedAt = LocalDateTime.now();
 	}
 }
