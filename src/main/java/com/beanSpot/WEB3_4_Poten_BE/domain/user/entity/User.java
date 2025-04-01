@@ -50,7 +50,7 @@ public class User {
 	private String password;
 
 	@Enumerated(EnumType.STRING)
-	private UserRole role = UserRole.ROLE_USER;
+	private UserRole role;
 
 	@Column(nullable = false)
 	private LocalDateTime createdAt;

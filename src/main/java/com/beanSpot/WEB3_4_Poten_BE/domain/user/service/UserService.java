@@ -14,6 +14,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.user.dto.req.UserCreateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.dto.req.UserUpdateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.dto.res.UserRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.UserRole;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.exception.UserNotFoundException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.repository.UserRepository;
 
@@ -25,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
 	private final UserRepository userRepository;
-	private final CafeRepository cafeRepository;
 
 	@Transactional
 	public UserRes createUser(UserCreateReq request) {
@@ -33,7 +33,7 @@ public class UserService {
 			.name(request.name())
 			.email(request.email())
 			.password(request.password())
-			.role(request.role())
+			.role(UserRole.ROLE_USER)
 			.createdAt(LocalDateTime.now())
 			.updatedAt(LocalDateTime.now())
 			.build();
