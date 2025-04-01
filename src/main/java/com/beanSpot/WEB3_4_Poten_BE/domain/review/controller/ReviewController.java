@@ -17,17 +17,24 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.review.dto.req.ReviewCreateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.dto.req.ReviewUpdateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.dto.res.ReviewRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.service.ReviewService;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/cafes/{cafeId}/reviews")
+@RequiredArgsConstructor
 public class ReviewController {
-	@Autowired
-	private ReviewService reviewService;
 
+	private final ReviewService reviewService;
+	private final UserRepository userRepository;
+
+
+	//추후 인증 방식에 따라서 수정 필요.
 	@PostMapping
 	public ResponseEntity<ReviewRes> addReview(@PathVariable Long cafeId, @RequestBody ReviewCreateReq request) {
 		request = new ReviewCreateReq(request.userId(), cafeId, request.rating(), request.comment());
-		ReviewRes reviewRes = reviewService.addReview(request);
+		ReviewRes reviewRes = reviewService.addReview(request,1L);
 		return ResponseEntity.ok(reviewRes);
 	}
 
