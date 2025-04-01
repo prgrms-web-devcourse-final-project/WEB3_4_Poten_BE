@@ -164,6 +164,82 @@ public class ReservationService {
                 .toList();
     }
 
+    //예약가능 시간대들을 구하는 메소드
+    private List<TimeSlot> getAvailableTimeSlots(List<Reservation> overlappingReservations, int capacity, LocalDateTime start, LocalDateTime end) {
+        List<TimeSlot> timeSlots = new ArrayList<>();
+        List<LocalDateTime> startTimes = new ArrayList<>();
+        List<LocalDateTime> endTimes = new ArrayList<>();
+
+        //시작시간과 끝시간을 분리해 각기다른 리스트에 저장
+        for (Reservation reservation : overlappingReservations) {
+            //시작과 끝이 같은거는 제외
+            if (reservation.getStartTime().isEqual(reservation.getEndTime())) continue;
+            startTimes.add(reservation.getStartTime());
+            endTimes.add(reservation.getEndTime());
+        }
+
+        //정렬
+        Collections.sort(startTimes);
+        Collections.sort(endTimes);
+
+        int startTimesIndex = 0;
+        int endTimesIndex = 0;
+        //현재 겹치는 예약수
+        int count = 0;
+        //쵀대로 겹치는 예약수
+        int maxCount = 0;
+        //현재 예약가능한지
+        boolean available = false;
+
+        while (startTimesIndex < startTimes.size() || endTimesIndex < endTimes.size()) {
+            LocalDateTime curStartTime = startTimesIndex < startTimes.size()
+                    ? startTimes.get(startTimesIndex) : LocalDateTime.MAX;
+
+            LocalDateTime curEndTime = endTimesIndex < endTimes.size()
+                    ? endTimes.get(endTimesIndex) : LocalDateTime.MAX;
+
+            //시작과 끝중 더먼저오는거. 만약 시작이면 겹치는 예약 증가, 끝나는거면 겹치는 예약 감소
+            if (curStartTime.isBefore(curEndTime)) {
+                ++startTimesIndex;
+                ++count;
+            } else {
+                ++endTimesIndex;
+                --count;
+            }
+
+            maxCount = Math.max(maxCount, count);
+
+
+            if (available && count >= capacity) {
+                available = false;
+                TimeSlot timeSlot = timeSlots.getLast();
+                timeSlot.setEnd(curStartTime);
+            } else if (!available && count < capacity) {
+                available = true;
+                timeSlots.add(new TimeSlot(curEndTime, null));
+            }
+        }
+
+        if (maxCount < capacity) {
+            return Collections.singletonList(new TimeSlot(start, end));
+        }
+
+        List<TimeSlot> filtered = new ArrayList<>();
+        //timeSlot 필터링작업
+        for (TimeSlot slot : timeSlots) {
+            if (slot.getEnd().isBefore(start) || slot.getStart().isAfter(end)) continue;
+
+            slot.setStart(slot.getStart().isBefore(start) ? start : slot.getStart());
+            slot.setEnd(slot.getEnd() == null || slot.getEnd().isAfter(end) ? end : slot.getEnd());
+
+            if (slot.getStart().equals(slot.getEnd())) continue;
+
+            filtered.add(slot);
+        }
+
+        return filtered;
+    }
+
     private int getMaxOccupiedSeatsCount(List<Reservation> overlappingReservations) {
         List<LocalDateTime> startTimes = new ArrayList<>();
         List<LocalDateTime> endTimes = new ArrayList<>();
