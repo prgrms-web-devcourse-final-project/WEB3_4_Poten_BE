@@ -28,7 +28,7 @@ public class ReservationController {
 
     @Operation(
         summary = "예약 추가",
-        description = "예약을 추가합니다. ")
+        description = "예약을 추가합니다. Partysize가 총 좌석 수 보다 많으면 예약 불가 에러가 발생합니다.")
     @PostMapping
     public ResponseEntity<ReservationPostRes> createReservation(@RequestBody ReservationPostReq dto) {
         //TODO: 추후 리팩토링 하기
@@ -38,6 +38,9 @@ public class ReservationController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+        summary = "예약 수정",
+        description = "예약을 수정합니다.")
     @PatchMapping("/{reservationId}")
     public ResponseEntity<ReservationPostRes> updateReservation(
             @RequestBody ReservationPatchReq dto,
@@ -50,6 +53,9 @@ public class ReservationController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+        summary = "예약 체크아웃",
+        description = "사용 중간에 체크아웃 합니다.")
     @PatchMapping("/checkout/{reservationId}")
     public ResponseEntity<Void> checkout(
             @PathVariable Long reservationId,
@@ -59,6 +65,9 @@ public class ReservationController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+        summary = "예약 삭제",
+        description = "예약을 삭제합니다.")
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<Void> deleteReservation(
             @RequestBody ReservationPostReq dto,
@@ -68,6 +77,9 @@ public class ReservationController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+        summary = "예약 상세조회",
+        description = "예약의 상세한 정보를 조회합니다.")
     //예약 디테일 조회
     @GetMapping("/{reservationId}")
     public ResponseEntity<ReservationDetailRes> getReservationDetail(
@@ -77,6 +89,9 @@ public class ReservationController {
         return ResponseEntity.ok(res);
     }
 
+    @Operation(
+        summary = "특정 사용자의 예약 목록 조회",
+        description = "특정한 사용자의 예약 목록을 조회합니다.")
     // ✅ 5. 특정 사용자의 예약 목록 조회
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<UserReservationRes>> getUserReservations(@PathVariable Long userId) {
@@ -85,6 +100,9 @@ public class ReservationController {
     }
 
 
+    @Operation(
+        summary = "특정 카페의 예약 조회",
+        description = "특정 카페의 예약을 조회합니다. 날짜를 기준으로 필터링됩니다.")
     // ✅ 6. 특정 카페의 예약 조회 (날짜 기준 필터링)
     @GetMapping("/cafe/{cafeId}")
     public ResponseEntity<List<CafeReservationRes>> getCafeReservations(

@@ -2,6 +2,9 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.map.controller;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.map.service.MapService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/map")
+@Tag(name = "Map", description = "Map Controller")
 public class MapController {
 
     private final MapService mapService;
