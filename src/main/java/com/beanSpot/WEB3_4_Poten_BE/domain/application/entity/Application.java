@@ -64,6 +64,12 @@ public class Application {
 
 
 
+
+	/*@Column(columnDefinition = "TEXT")
+	private String rejectReason;*/
+
+
+
 	public void approve() {
 		this.status = Status.APPROVED;
 	}

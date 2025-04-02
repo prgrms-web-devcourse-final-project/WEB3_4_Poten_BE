@@ -1,6 +1,5 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.admin.controller;
 
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -12,13 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.admin.dto.AdminLoginDto;
-import com.beanSpot.WEB3_4_Poten_BE.domain.admin.service.AdminService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.JwtService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -97,18 +93,19 @@ public class AdminController {
                     .secure(true)
                     .build();
 
-            ResponseCookie deleteRefreshToken = ResponseCookie.from("refreshToken", "")
-                    .path("/")
-                    .maxAge(0)
-                    .secure(true)
-                    .build();
+			ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
+					.httpOnly(true)
+					.secure(true)
+					.sameSite("None")
+					.path("/api/auth/refresh")
+					.maxAge(7 * 24 * 60 * 60) // 7일
+					.build();
 
-            return ResponseEntity.ok()
-                    .header("Set-Cookie", deleteAccessToken.toString())
-                    .header("Set-Cookie", deleteRefreshToken.toString())
-                    .body("관리자 로그아웃 성공");
-            */
-			}
+			return ResponseEntity.ok()
+					.header("Set-Cookie", accessTokenCookie.toString())
+					.header("Set-Cookie", refreshTokenCookie.toString())
+					.body("관리자 로그인 성공");
+			*/
 
 			return ResponseEntity.ok()
 				.body("관리자 로그아웃 성공. 클라이언트에서 토큰을 삭제해주세요.");

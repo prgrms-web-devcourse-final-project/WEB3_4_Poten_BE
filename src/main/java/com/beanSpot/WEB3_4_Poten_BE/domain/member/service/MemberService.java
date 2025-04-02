@@ -97,7 +97,7 @@ public class MemberService implements UserDetailsService {
 	}
 
 	public Optional<Member> findByOAuthId(String oAuthId) {
-		return memberRepository.findByoAuthId(oAuthId);
+		return memberRepository.findByOAuthId(oAuthId);
 	}
 
 	@Override
