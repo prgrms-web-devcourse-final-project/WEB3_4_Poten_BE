@@ -54,6 +54,7 @@ public class ReservationService {
                 .startTime(dto.getStartTime())
                 .endTime(dto.getEndTime())
                 .status(ReservationStatus.CONFIRMED)
+                .partySize(dto.getPartySize())
                 .build();
         reservationRepository.save(reservation);
 
@@ -85,7 +86,7 @@ public class ReservationService {
         }
 
         // 예약 정보 업데이트
-        reservation.update(dto.getStartTime(), dto.getEndTime());
+        reservation.update(dto.getStartTime(), dto.getEndTime(), dto.getPartySize());
 
         return ReservationPostRes.from(reservation);
     }
@@ -102,7 +103,7 @@ public class ReservationService {
             throw new RuntimeException("잘못된 체크아웃 시간대 입니다");
         }
 
-        reservation.update(reservation.getStartTime(), req.checkoutTime());
+        reservation.updateReservationTime(reservation.getStartTime(), req.checkoutTime());
     }
 
     // ✅ 3. 예약 취소

@@ -71,9 +71,10 @@ public class Reservation {
 	}
 
 	//예약 업데이트 메소드
-	public void update(LocalDateTime startTime, LocalDateTime endTime) {
+	public void update(LocalDateTime startTime, LocalDateTime endTime, int partySize) {
 		this.startTime = startTime;
 		this.endTime = endTime;
+		this.partySize = partySize;
 	}
 
 	// 예약 취소 메서드 (CHECKED_IN 상태일 때 취소 불가)
@@ -87,9 +88,6 @@ public class Reservation {
 
 	// 예약 시간 변경 메서드 (시작/종료 시간 변경 가능)
 	public void updateReservationTime(LocalDateTime newStartTime, LocalDateTime newEndTime) {
-		if (this.status != ReservationStatus.CONFIRMED) {
-			throw new IllegalStateException("진행 중이거나 종료된 예약은 변경할 수 없습니다.");
-		}
 		this.startTime = newStartTime;
 		this.endTime = newEndTime;
 	}
