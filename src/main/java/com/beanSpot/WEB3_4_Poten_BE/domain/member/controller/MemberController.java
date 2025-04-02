@@ -53,9 +53,8 @@ public class MemberController {
 	public ResponseEntity<?> getUserInfo() {
 		var authentication = SecurityContextHolder.getContext().getAuthentication();
 
-		if (authentication != null && authentication.getPrincipal() instanceof SecurityUser) {
-			SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-			return ResponseEntity.ok(new MemberDto(securityUser.getMember()));
+		if (authentication != null && authentication.getPrincipal() instanceof SecurityUser securityUser) {
+			return ResponseEntity.ok(MemberDto.from(securityUser.getMember()));
 		} else {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
@@ -75,7 +74,7 @@ public class MemberController {
 		}
 
 		Member member = memberService.getMemberById(securityUser.getMember().getId());
-		ResponseMemberMyPageDto memberMyPageDto = new ResponseMemberMyPageDto(member);
+		ResponseMemberMyPageDto memberMyPageDto = ResponseMemberMyPageDto.from(member);
 
 		return ResponseEntity.ok(memberMyPageDto);
 	}
@@ -112,7 +111,7 @@ public class MemberController {
 			// 회원 정보 업데이트
 			memberService.updateMemberInfo(member.getOAuthId(), updateMemberMyPageDto, member.getEmail());
 			Member updatedMember = memberService.getMemberById(member.getId());
-			ResponseMemberMyPageDto responseMemberMyPageDto = new ResponseMemberMyPageDto(updatedMember);
+			ResponseMemberMyPageDto responseMemberMyPageDto = ResponseMemberMyPageDto.from(updatedMember);
 
 			log.info("사용자 정보가 성공적으로 업데이트되었습니다. ID: {}", member.getId());
 			return ResponseEntity.ok(responseMemberMyPageDto);
