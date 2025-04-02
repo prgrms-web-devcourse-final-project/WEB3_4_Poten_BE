@@ -32,6 +32,12 @@ spring:
     oauth2:
       client:
         registration:
+          google:
+            client-id: ON_SECRET
+            client-secret: ON_SECRET
+            scope:
+              - email
+              - profile
           kakao:
             clientId: ON_SECRET
             scope:

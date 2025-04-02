@@ -2,32 +2,29 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.member.dto.res;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-@Getter
-@NoArgsConstructor
-public class ResponseMemberMyPageDto {
-	private Long id;
-	private String oAuthId;
-	private String name;
-	private String email;
-	private Member.MemberType memberType;
-	private Member.SnsType snsType;
-	private String profileImg;
-	private String phoneNumber;
-	private String updatedAt;  // 정보 업데이트 시간 추가
-
-	public ResponseMemberMyPageDto(Member entity) {
-		this.id = entity.getId();
-		this.oAuthId = entity.getOAuthId();
-		this.name = entity.getName();
-		this.email = entity.getEmail();
-		this.memberType = entity.getMemberType();
-		this.snsType = entity.getSnsType();
-		this.profileImg = entity.getProfileImg();
-		this.phoneNumber = entity.getPhoneNumber();
-		this.updatedAt = java.time.LocalDateTime.now().toString(); // 현재 시간 설정
+public record ResponseMemberMyPageDto(
+	Long id,
+	String oAuthId,
+	String name,
+	String email,
+	Member.MemberType memberType,
+	Member.SnsType snsType,
+	String profileImg,
+	String phoneNumber,
+	String updatedAt
+) {
+	public static ResponseMemberMyPageDto from(Member entity) {
+		return new ResponseMemberMyPageDto(
+			entity.getId(),
+			entity.getOAuthId(),
+			entity.getName(),
+			entity.getEmail(),
+			entity.getMemberType(),
+			entity.getSnsType(),
+			entity.getProfileImg(),
+			entity.getPhoneNumber(),
+			java.time.LocalDateTime.now().toString()
+		);
 	}
 }
 

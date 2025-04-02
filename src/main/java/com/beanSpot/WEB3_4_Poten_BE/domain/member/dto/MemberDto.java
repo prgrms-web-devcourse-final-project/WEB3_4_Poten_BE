@@ -5,28 +5,25 @@ import java.util.Map;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-@Getter
-@NoArgsConstructor
-public class MemberDto {
-	private Long id;
-	private String oAuthId;
-	private String name;
-	private String email;
-	private Member.MemberType memberType;
-	private String profileImg;
-	private Member.SnsType snsType;
-
-	public MemberDto(Member entity) {
-		this.id = entity.getId();
-		this.oAuthId = entity.getOAuthId();
-		this.name = entity.getName();
-		this.email = entity.getEmail();
-		this.memberType = entity.getMemberType();
-		this.snsType = entity.getSnsType();
-		this.profileImg = entity.getProfileImg();
+public record MemberDto(
+	Long id,
+	String oAuthId,
+	String name,
+	String email,
+	Member.MemberType memberType,
+	String profileImg,
+	Member.SnsType snsType
+) {
+	public static MemberDto from(Member member) {
+		return new MemberDto(
+			member.getId(),
+			member.getOAuthId(),
+			member.getName(),
+			member.getEmail(),
+			member.getMemberType(),
+			member.getProfileImg(),
+			member.getSnsType()
+		);
 	}
 
 	public Map<String, Object> getAttributes() {
@@ -40,5 +37,4 @@ public class MemberDto {
 		attributes.put("snsType", this.snsType);
 		return attributes;
 	}
-
 }
