@@ -9,7 +9,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,6 +49,7 @@ public class Cafe {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
+	@Column(columnDefinition = "TEXT")
 	private String image;
 
 	private Boolean disabled;
@@ -72,7 +72,7 @@ public class Cafe {
 		if (request.image() != null) {
 			this.image = request.image();
 		}
-    
+
 		this.updatedAt = LocalDateTime.now();
 	}
 }
