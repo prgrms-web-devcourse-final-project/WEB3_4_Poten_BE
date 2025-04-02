@@ -4,6 +4,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.TimePeriodReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.TimeSlotsReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.AvailableSeatsCount;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.ReservationPostRes;
@@ -107,9 +108,13 @@ class ReservationServiceTest {
     @DisplayName("예약 성공 테스트")
     void t1() {
         // Given
-        ReservationPostReq request = ReservationPostReq.builder()
+        TimePeriodReq time = TimePeriodReq.builder()
                 .startTime(reservation1.getStartTime())
                 .endTime(reservation1.getEndTime())
+                .build();
+
+        ReservationPostReq request = ReservationPostReq.builder()
+                .reservationTime(time)
                 .partySize(reservation1.getPartySize())
                 .build();
 
@@ -118,9 +123,8 @@ class ReservationServiceTest {
 
         // Then
         assertNotNull(response);
-        assertEquals(request.getStartTime(), response.getStartTime());
-        assertEquals(request.getEndTime(), response.getEndTime());
-        assertEquals(request.getEndTime(), response.getEndTime());
+        assertEquals(request.getReservationTime().startTime(), response.getStartTime());
+        assertEquals(request.getReservationTime().endTime(), response.getEndTime());
         assertEquals(request.getPartySize(), response.getPartySize());
 
         // DB에서 실제 데이터 확인
@@ -134,9 +138,13 @@ class ReservationServiceTest {
         // Given
         reservation1.updateReservationTime(LocalDateTime.of(2025, 1, 1, 11, 10), reservation1.getEndTime());
 
-        ReservationPostReq request = ReservationPostReq.builder()
+        TimePeriodReq time = TimePeriodReq.builder()
                 .startTime(reservation1.getStartTime())
                 .endTime(reservation1.getEndTime())
+                .build();
+
+        ReservationPostReq request = ReservationPostReq.builder()
+                .reservationTime(time)
                 .partySize(reservation1.getPartySize())
                 .build();
 
@@ -154,10 +162,14 @@ class ReservationServiceTest {
         // Given
         reservation1 = reservationRepository.save(reservation1);
 
-        ReservationPatchReq request = ReservationPatchReq
-                .builder()
+        TimePeriodReq time = TimePeriodReq.builder()
                 .startTime(LocalDateTime.of(2025, 1, 1, 12, 10))
                 .endTime(LocalDateTime.of(2025, 1, 1, 12, 30))
+                .build();
+
+        ReservationPatchReq request = ReservationPatchReq
+                .builder()
+                .reservationTime(time)
                 .partySize(5)
                 .build();
 
@@ -169,15 +181,15 @@ class ReservationServiceTest {
 
         // Then
         assertNotNull(response);
-        assertEquals(request.getStartTime(), response.getStartTime());
-        assertEquals(request.getEndTime(), response.getEndTime());
+        assertEquals(request.getReservationTime().startTime(), response.getStartTime());
+        assertEquals(request.getReservationTime().endTime(), response.getEndTime());
         assertEquals(5, response.getPartySize());
 
 
         // DB에서 실제 데이터 확인
         Reservation updatedReservation = reservationRepository.findById(reservation1.getId()).orElseThrow();
-        assertEquals(request.getStartTime(), updatedReservation.getStartTime());
-        assertEquals(request.getEndTime(), updatedReservation.getEndTime());
+        assertEquals(request.getReservationTime().startTime(), updatedReservation.getStartTime());
+        assertEquals(request.getReservationTime().endTime(), updatedReservation.getEndTime());
         assertEquals(5, updatedReservation.getPartySize());
     }
 
@@ -201,10 +213,14 @@ class ReservationServiceTest {
         // Given
         reservation1 = reservationRepository.save(reservation1);
 
-        ReservationPatchReq request = ReservationPatchReq
-                .builder()
+        TimePeriodReq time = TimePeriodReq.builder()
                 .startTime(LocalDateTime.of(2025, 1, 1, 11, 59))
                 .endTime(reservation1.getEndTime())
+                .build();
+
+        ReservationPatchReq request = ReservationPatchReq
+                .builder()
+                .reservationTime(time)
                 .partySize(reservation1.getPartySize())
                 .build();
 
@@ -215,9 +231,13 @@ class ReservationServiceTest {
     @Test
     @DisplayName("사용 가능한 시간대 조회")
     void t6() {
-        TimeSlotsReq req = TimeSlotsReq.builder()
+        TimePeriodReq time = TimePeriodReq.builder()
                 .startTime(LocalDateTime.of(2025, 1, 1, 10, 0))
                 .endTime(LocalDateTime.of(2025, 1, 1, 14, 0))
+                .build();
+
+        TimeSlotsReq req = TimeSlotsReq.builder()
+                .reservationTime(time)
                 .partySize(reservation1.getPartySize())
                 .build();
 
