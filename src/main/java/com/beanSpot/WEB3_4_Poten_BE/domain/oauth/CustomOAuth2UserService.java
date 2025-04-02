@@ -53,8 +53,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			email = (String)response.getOrDefault("email", "");
 			name = (String)response.getOrDefault("name", "");
 			profileImg = (String)response.getOrDefault("profile_image", "");
-		} else if (snsType == Member.SnsType.GOOGLE) {
-			// Google 로그인 처리
+		}
+		// Google 로그인 처리
+		else if (snsType == Member.SnsType.GOOGLE) {
 			email = (String)attributes.getOrDefault("email", "");
 			name = (String)attributes.getOrDefault("name", "");
 			profileImg = (String)attributes.getOrDefault("picture", "");
