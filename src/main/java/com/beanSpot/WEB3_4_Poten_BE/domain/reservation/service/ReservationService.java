@@ -40,8 +40,8 @@ public class ReservationService {
         // 예약 가능 여부 확인
         List<Reservation> overlappingReservations = reservationRepository.getOverlappingReservationsWithLock(
                 cafeId,
-                dto.getStartTime(),
-                dto.getEndTime(),
+                dto.getReservationTime().startTime(),
+                dto.getReservationTime().endTime(),
                 null);
 
         if (getMaxOccupiedSeatsCount(overlappingReservations) + dto.getPartySize() > cafe.getCapacity()) {
@@ -50,8 +50,8 @@ public class ReservationService {
 
         Reservation reservation = Reservation.builder()
                 .cafe(cafe)
-                .startTime(dto.getStartTime())
-                .endTime(dto.getEndTime())
+                .startTime(dto.getReservationTime().startTime())
+                .endTime(dto.getReservationTime().endTime())
                 .status(ReservationStatus.CONFIRMED)
                 .partySize(dto.getPartySize())
                 .build();
@@ -76,8 +76,8 @@ public class ReservationService {
         // 예약 가능 여부 확인
         List<Reservation> overlappingReservations = reservationRepository.getOverlappingReservationsWithLock(
                 reservation.getCafe().getCafeId(),
-                dto.getStartTime(),
-                dto.getEndTime(),
+                dto.getReservationTime().startTime(),
+                dto.getReservationTime().endTime(),
                 reservationId);
 
         if (getMaxOccupiedSeatsCount(overlappingReservations) + dto.getPartySize() > reservation.getCafe().getCapacity()) {
@@ -85,7 +85,7 @@ public class ReservationService {
         }
 
         // 예약 정보 업데이트
-        reservation.update(dto.getStartTime(), dto.getEndTime(), dto.getPartySize());
+        reservation.update(dto.getReservationTime().startTime(), dto.getReservationTime().endTime(), dto.getPartySize());
 
         return ReservationPostRes.from(reservation);
     }
@@ -127,14 +127,14 @@ public class ReservationService {
         Cafe cafe = cafeRepository.findById(cafeId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 카페입니다"));
         List<Reservation> overlappingReservations =
-                reservationRepository.getOverlappingReservations(cafeId, req.startTime(), req.endTime(), null);
+                reservationRepository.getOverlappingReservations(cafeId, req.reservationTime().startTime(), req.reservationTime().endTime(), null);
 
         return getAvailableTimeSlotsHelper(
                 overlappingReservations,
                 cafe.getCapacity(),
                 req.partySize(),
-                req.startTime(),
-                req.endTime()
+                req.reservationTime().startTime(),
+                req.reservationTime().endTime()
         );
     }
 

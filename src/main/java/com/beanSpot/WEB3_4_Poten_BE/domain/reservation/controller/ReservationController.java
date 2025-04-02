@@ -26,8 +26,6 @@ public class ReservationController {
             @RequestBody ReservationPostReq dto
     ) {
         //TODO: 추후 리팩토링 하기
-        if (dto.isValidTimeRange()) throw new RuntimeException("끝시간이 시작시간보다 앞에있을수 없습니다");
-
         ReservationPostRes response = reservationService.createReservation(cafeId, dto);
         return ResponseEntity.ok(response);
     }
@@ -37,9 +35,6 @@ public class ReservationController {
             @RequestBody ReservationPatchReq dto,
             @PathVariable Long reservationId
     ) {
-        //TODO: 추후 리팩토링 하기
-        if (dto.isValidTimeRange()) throw new RuntimeException("끝시간이 시작시간보다 앞에있을수 없습니다");
-
         ReservationPostRes response = reservationService.updateReservation(reservationId, dto, LocalDateTime.now());
         return ResponseEntity.ok(response);
     }
@@ -67,7 +62,7 @@ public class ReservationController {
             @RequestBody SeatCountReq req
             ) {
 
-        AvailableSeatsCount res = reservationService.getAvailableSeatsCount(cafeId, req.startTime(), req.endTime());
+        AvailableSeatsCount res = reservationService.getAvailableSeatsCount(cafeId, req.reservationTime().startTime(), req.reservationTime().endTime());
         return ResponseEntity.ok(res);
     }
 

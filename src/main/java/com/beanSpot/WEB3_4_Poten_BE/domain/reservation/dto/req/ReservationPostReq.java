@@ -35,10 +35,4 @@ public class ReservationPostReq {
 
 //	@NotNull(message = "결제 ID는 필수입니다.")
 //	private Long paymentId;
-
-	// 추가 커스텀 검증을 위한 메서드
-	public boolean isValidTimeRange() {
-		return startTime != null && endTime != null &&
-				!startTime.isAfter(endTime);
-	}
 }
