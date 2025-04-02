@@ -108,14 +108,13 @@ class ReservationServiceTest {
     void t1() {
         // Given
         ReservationPostReq request = ReservationPostReq.builder()
-                .cafeId(cafe.getCafeId())
                 .startTime(reservation1.getStartTime())
                 .endTime(reservation1.getEndTime())
                 .partySize(reservation1.getPartySize())
                 .build();
 
         // When
-        ReservationPostRes response = reservationService.createReservation(request);
+        ReservationPostRes response = reservationService.createReservation(cafe.getCafeId(), request);
 
         // Then
         assertNotNull(response);
@@ -136,14 +135,13 @@ class ReservationServiceTest {
         reservation1.updateReservationTime(LocalDateTime.of(2025, 1, 1, 11, 10), reservation1.getEndTime());
 
         ReservationPostReq request = ReservationPostReq.builder()
-                .cafeId(cafe.getCafeId())
                 .startTime(reservation1.getStartTime())
                 .endTime(reservation1.getEndTime())
                 .partySize(reservation1.getPartySize())
                 .build();
 
         // When & Then
-        assertThrows(RuntimeException.class, () -> reservationService.createReservation(request));
+        assertThrows(RuntimeException.class, () -> reservationService.createReservation(cafe.getCafeId(), request));
 
         // DB에서 실제 데이터 확인
         List<Reservation> reservations = reservationRepository.findAll();

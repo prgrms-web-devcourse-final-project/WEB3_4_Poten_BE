@@ -72,18 +72,8 @@ public class Reservation {
 
 	//예약 업데이트 메소드
 	public void update(LocalDateTime startTime, LocalDateTime endTime, int partySize) {
-		this.startTime = startTime;
-		this.endTime = endTime;
+		updateReservationTime(startTime, endTime);
 		this.partySize = partySize;
-	}
-
-	// 예약 취소 메서드 (CHECKED_IN 상태일 때 취소 불가)
-	public void cancelReservation() {
-		this.status = ReservationStatus.CANCELLED;
-	}
-
-	public boolean isOverlapping(LocalDateTime otherStartTime, LocalDateTime otherEndTime) {
-		return this.startTime.isBefore(otherEndTime) && this.endTime.isAfter(otherStartTime);
 	}
 
 	// 예약 시간 변경 메서드 (시작/종료 시간 변경 가능)
@@ -95,17 +85,21 @@ public class Reservation {
 	// 예약 상태 변경 메서드
 	public void updateStatus(ReservationStatus newStatus) {
 		this.status = newStatus;
+		updateValid(newStatus);
+	}
+
+	private void updateValid(ReservationStatus newStatus) {
 		this.valid = newStatus.isValid();
 	}
 
 	// (예약 시작 시간) - (현재시간) >= beforeStartMinutes 이면 true -> 변경 가능
 	public boolean isModifiable(LocalDateTime now, int minutesBeforeStart) {
-		return Duration.between(now, this.startTime).toMinutes() >= minutesBeforeStart;
+		return this.valid && (Duration.between(now, this.startTime).toMinutes() >= minutesBeforeStart);
 	}
 
 	//체크아웃 시간 가능 유무
 	public boolean isCheckoutTimeValid(LocalDateTime checkoutTime) {
-		return !checkoutTime.isBefore(this.startTime) && checkoutTime.isBefore(this.endTime);
+		return this.valid && !checkoutTime.isBefore(this.startTime) && checkoutTime.isBefore(this.endTime);
 	}
 
 	@Builder

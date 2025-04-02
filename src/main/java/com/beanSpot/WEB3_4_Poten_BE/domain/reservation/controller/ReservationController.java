@@ -20,12 +20,15 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     // ✅ 1. 예약 생성 API
-    @PostMapping
-    public ResponseEntity<ReservationPostRes> createReservation(@RequestBody ReservationPostReq dto) {
+    @PostMapping("/{cafeId}")
+    public ResponseEntity<ReservationPostRes> createReservation(
+            @RequestParam Long cafeId,
+            @RequestBody ReservationPostReq dto
+    ) {
         //TODO: 추후 리팩토링 하기
         if (dto.isValidTimeRange()) throw new RuntimeException("끝시간이 시작시간보다 앞에있을수 없습니다");
 
-        ReservationPostRes response = reservationService.createReservation(dto);
+        ReservationPostRes response = reservationService.createReservation(cafeId, dto);
         return ResponseEntity.ok(response);
     }
 
@@ -43,10 +46,9 @@ public class ReservationController {
 
     @PatchMapping("/checkout/{reservationId}")
     public ResponseEntity<Void> checkout(
-            @PathVariable Long reservationId,
-            @RequestBody ReservationCheckoutReq req
+            @PathVariable Long reservationId
     ) {
-        reservationService.checkout(reservationId, req);
+        reservationService.checkout(reservationId, LocalDateTime.now());
         return ResponseEntity.ok().build();
     }
 

@@ -2,7 +2,6 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationCheckoutReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.TimeSlotsReq;
@@ -32,15 +31,15 @@ public class ReservationService {
     //TODO: 시간관련 엣지케이스 고려하기
     // ✅ 1. 예약 생성
     @Transactional
-    public ReservationPostRes createReservation(ReservationPostReq dto) {
+    public ReservationPostRes createReservation(Long cafeId, ReservationPostReq dto) {
 
         //카페 조회
-        Cafe cafe = cafeRepository.findById(dto.getCafeId())
+        Cafe cafe = cafeRepository.findById(cafeId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 카페 Id 입니다."));
 
         // 예약 가능 여부 확인
         List<Reservation> overlappingReservations = reservationRepository.getOverlappingReservationsWithLock(
-                dto.getCafeId(),
+                cafeId,
                 dto.getStartTime(),
                 dto.getEndTime(),
                 null);
@@ -93,17 +92,17 @@ public class ReservationService {
 
     //사용중간에 체크아웃 하는 메소드
     @Transactional
-    public void checkout(long reservationId, ReservationCheckoutReq req) {
+    public void checkout(long reservationId, LocalDateTime checkoutTime) {
         // 예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
 
 
-        if (!reservation.isCheckoutTimeValid(req.checkoutTime())) {
+        if (!reservation.isCheckoutTimeValid(checkoutTime)) {
             throw new RuntimeException("잘못된 체크아웃 시간대 입니다");
         }
 
-        reservation.updateReservationTime(reservation.getStartTime(), req.checkoutTime());
+        reservation.updateReservationTime(reservation.getStartTime(), checkoutTime);
     }
 
     // ✅ 3. 예약 취소
@@ -118,7 +117,7 @@ public class ReservationService {
             throw new RuntimeException("취소가 불가능합니다. 점주님께 문의하세요.");
         }
 
-        reservation.cancelReservation();
+        reservation.updateStatus(ReservationStatus.CANCELLED);
     }
 
     //사용가능한 시간대 조회
