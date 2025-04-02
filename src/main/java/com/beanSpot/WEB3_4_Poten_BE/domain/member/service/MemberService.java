@@ -3,8 +3,6 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.member.service;
 import java.util.List;
 import java.util.Optional;
 
-
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +15,6 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.member.dto.req.UpdateMemberMyPageDto;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
-
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +31,7 @@ public class MemberService implements UserDetailsService {
 
 	@Transactional
 	public Member modifyOrJoin(String oAuthId, String email, String name, String profileImg, Member.SnsType snsType) {
-		return memberRepository.findByoAuthId(oAuthId) // 기존 회원인지 확인 (oAuthId 기준으로 검색)
+		return memberRepository.findByOAuthId(oAuthId) // 기존 회원인지 확인 (oAuthId 기준으로 검색)
 			.map(member -> {
 				// 기존 회원 정보 업데이트
 				member.setName(name);
@@ -59,7 +56,7 @@ public class MemberService implements UserDetailsService {
 
 	@Transactional
 	public Member updateMemberInfo(String oAuthId, UpdateMemberMyPageDto dto, String currentEmail) {
-		return memberRepository.findByoAuthId(oAuthId)
+		return memberRepository.findByOAuthId(oAuthId)
 			.map(member -> {
 				// 이메일 중복 확인 (현재 자신의 이메일이 아닌 다른 이메일로 변경하려는 경우)
 				if (dto.getEmail() != null && !dto.getEmail().equals(currentEmail)) {
@@ -100,7 +97,7 @@ public class MemberService implements UserDetailsService {
 	}
 
 	public Optional<Member> findByOAuthId(String oAuthId) {
-		return memberRepository.findByoAuthId(oAuthId);
+		return memberRepository.findByOAuthId(oAuthId);
 	}
 
 	@Override

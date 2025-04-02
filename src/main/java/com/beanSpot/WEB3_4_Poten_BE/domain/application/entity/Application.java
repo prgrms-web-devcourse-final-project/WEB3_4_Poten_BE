@@ -49,12 +49,19 @@ public class Application {
 	@Column(nullable = false)
 	private LocalDateTime createdAt;
 
+
+	/*@Column(columnDefinition = "TEXT")
+	private String rejectReason;*/
+
+
+
 	public void approve() {
 		this.status = Status.APPROVED;
 	}
 
 	public void reject() {
 		this.status = Status.REJECTED;
+		//this.rejectReason = rejectReason;
 	}
 
 	public Long getUserId() {
