@@ -10,6 +10,6 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 @Repository
 public interface MemberRepository extends JpaRepository <Member, Long>{
 	Optional<Member> findByEmail(String email);
-	Optional<Member> findByoAuthId(String oAuthId);
+	Optional<Member> findByOAuthId(String oAuthId);
 	Optional<Member> findByEmailAndMemberType(String email, Member.MemberType memberType);
 }

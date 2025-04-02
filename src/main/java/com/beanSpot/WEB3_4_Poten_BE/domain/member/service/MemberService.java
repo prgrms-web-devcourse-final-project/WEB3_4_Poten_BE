@@ -30,8 +30,8 @@ public class MemberService implements UserDetailsService {
 	}
 
 	@Transactional
-	public Member modifyOrJoin(String OAuthId, String email, String name, String profileImg, Member.SnsType snsType) {
-		return memberRepository.findByOAuthId(OAuthId) // 기존 회원인지 확인 (OAuthId 기준으로 검색)
+	public Member modifyOrJoin(String oAuthId, String email, String name, String profileImg, Member.SnsType snsType) {
+		return memberRepository.findByOAuthId(oAuthId) // 기존 회원인지 확인 (oAuthId 기준으로 검색)
 			.map(member -> {
 				// 기존 회원 정보 업데이트
 				member.setName(name);
@@ -43,7 +43,7 @@ public class MemberService implements UserDetailsService {
 			.orElseGet(() -> {
 				// 새 회원 생성 시 기본값으로 USER 타입 설정
 				Member member = Member.builder()
-					.oAuthId(OAuthId)
+					.oAuthId(oAuthId)
 					.email(email)
 					.name(name)
 					.profileImg(profileImg)
@@ -55,8 +55,8 @@ public class MemberService implements UserDetailsService {
 	}
 
 	@Transactional
-	public Member updateMemberInfo(String OAuthId, UpdateMemberMyPageDto dto, String currentEmail) {
-		return memberRepository.findByOAuthId(OAuthId)
+	public Member updateMemberInfo(String oAuthId, UpdateMemberMyPageDto dto, String currentEmail) {
+		return memberRepository.findByOAuthId(oAuthId)
 			.map(member -> {
 				// 이메일 중복 확인 (현재 자신의 이메일이 아닌 다른 이메일로 변경하려는 경우)
 				if (dto.email() != null && !dto.email().equals(currentEmail)) {
@@ -97,7 +97,7 @@ public class MemberService implements UserDetailsService {
 	}
 
 	public Optional<Member> findByOAuthId(String oAuthId) {
-		return memberRepository.findByOAuthId(oAuthId);
+		return memberRepository.findByoAuthId(oAuthId);
 	}
 
 	@Override
