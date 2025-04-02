@@ -62,8 +62,13 @@ spring:
             user-info-authentication-method: header
             user-name-attribute: response
 
-#springdoc:
-#  default-produces-media-type: application/json;charset=UTF-8
+springdoc:
+  default-produces-media-type: application/json;charset=UTF-8
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
