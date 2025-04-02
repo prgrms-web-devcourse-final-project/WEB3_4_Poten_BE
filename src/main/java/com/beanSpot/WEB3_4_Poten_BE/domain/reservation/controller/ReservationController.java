@@ -5,6 +5,9 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchR
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service.ReservationService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +20,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/reservations")
 @RequiredArgsConstructor
+@Tag(name = "Reservation", description = "Reservation Controller")
 public class ReservationController {
     private final ReservationService reservationService;
 
     // ✅ 1. 예약 생성 API
+
+    @Operation(
+        summary = "예약 추가",
+        description = "예약을 추가합니다. ")
     @PostMapping
     public ResponseEntity<ReservationPostRes> createReservation(@RequestBody ReservationPostReq dto) {
         //TODO: 추후 리팩토링 하기

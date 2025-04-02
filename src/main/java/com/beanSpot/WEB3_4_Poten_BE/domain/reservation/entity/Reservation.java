@@ -1,6 +1,8 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,6 +32,10 @@ public class Reservation {
     @ManyToOne
 	@JoinColumn(name = "cafe_id", nullable = false)
 	private Cafe cafe;
+
+	@ManyToOne // User와의 관계 추가
+	@JoinColumn(name = "user_id", nullable = false) // user_id라는 외래 키 추가
+	private User user; // User 속성 추가
 
 	@Column(nullable = false)
 	private LocalDateTime startTime; // 예약 시작 시간

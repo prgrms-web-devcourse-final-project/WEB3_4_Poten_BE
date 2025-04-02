@@ -32,7 +32,6 @@ public record ApplicationApprovedRes(
 			cafe.getName(),
 			cafe.getAddress(),
 			cafe.getPhone()
-			// cafe.getOwner().getId()
 		);
 	}
 }
