@@ -15,10 +15,10 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.req.ApplicationReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.res.ApplicationApprovedRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.res.ApplicationRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.service.ApplicationService;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+
 
 @RestController
 @RequestMapping("/api/cafe-application")

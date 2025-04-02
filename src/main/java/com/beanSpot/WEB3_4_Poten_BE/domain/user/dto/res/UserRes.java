@@ -41,7 +41,7 @@ public record UserRes(
 			user.getId(),
 			user.getName(),
 			user.getEmail(),
-			user.getRole(),
+			user.getRole().name(),
 			user.getCreatedAt(),
 			user.getUpdatedAt(),
 			user.getOAuthId(),

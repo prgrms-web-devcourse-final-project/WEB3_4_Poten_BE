@@ -17,8 +17,8 @@ public record ReviewRes(
 	public static ReviewRes fromEntity(Review review) {
 		return new ReviewRes(
 			review.getId(),
-			review.getUserId(),
-			review.getCafeId(),
+			review.getUser().getId(),
+			review.getCafe().getCafeId(),
 			review.getRating(),
 			review.getComment(),
 			review.getCreatedAt(),
