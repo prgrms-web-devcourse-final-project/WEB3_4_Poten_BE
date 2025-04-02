@@ -4,6 +4,8 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.favorite.entity.Favorite;
 import com.beanSpot.WEB3_4_Poten_BE.domain.favorite.repository.FavoriteRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

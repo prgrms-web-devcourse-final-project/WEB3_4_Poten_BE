@@ -1,6 +1,7 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.favorite.entity;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -2,6 +2,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.favorite.repository;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.favorite.entity.Favorite;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
