@@ -5,6 +5,8 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+
 import lombok.Getter;
 
 @Getter
