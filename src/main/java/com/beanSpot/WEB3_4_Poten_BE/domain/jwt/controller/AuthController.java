@@ -12,6 +12,8 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -24,8 +26,16 @@ public class AuthController {
 	private final JwtService jwtService;
 	private final MemberRepository memberRepository;
 
-	@Operation(summary = "액세스 토큰 갱신", description = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 생성합니다.")
 	@PostMapping("/refresh")
+	@Operation(
+		summary = "액세스 토큰 갱신",
+		description = "리프레시 토큰을 사용해 새로운 액세스 토큰을 발급합니다."
+	)
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "토큰 갱신 성공"),
+		@ApiResponse(responseCode = "401", description = "유효하지 않은 리프레시 토큰"),
+		@ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
+	})
 	public ResponseEntity<?> refreshAccessToken(
 		@RequestHeader(value = "RefreshToken", required = false) String refreshToken) {
 
@@ -40,8 +50,8 @@ public class AuthController {
 
 		try {
 			String oAuthId = jwtService.getOAuthIdFromToken(refreshToken);
-			Member member = memberRepository.findByOAuthId(oAuthId)
-				.orElseThrow(() -> new ServiceException(404, "사용자를 찾을 수 없습니다."));
+			Member member = memberRepository.findByoAuthId(oAuthId)
+				.orElseThrow(() -> new ServiceException(400, "사용자를 찾을 수 없습니다."));
 
 			// 새로운 액세스 토큰 생성
 			String newAccessToken = jwtService.generateToken(member);

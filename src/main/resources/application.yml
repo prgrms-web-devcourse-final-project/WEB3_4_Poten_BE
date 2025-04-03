@@ -26,6 +26,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         default_batch_fetch_size: 100
+        show-sql: true
         format_sql: true
         use_sql_comments: true
         highlight-sql: true
@@ -33,12 +34,6 @@ spring:
     oauth2:
       client:
         registration:
-          google:
-            client-id: ON_SECRET
-            client-secret: ON_SECRET
-            scope:
-              - email
-              - profile
           kakao:
             client-Id: ON_SECRET
             scope:

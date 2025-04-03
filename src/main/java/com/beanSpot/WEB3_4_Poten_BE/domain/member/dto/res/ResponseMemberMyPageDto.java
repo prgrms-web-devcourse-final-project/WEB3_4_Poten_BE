@@ -4,7 +4,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 
 public record ResponseMemberMyPageDto(
 	Long id,
-	String oAuthId,
+	String OAuthId,
 	String name,
 	String email,
 	Member.MemberType memberType,

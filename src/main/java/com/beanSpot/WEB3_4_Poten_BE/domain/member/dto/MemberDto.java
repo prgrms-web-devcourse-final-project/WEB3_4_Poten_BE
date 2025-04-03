@@ -7,7 +7,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 
 public record MemberDto(
 	Long id,
-	String oAuthId,
+	String OAuthId,
 	String name,
 	String email,
 	Member.MemberType memberType,
@@ -29,7 +29,7 @@ public record MemberDto(
 	public Map<String, Object> getAttributes() {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put("id", this.id);
-		attributes.put("oAuthId", this.oAuthId);
+		attributes.put("oAuthId", this.OAuthId);
 		attributes.put("name", this.name);
 		attributes.put("email", this.email);
 		attributes.put("memberType", this.memberType);

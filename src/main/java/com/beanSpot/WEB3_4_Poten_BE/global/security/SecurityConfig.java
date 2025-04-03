@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -66,26 +65,34 @@ public class SecurityConfig {
 				.requestMatchers("/api/admin/login").permitAll() // Admin 로그인 엔드포인트 추가
 
 				// API 문서 관련 공개 엔드포인트
-				.requestMatchers("/swagger-ui/**").permitAll()
-				.requestMatchers("/v3/api-docs/**").permitAll()
+				.requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
+				.requestMatchers("/v3/api-docs/**", "/api-docs/**").permitAll()
+				.requestMatchers("/swagger-resources/**").permitAll()
+				.requestMatchers("/webjars/**").permitAll()
 
 				.requestMatchers("/reservation/payment/api/confirm").permitAll()
 
 
 				// 카페 조회 관련 공개 엔드포인트 (GET 메소드만 허용)
-				.requestMatchers(HttpMethod.GET, "/api/cafes/**").permitAll()
+				//.requestMatchers(HttpMethod.GET, "/api/cafes/**").permitAll()
+				.requestMatchers("/api/cafes/**").permitAll()
 
 				// 관리자 엔드포인트 접근 제한
 				.requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
 				.requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
 
 				// 카페 주인 엔드포인트 접근 제한 - OWNER 권한을 가진 사용자만 접근 가능
-				.requestMatchers(HttpMethod.POST, "/api/cafes/**").hasAuthority("ROLE_OWNER")
-				.requestMatchers(HttpMethod.PUT, "/api/cafes/**").hasAuthority("ROLE_OWNER")
-				.requestMatchers(HttpMethod.DELETE, "/api/cafes/**").hasAuthority("ROLE_OWNER")
+				//.requestMatchers(HttpMethod.POST, "/api/cafes/**").hasAuthority("ROLE_OWNER")
+				//.requestMatchers(HttpMethod.PUT, "/api/cafes/**").hasAuthority("ROLE_OWNER")
+				//.requestMatchers(HttpMethod.DELETE, "/api/cafes/**").hasAuthority("ROLE_OWNER")
 
 				// 예약 관련 엔드포인트는 인증된 사용자만 접근
-				.requestMatchers("/reservations/**").authenticated()
+				//.requestMatchers("/reservations/**").authenticated()
+				.requestMatchers("/reservations/**").permitAll()
+
+				//테스트환경용 추가
+				.requestMatchers("/api/cafe-application/**").permitAll()
+				.requestMatchers("/api/auth/me/**").permitAll()
 
 				// 이미지 업로드, 다운로드
 				.requestMatchers(HttpMethod.POST, "/api/images/upload").authenticated()

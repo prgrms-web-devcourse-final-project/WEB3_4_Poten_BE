@@ -26,7 +26,6 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Member implements UserDetails {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,7 +41,7 @@ public class Member implements UserDetails {
 
 	private String profileImg;
 
-	private String oAuthId;
+	private String OAuthId;
 
 	private String phoneNumber;
 
@@ -81,5 +80,25 @@ public class Member implements UserDetails {
 		}
 
 		return authorities;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true; // 기본적으로 활성화되었다고 가정
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true; // 계정이 만료되지 않았다고 가정
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true; // 계정이 잠기지 않았다고 가정
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true; // 인증 정보가 만료되지 않았다고 가정
 	}
 }

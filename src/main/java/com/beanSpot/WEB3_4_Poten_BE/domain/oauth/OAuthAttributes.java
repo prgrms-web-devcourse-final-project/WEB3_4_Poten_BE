@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OAuthAttributes {
 	private final Map<String, Object> attributes;
 	private final String nameAttributeKey;
-	private final String oAuthId;  // kakaoId를 oAuthId로 변경
+	private final String OAuthId;  // kakaoId를 oAuthId로 변경
 	private final String name;
 	private final String email;   //
 	private final String profileImg;
@@ -21,13 +21,13 @@ public class OAuthAttributes {
 	@Builder
 	public OAuthAttributes(Map<String, Object> attributes,
 		String nameAttributeKey,
-		String oAuthId,
+		String OAuthId,
 		String name,
 		String email,
 		String profileImg) {
 		this.attributes = attributes;
 		this.nameAttributeKey = nameAttributeKey;
-		this.oAuthId = oAuthId;
+		this.OAuthId = OAuthId;
 		this.name = name;
 		this.email = email;
 		this.profileImg = profileImg;
@@ -59,7 +59,7 @@ public class OAuthAttributes {
 		return OAuthAttributes.builder()
 			.name((String) profile.getOrDefault("nickname", "Unknown"))
 			.email((String) kakaoAccount.getOrDefault("email", "no-email@example.com"))
-			.oAuthId(String.valueOf(attributes.getOrDefault("id", "")))
+			.OAuthId(String.valueOf(attributes.getOrDefault("id", "")))
 			.attributes(attributes)
 			.profileImg((String) profile.getOrDefault("profile_image_url", ""))
 			.nameAttributeKey(userNameAttributeName)
@@ -77,7 +77,7 @@ public class OAuthAttributes {
 		return OAuthAttributes.builder()
 			.name((String) response.getOrDefault("name", "Unknown"))
 			.email((String) response.getOrDefault("email", "no-email@example.com"))
-			.oAuthId(String.valueOf(response.get("id")))
+			.OAuthId(String.valueOf(response.get("id")))
 			.attributes(attributes)
 			.profileImg((String) response.getOrDefault("profile_image", ""))
 			.nameAttributeKey(userNameAttributeName)
@@ -93,7 +93,7 @@ public class OAuthAttributes {
 		return OAuthAttributes.builder()
 			.name((String) attributes.get("name"))
 			.email((String) attributes.get("email"))
-			.oAuthId((String) attributes.get("sub"))
+			.OAuthId((String) attributes.get("sub"))
 			.attributes(attributes)
 			.profileImg((String) attributes.getOrDefault("picture", ""))
 			.nameAttributeKey(userNameAttributeName)
@@ -102,7 +102,7 @@ public class OAuthAttributes {
 
 	public Member toEntity() {
 		return Member.builder()
-			.oAuthId(oAuthId)
+			.OAuthId(OAuthId)
 			.name(name)
 			.email(email)
 			.phoneNumber("")
@@ -114,7 +114,7 @@ public class OAuthAttributes {
 	// OAuth2User의 attributes를 만들기 위한 메소드 추가
 	public Map<String, Object> getAttributes() {
 		return Map.of(
-			"id", oAuthId,
+			"id", OAuthId,
 			"name", name,
 			"email", email,
 			"profileImg", profileImg
