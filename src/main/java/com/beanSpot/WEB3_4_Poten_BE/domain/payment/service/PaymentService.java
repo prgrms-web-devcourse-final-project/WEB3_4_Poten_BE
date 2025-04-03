@@ -27,30 +27,39 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.res.PaymentResponse;
 public class PaymentService {
 
 	private final PaymentRepository paymentRepository;
+	private final RestTemplate restTemplate = new RestTemplate();
 
 	@Value("${payment.toss.secret-key}")
 	private String secretKey;
+
 	@Value("${payment.toss.confirm-url}")
 	private String confirmUrl;
 
 	@Transactional
 	public PaymentResponse confirmPayment(String paymentKey, String orderId, Long amount) {
-
-		RestTemplate restTemplate = new RestTemplate();
-
 		try {
+			log.info("토스페이먼츠 결제 승인 요청: paymentKey={}, orderId={}, amount={}", paymentKey, orderId, amount);
+
+			// 인증 정보 생성 (Base64 인코딩)
 			String encodedSecretKey = Base64.getEncoder().encodeToString(
 				(secretKey + ":").getBytes(StandardCharsets.UTF_8)
 			);
 
+			// HTTP 헤더 설정
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
 			headers.set("Authorization", "Basic " + encodedSecretKey);
 
+			// 요청 본문 생성
 			TossPaymentRequest requestBody = new TossPaymentRequest(paymentKey, orderId, amount);
 			HttpEntity<TossPaymentRequest> request = new HttpEntity<>(requestBody, headers);
 
+			// 실제 결제 승인 요청 보내기
 			PaymentResponse response = restTemplate.postForObject(confirmUrl, request, PaymentResponse.class);
+
+			if (response == null) {
+				throw new PaymentException("결제 승인 응답이 null입니다.");
+			}
 
 			processSuccessfulPayment(response);
 			return response;
@@ -65,10 +74,8 @@ public class PaymentService {
 
 	private void processSuccessfulPayment(PaymentResponse response) {
 		log.info("결제 성공: orderId={}, amount={}", response.getOrderId(), response.getTotalAmount());
-		log.info("response: {}", response);
 
-		DateTimeFormatter isoFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-		OffsetDateTime offsetDateTime = OffsetDateTime.parse(response.getApprovedAt(), isoFormatter);
+		OffsetDateTime offsetDateTime = OffsetDateTime.parse(response.getApprovedAt(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 
 		paymentRepository.save(Payment.builder()
 			.tossOrderId(response.getOrderId())
@@ -77,9 +84,6 @@ public class PaymentService {
 			.paySuccessDate(offsetDateTime.toLocalDateTime())
 			.method(response.getMethod())
 			.build());
-
-		// 추후 예약(주문)과 연결할 때 추가할 로직
-		// 예약 시스템과 연결 후, 결제 성공 시 예약 상태를 변경하는 로직 추가 예정
 	}
 
 	public record TossPaymentRequest(String paymentKey, String orderId, Long amount) {
