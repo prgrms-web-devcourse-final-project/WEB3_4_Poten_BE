@@ -2,6 +2,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.favorite.service;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.favorite.dto.FavoriteCafeRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.favorite.entity.Favorite;
 import com.beanSpot.WEB3_4_Poten_BE.domain.favorite.repository.FavoriteRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
@@ -66,12 +67,18 @@ public class FavoriteService {
     /**
      * 즐겨찾기 조회
      */
-    public List<String> getFavoriteCafes(Long memberId) {
+    public List<FavoriteCafeRes> getFavoriteCafes(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
         return favoriteRepository.findByMember(member).stream()
-                .map(favorite -> favorite.getCafe().getName()) // 카페 이름만 반환
+                .map(favorite -> FavoriteCafeRes.builder()
+                        .cafeId(favorite.getCafe().getCafeId())
+                        .name(favorite.getCafe().getName())
+                        .address(favorite.getCafe().getAddress())
+                        .image(favorite.getCafe().getImage())
+                        .build()
+                )
                 .collect(Collectors.toList());
     }
 }

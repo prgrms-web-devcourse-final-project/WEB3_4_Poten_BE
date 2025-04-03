@@ -1,5 +1,6 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.favorite.controller;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.favorite.dto.FavoriteCafeRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.favorite.service.FavoriteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -33,8 +34,8 @@ public class FavoriteController {
     }
 
     @GetMapping("/{memberId}")
-    public ResponseEntity<List<String>> getFavorites(@PathVariable Long memberId) {
-        List<String> favoriteCafes = favoriteService.getFavoriteCafes(memberId);
+    public ResponseEntity<List<FavoriteCafeRes>> getFavorites(@PathVariable Long memberId) {
+        List<FavoriteCafeRes> favoriteCafes = favoriteService.getFavoriteCafes(memberId);
         return ResponseEntity.ok(favoriteCafes);
     }
 }
