@@ -66,6 +66,12 @@ public class Cafe {
 	@Column(nullable = false)
 	private int capacity;
 
+	private boolean deleted;
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+	}
+
 	public void update(CafeUpdateReq request) {
 		if (request.name() != null) {
 			this.name = request.name();

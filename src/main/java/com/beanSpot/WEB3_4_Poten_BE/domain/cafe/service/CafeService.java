@@ -45,7 +45,7 @@ public class CafeService {
 			.phone(request.phone())
 			.description(request.description())
 			.createdAt(LocalDateTime.now())
-			.updatedAt(request.updatedAt())
+			.updatedAt(LocalDateTime.now())
 			.image(request.image())
 			.disabled(request.disabled())
 			.build();
@@ -56,7 +56,7 @@ public class CafeService {
 
 	@Transactional
 	public List<CafeInfoRes> getCafeList() {
-		return cafeRepository.findAll().stream()
+		return cafeRepository.findByDisabledFalse().stream()
 			.map(CafeInfoRes::fromEntity)
 			.collect(Collectors.toList());
 	}
@@ -78,7 +78,7 @@ public class CafeService {
 			throw new IllegalStateException("검색 키워드는 비워둘 수 없습니다.");
 		}
 
-		List<Cafe> cafes = cafeRepository.searchByKeyword(keyword);
+		List<Cafe> cafes = cafeRepository.searchByKeywordAndDisabledFalse(keyword);
 
 		return cafes.stream()
 			.map(CafeInfoRes::fromEntity)
@@ -90,7 +90,8 @@ public class CafeService {
 		Cafe cafe = cafeRepository.findById(id)
 			.orElseThrow(() -> new CafeNotFoundException(id));
 
-		cafeRepository.delete(cafe);
+		cafe.setDisabled(true);
+		cafeRepository.save(cafe);
 	}
 
 }

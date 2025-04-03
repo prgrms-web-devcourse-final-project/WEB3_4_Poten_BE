@@ -11,8 +11,11 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 
 @Repository
 public interface CafeRepository extends JpaRepository<Cafe, Long> {
-	@Query("SELECT c FROM Cafe c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(c.address) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-	List<Cafe> searchByKeyword(@Param("keyword") String keyword);
+
+	@Query("SELECT c FROM Cafe c WHERE (LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(c.address) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND c.disabled = false")
+	List<Cafe> searchByKeywordAndDisabledFalse(@Param("keyword") String keyword);
+
+	List<Cafe> findByDisabledFalse();
 
 	boolean existsByNameAndAddress(String name, String address);
 }
