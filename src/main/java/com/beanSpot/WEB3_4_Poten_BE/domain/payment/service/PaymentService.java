@@ -19,7 +19,7 @@ import java.util.Base64;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.entity.Payment;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.exception.PaymentException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.repository.PaymentRepository;
-import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.res.PaymentResponse;
+import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.res.PaymentRes;
 
 @Slf4j
 @Service
@@ -34,7 +34,7 @@ public class PaymentService {
 	private String confirmUrl;
 
 	@Transactional
-	public PaymentResponse confirmPayment(String paymentKey, String orderId, Long amount) {
+	public PaymentRes confirmPayment(String paymentKey, String orderId, Long amount) {
 
 		RestTemplate restTemplate = new RestTemplate();
 
@@ -50,7 +50,7 @@ public class PaymentService {
 			TossPaymentRequest requestBody = new TossPaymentRequest(paymentKey, orderId, amount);
 			HttpEntity<TossPaymentRequest> request = new HttpEntity<>(requestBody, headers);
 
-			PaymentResponse response = restTemplate.postForObject(confirmUrl, request, PaymentResponse.class);
+			PaymentRes response = restTemplate.postForObject(confirmUrl, request, PaymentRes.class);
 
 			processSuccessfulPayment(response);
 			return response;
@@ -63,7 +63,7 @@ public class PaymentService {
 		}
 	}
 
-	private void processSuccessfulPayment(PaymentResponse response) {
+	private void processSuccessfulPayment(PaymentRes response) {
 		log.info("결제 성공: orderId={}, amount={}", response.getOrderId(), response.getTotalAmount());
 		log.info("response: {}", response);
 

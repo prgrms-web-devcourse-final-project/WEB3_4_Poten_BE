@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentConfirmRequest {
+public class PaymentConfirmReq {
     private String paymentKey;
     private String orderId;
     private Long amount;

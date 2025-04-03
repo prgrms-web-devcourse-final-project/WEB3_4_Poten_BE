@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PaymentResponse {
+public class PaymentRes {
     @JsonProperty("mId")
     private String mid;
 

@@ -8,9 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.req.PaymentConfirmRequest;
+import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.req.PaymentConfirmReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.exception.PaymentException;
-import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.res.PaymentResponse;
+import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.res.PaymentRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.service.PaymentService;
 
 import lombok.RequiredArgsConstructor;
@@ -32,14 +32,14 @@ public class PaymentController {
         @RequestParam String orderId,
         @RequestParam long amount) {
 
-        PaymentResponse paymentResponse = paymentService.confirmPayment(paymentKey, orderId, amount);
+        PaymentRes paymentRes = paymentService.confirmPayment(paymentKey, orderId, amount);
 
         // 성공 페이지로 리다이렉트
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create("http://localhost:3000/reservation/payment/success" +
-            "?orderId=" + paymentResponse.getOrderId() +
-            "&amount=" + paymentResponse.getTotalAmount() +
-            "&paymentKey=" + paymentResponse.getPaymentKey()));
+            "?orderId=" + paymentRes.getOrderId() +
+            "&amount=" + paymentRes.getTotalAmount() +
+            "&paymentKey=" + paymentRes.getPaymentKey()));
 
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
@@ -70,9 +70,9 @@ public class PaymentController {
      * 프론트에서 결제 확인 요청
      */
     @PostMapping("/api/confirm")
-    public ResponseEntity<?> confirmPayment(@RequestBody PaymentConfirmRequest request) {
+    public ResponseEntity<?> confirmPayment(@RequestBody PaymentConfirmReq request) {
         try {
-            PaymentResponse response = paymentService.confirmPayment(
+            PaymentRes response = paymentService.confirmPayment(
                 request.getPaymentKey(),
                 request.getOrderId(),
                 request.getAmount()
