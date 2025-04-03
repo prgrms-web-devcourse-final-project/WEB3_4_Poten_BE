@@ -109,7 +109,7 @@ public class ReservationController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<UserReservationRes>> getUserReservations(
             @PathVariable Long userId,
-            @RequestParam Long cursorId
+            @RequestParam(required = false) Long cursorId
     ) {
         List<UserReservationRes> reservations = reservationService.getUserReservations(userId, cursorId);
         return ResponseEntity.ok(reservations);
