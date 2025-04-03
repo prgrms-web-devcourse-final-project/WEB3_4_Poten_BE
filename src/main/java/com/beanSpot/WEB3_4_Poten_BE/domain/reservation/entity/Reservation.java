@@ -17,7 +17,8 @@ import java.time.LocalDateTime;
 //TODO: 필요한 인덱스 추가하기
 @Table(
 		indexes = {
-				@Index(columnList = "cafe_id, start_time, end_time")
+				@Index(columnList = "cafe_id, start_time, end_time"),
+				@Index(columnList = "member_id, id")
 		}
 )
 public class Reservation {

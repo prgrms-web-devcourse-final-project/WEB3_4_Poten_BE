@@ -20,6 +20,11 @@ public class TimePeriodValidator implements ConstraintValidator<ValidTimePeriod,
         LocalDateTime startTime = dto.startTime();
         LocalDateTime endTime = dto.endTime();
 
+        if (!startTime.toLocalDate().equals(endTime.toLocalDate())) {
+            customMessageForViolation(context, "시작 시간과 종료 시간은 같은 날짜여야 합니다");
+            return false;
+        }
+
         if (startTime.isAfter(endTime)) {
             customMessageForViolation(context, "시작 시간은 종료 시간보다 늦을 수 없습니다");
             return false;

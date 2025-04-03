@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 
@@ -62,7 +63,8 @@ public class ReservationController {
     public ResponseEntity<Void> checkout(
             @PathVariable Long reservationId
     ) {
-        reservationService.checkout(reservationId, LocalDateTime.now(), member);
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        reservationService.checkout(reservationId, now, member);
         return ResponseEntity.ok().build();
     }
 
@@ -105,13 +107,16 @@ public class ReservationController {
 
     //특정 사용자의 예약 목록 조회
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<UserReservationRes>> getUserReservations(@PathVariable Long userId) {
-        List<UserReservationRes> reservations = reservationService.getUserReservations(userId);
+    public ResponseEntity<List<UserReservationRes>> getUserReservations(
+            @PathVariable Long userId,
+            @RequestParam Long cursorId
+    ) {
+        List<UserReservationRes> reservations = reservationService.getUserReservations(userId, cursorId);
         return ResponseEntity.ok(reservations);
     }
 
 
-    // ✅ 6. 특정 카페의 예약 조회 (날짜 기준 필터링)
+    //특정 카페의 예약 조회 (날짜 기준 필터링)
     @GetMapping("/cafe/{cafeId}")
     public ResponseEntity<List<CafeReservationRes>> getCafeReservations(
             @PathVariable Long cafeId,

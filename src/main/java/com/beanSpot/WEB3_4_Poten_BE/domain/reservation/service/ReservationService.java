@@ -167,9 +167,8 @@ public class ReservationService {
 
     //특정 사용자의 예약 목록 조회
     @Transactional(readOnly = true)
-    public List<UserReservationRes> getUserReservations(Long userId) {
-        //TODO: 멤버 추가시 수정 주석처리된거 사용하기
-        List<Reservation> reservations = reservationRepository.findByMemberIdOrderByStartTimeDesc(userId);
+    public List<UserReservationRes> getUserReservations(Long userId, Long cursorId) {
+        List<Reservation> reservations = reservationRepository.findReservationsByMemberId(userId, cursorId,10);
 
         return reservations.stream()
                 .map(UserReservationRes::from)
@@ -180,9 +179,9 @@ public class ReservationService {
     @Transactional(readOnly = true)
     public List<CafeReservationRes> getCafeReservations(Long cafeId, LocalDate date) {
         LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.atTime(23, 59, 59);
+        LocalDateTime startOfNextDay = startOfDay.plusDays(1);
 
-        List<Reservation> reservations = reservationRepository.findByCafeIdAndDate(cafeId, startOfDay, endOfDay);
+        List<Reservation> reservations = reservationRepository.findByCafeIdAndDate(cafeId, startOfDay, startOfNextDay);
 
         //TODO: 멤버가 카페의 멤버와 다른면 에러 던지게 하기
 

@@ -13,8 +13,19 @@ import java.util.List;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-    //TODO: 멤버 추가시 수정 주석처리된거 되돌리기
-    List<Reservation> findByMemberIdOrderByStartTimeDesc(Long userId);
+    //이거 커서 기반 페이징 적용
+    @Query("""
+        SELECT r FROM Reservation r
+        WHERE r.member.id = :memberId
+        AND (:cursorId IS NULL OR r.id < :cursorId)
+        ORDER BY r.id DESC
+        LIMIT :limit
+    """)
+    List<Reservation> findReservationsByMemberId(
+            @Param("memberId") Long memberId,
+            @Param("cursorId") Long cursorId,
+            @Param("limit") int limit
+    );
 
     String SELECT_OVERLAPPING_RESERVATIONS = """
         SELECT r
@@ -49,13 +60,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("""
     SELECT r FROM Reservation r
     WHERE r.cafe.id = :cafeId
-    AND r.startTime BETWEEN :startDateTime AND :endDateTime
+    AND (r.startTime < :endTime AND :startTime <= r.startTime)
     ORDER BY r.startTime DESC
-""")
+    """)
     List<Reservation> findByCafeIdAndDate(
             @Param("cafeId") Long cafeId,
-            @Param("startDateTime") LocalDateTime startDateTime,
-            @Param("endDateTime") LocalDateTime endDateTime
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime
     );
 //이거 없어도 될듯?..
 //    @Query("""
