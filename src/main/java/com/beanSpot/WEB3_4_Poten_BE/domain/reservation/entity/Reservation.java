@@ -1,6 +1,7 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,6 +31,10 @@ public class Reservation {
     @ManyToOne
 	@JoinColumn(name = "cafe_id", nullable = false)
 	private Cafe cafe;
+
+	@ManyToOne
+	@JoinColumn(name = "member_id", nullable = false)
+	private Member member;
 
 	@Column(nullable = false)
 	private LocalDateTime startTime; // 예약 시작 시간
@@ -93,13 +98,21 @@ public class Reservation {
 	}
 
 	// (예약 시작 시간) - (현재시간) >= beforeStartMinutes 이면 true -> 변경 가능
-	public boolean isModifiable(LocalDateTime now, int minutesBeforeStart) {
-		return this.valid && (Duration.between(now, this.startTime).toMinutes() >= minutesBeforeStart);
+	public boolean isModifiable(LocalDateTime now, int minutesBeforeStart, Member member) {
+		return this.valid &&
+				isOwner(member) &&
+				(Duration.between(now, this.startTime).toMinutes() >= minutesBeforeStart);
 	}
 
 	//체크아웃 시간 가능 유무
-	public boolean isCheckoutTimeValid(LocalDateTime checkoutTime) {
-		return this.valid && !checkoutTime.isBefore(this.startTime) && checkoutTime.isBefore(this.endTime);
+	public boolean isCheckoutTimeValid(LocalDateTime checkoutTime, Member member) {
+		return this.valid &&
+				isOwner(member) &&
+				!checkoutTime.isBefore(this.startTime) && checkoutTime.isBefore(this.endTime);
+	}
+
+	public boolean isOwner(Member member) {
+		return this.member.getId().equals(member.getId());
 	}
 
 	@Builder

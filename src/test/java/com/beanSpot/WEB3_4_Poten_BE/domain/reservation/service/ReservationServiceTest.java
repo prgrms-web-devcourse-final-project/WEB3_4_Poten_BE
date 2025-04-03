@@ -2,6 +2,8 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.TimePeriodReq;
@@ -39,11 +41,16 @@ class ReservationServiceTest {
     private CafeRepository cafeRepository;
 
     @Autowired
+    private MemberRepository memberRepository;
+
+    @Autowired
     private TestEntityManager entityManager;
 
     private ReservationService reservationService;
 
     private Cafe cafe;
+    private Member member1;
+    private Member member2;
     private Reservation reservation1;
     private Reservation reservation2;
     private Reservation reservation3;
@@ -51,6 +58,24 @@ class ReservationServiceTest {
 
     @BeforeEach
     void setUp() {
+        member1 = Member.builder()
+                .email("user1@google.com")
+                .name("user1")
+                .memberType(Member.MemberType.USER)
+                .oAuthId("user1")
+                .password("1234")
+                .username("user1")
+                .build();
+
+        member2 = Member.builder()
+                .email("user2@google.com")
+                .name("user2")
+                .memberType(Member.MemberType.USER)
+                .oAuthId("user2")
+                .password("1234")
+                .username("user2")
+                .build();
+
         // 테스트용 Cafe 및 Reservation 저장
         cafe = Cafe.builder()
                 .name("cafe1")
@@ -65,11 +90,14 @@ class ReservationServiceTest {
                 .createdAt(LocalDateTime.of(2025, 1, 1, 0, 0))
                 .build();
         cafe = cafeRepository.save(cafe);
+        member1 = memberRepository.save(member1);
+        member2 = memberRepository.save(member2);
 
         reservationService = new ReservationService(reservationRepository, cafeRepository);
 
         reservation1 = Reservation.builder()
                 .cafe(cafe)
+                .member(member1)
                 .startTime(LocalDateTime.of(2025, 1, 1, 12, 0))
                 .endTime(LocalDateTime.of(2025, 1, 1, 13, 0))
                 .partySize(2)
@@ -78,6 +106,7 @@ class ReservationServiceTest {
 
         reservation2 = Reservation.builder()
                 .cafe(cafe)
+                .member(member2)
                 .startTime(LocalDateTime.of(2025, 1, 1, 10, 0))
                 .endTime(LocalDateTime.of(2025, 1, 1, 12, 0))
                 .status(ReservationStatus.CONFIRMED)
@@ -87,6 +116,7 @@ class ReservationServiceTest {
 
         reservation3 = Reservation.builder()
                 .cafe(cafe)
+                .member(member2)
                 .startTime(LocalDateTime.of(2025, 1, 1, 12, 30))
                 .endTime(LocalDateTime.of(2025, 1, 1, 14, 0))
                 .status(ReservationStatus.CONFIRMED)
@@ -96,6 +126,7 @@ class ReservationServiceTest {
 
         reservation4 = Reservation.builder()
                 .cafe(cafe)
+                .member(member2)
                 .startTime(LocalDateTime.of(2025, 1, 1, 12, 0))
                 .endTime(LocalDateTime.of(2025, 1, 1, 13, 0))
                 .status(ReservationStatus.CANCELLED)
@@ -119,7 +150,7 @@ class ReservationServiceTest {
                 .build();
 
         // When
-        ReservationPostRes response = reservationService.createReservation(cafe.getCafeId(), request);
+        ReservationPostRes response = reservationService.createReservation(cafe.getCafeId(), request, member1);
 
         // Then
         assertNotNull(response);
@@ -149,7 +180,7 @@ class ReservationServiceTest {
                 .build();
 
         // When & Then
-        assertThrows(RuntimeException.class, () -> reservationService.createReservation(cafe.getCafeId(), request));
+        assertThrows(RuntimeException.class, () -> reservationService.createReservation(cafe.getCafeId(), request, member1));
 
         // DB에서 실제 데이터 확인
         List<Reservation> reservations = reservationRepository.findAll();
@@ -177,7 +208,8 @@ class ReservationServiceTest {
         ReservationPostRes response = reservationService.updateReservation(
                 reservation1.getId(),
                 request,
-                LocalDateTime.of(2025, 1, 1, 10, 0));
+                LocalDateTime.of(2025, 1, 1, 10, 0),
+                member1);
 
         // Then
         assertNotNull(response);
@@ -200,7 +232,7 @@ class ReservationServiceTest {
         reservation1 = reservationRepository.save(reservation1);
 
         // When
-        reservationService.cancelReservation(reservation1.getId(), LocalDateTime.of(2025, 1, 1, 10, 0));
+        reservationService.cancelReservation(reservation1.getId(), LocalDateTime.of(2025, 1, 1, 10, 0), member1);
 
         // Then
         Reservation canceledReservation = reservationRepository.findById(reservation1.getId()).orElseThrow();
@@ -225,7 +257,7 @@ class ReservationServiceTest {
                 .build();
 
         // Then
-        assertThrows(RuntimeException.class, () -> reservationService.updateReservation(reservation1.getId(), request, LocalDateTime.of(2025, 1, 1, 10, 0)));
+        assertThrows(RuntimeException.class, () -> reservationService.updateReservation(reservation1.getId(), request, LocalDateTime.of(2025, 1, 1, 10, 0), member1));
     }
 
     @Test

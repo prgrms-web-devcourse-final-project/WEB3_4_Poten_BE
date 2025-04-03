@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     //TODO: 멤버 추가시 수정 주석처리된거 되돌리기
-    //List<Reservation> findByUserIdOrderByStartTimeDesc(Long userId);
+    List<Reservation> findByMemberIdOrderByStartTimeDesc(Long userId);
 
     String SELECT_OVERLAPPING_RESERVATIONS = """
         SELECT r

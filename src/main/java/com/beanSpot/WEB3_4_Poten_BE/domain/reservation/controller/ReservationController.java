@@ -1,8 +1,11 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.controller;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.*;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service.ReservationService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,12 +15,28 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 
-//TODO: 시간 검증로직 꼼꼼하게 추가하기
 @RestController
 @RequestMapping("/reservations")
 @RequiredArgsConstructor
 public class ReservationController {
     private final ReservationService reservationService;
+    //TODO: 추후삭제
+    private final MemberRepository memberRepository;
+    private Member member = Member.builder()
+            .email("user0@google.com")
+            .name("user0")
+            .memberType(Member.MemberType.USER)
+            .oAuthId("user0")
+            .password("1234")
+            .username("user0")
+            .build();
+
+    @PostConstruct
+    public void initMember() {
+        member = memberRepository.save(member);
+    }
+    // 끝
+
 
     // ✅ 1. 예약 생성 API
     @PostMapping("/{cafeId}")
@@ -26,7 +45,7 @@ public class ReservationController {
             @RequestBody ReservationPostReq dto
     ) {
         //TODO: 추후 리팩토링 하기
-        ReservationPostRes response = reservationService.createReservation(cafeId, dto);
+        ReservationPostRes response = reservationService.createReservation(cafeId, dto, member);
         return ResponseEntity.ok(response);
     }
 
@@ -35,7 +54,7 @@ public class ReservationController {
             @RequestBody ReservationPatchReq dto,
             @PathVariable Long reservationId
     ) {
-        ReservationPostRes response = reservationService.updateReservation(reservationId, dto, LocalDateTime.now());
+        ReservationPostRes response = reservationService.updateReservation(reservationId, dto, LocalDateTime.now(), member);
         return ResponseEntity.ok(response);
     }
 
@@ -43,7 +62,7 @@ public class ReservationController {
     public ResponseEntity<Void> checkout(
             @PathVariable Long reservationId
     ) {
-        reservationService.checkout(reservationId, LocalDateTime.now());
+        reservationService.checkout(reservationId, LocalDateTime.now(), member);
         return ResponseEntity.ok().build();
     }
 
@@ -52,7 +71,7 @@ public class ReservationController {
             @RequestBody ReservationPostReq dto,
             @PathVariable Long reservationId
     ) {
-        reservationService.cancelReservation(reservationId, LocalDateTime.now());
+        reservationService.cancelReservation(reservationId, LocalDateTime.now(), member);
         return ResponseEntity.ok().build();
     }
 
@@ -80,11 +99,11 @@ public class ReservationController {
     public ResponseEntity<ReservationDetailRes> getReservationDetail(
             @PathVariable Long reservationId
     ) {
-        ReservationDetailRes res = reservationService.getReservationDetail(reservationId);
+        ReservationDetailRes res = reservationService.getReservationDetail(reservationId, member);
         return ResponseEntity.ok(res);
     }
 
-    // ✅ 5. 특정 사용자의 예약 목록 조회
+    //특정 사용자의 예약 목록 조회
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<UserReservationRes>> getUserReservations(@PathVariable Long userId) {
         List<UserReservationRes> reservations = reservationService.getUserReservations(userId);
