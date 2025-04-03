@@ -40,7 +40,7 @@ public class Review {
 	@Column(nullable = false)
 	private int rating;
 
-	@Column(length = 1000) //추후 수정 가능
+	@Column(length = 1000, nullable = false) //추후 수정 가능
 	private String comment;
 
 	@Column(name = "created_at", nullable = false)

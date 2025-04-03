@@ -10,7 +10,7 @@ public record ReviewCreateReq(
 	Long cafeId,
 
 	@NotNull
-	int rating,
+	Integer rating,
 
 	@NotNull
 	String comment

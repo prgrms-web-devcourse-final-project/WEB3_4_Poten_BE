@@ -33,14 +33,19 @@ public class Cafe {
 	@JoinColumn(name = "owner_id")
 	private User owner;
 
+	@Column(nullable = false)
 	private String name;
 
+	@Column(nullable = false)
 	private String address;
 
+	@Column(nullable = false)
 	private Double latitude;
 
+	@Column(nullable = false)
 	private Double longitude;
 
+	@Column(nullable = false)
 	private String phone;
 
 	@Column(columnDefinition = "TEXT")
@@ -52,10 +57,13 @@ public class Cafe {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
+	@Column(nullable = false)
 	private String image;
 
+	@Column(nullable = false)
 	private Boolean disabled;
 
+	@Column(nullable = false)
 	private int capacity;
 
 	public void update(CafeUpdateReq request) {
