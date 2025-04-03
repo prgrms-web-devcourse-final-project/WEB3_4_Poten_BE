@@ -4,6 +4,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.favorite.dto.FavoriteCafeRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.favorite.entity.Favorite;
+import com.beanSpot.WEB3_4_Poten_BE.domain.favorite.entity.FavoriteId;
 import com.beanSpot.WEB3_4_Poten_BE.domain.favorite.repository.FavoriteRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
@@ -37,14 +38,11 @@ public class FavoriteService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카페입니다."));
 
         // 이미 즐겨찾기한 경우 예외 처리
-        if (favoriteRepository.findByMemberAndCafe(member, cafe).isPresent()) {
+        if (favoriteRepository.findById(new FavoriteId(memberId, cafeId)).isPresent()) {
             throw new IllegalStateException("이미 즐겨찾기에 추가된 카페입니다.");
         }
 
-        Favorite favorite = Favorite.builder()
-                .member(member)
-                .cafe(cafe)
-                .build();
+        Favorite favorite = new Favorite(member, cafe);
 
         favoriteRepository.save(favorite);
     }
@@ -53,12 +51,9 @@ public class FavoriteService {
      * 즐겨찾기 삭제
      */
     public void removeFavorite(Long memberId, Long cafeId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-        Cafe cafe = cafeRepository.findById(cafeId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카페입니다."));
+        FavoriteId favoriteId = new FavoriteId(memberId, cafeId);
 
-        Favorite favorite = favoriteRepository.findByMemberAndCafe(member, cafe)
+        Favorite favorite = favoriteRepository.findById(favoriteId)
                 .orElseThrow(() -> new IllegalArgumentException("즐겨찾기에 없는 카페입니다."));
 
         favoriteRepository.delete(favorite);
