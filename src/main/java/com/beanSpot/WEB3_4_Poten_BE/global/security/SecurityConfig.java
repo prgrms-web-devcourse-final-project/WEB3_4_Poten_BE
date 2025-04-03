@@ -69,6 +69,9 @@ public class SecurityConfig {
 				.requestMatchers("/swagger-ui/**").permitAll()
 				.requestMatchers("/v3/api-docs/**").permitAll()
 
+				.requestMatchers("/reservation/payment/api/confirm").permitAll()
+
+
 				// 카페 조회 관련 공개 엔드포인트 (GET 메소드만 허용)
 				.requestMatchers(HttpMethod.GET, "/api/cafes/**").permitAll()
 
