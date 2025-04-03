@@ -69,28 +69,6 @@ public class ApplicationService {
 	}
 
 	@Transactional
-	public ApplicationApprovedRes approveCafe(Long applicationId) {
-		Application application = applicationRepository.findById(applicationId)
-			.orElseThrow(() -> new ApplicationNotFoundException(applicationId));
-
-		application.approve();
-
-		User owner = application.getUser();
-		owner.changeRoleToOwner();
-
-		Cafe newCafe = Cafe.builder()
-			.owner(owner)
-			.name(application.getName())
-			.address(application.getAddress())
-			.phone(application.getPhone())
-			.build();
-
-		cafeRepository.save(newCafe);
-
-		return ApplicationApprovedRes.fromEntity(newCafe);
-	}
-
-	@Transactional
 	public ApplicationRes rejectCafe(Long applicationId) {
 		Application application = applicationRepository.findById(applicationId)
 			.orElseThrow(() -> new ApplicationNotFoundException(applicationId));

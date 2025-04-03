@@ -60,15 +60,6 @@ public class ApplicationController {
 	}
 
 	@Operation(
-		summary = "신청 허용",
-		description = "신청을 APPROVED 상태로 바꿉니다. 신청을 보낸 사용자의 상태가 OWNER로 변경됩니다.")
-	@PostMapping("/approve/{id}")
-	public ResponseEntity<ApplicationApprovedRes> approveCafe(@PathVariable Long id) {
-		ApplicationApprovedRes applicationApprovedRes = applicationService.approveCafe(id);
-		return ResponseEntity.ok(applicationApprovedRes);
-	}
-
-	@Operation(
 		summary = "신청 거부",
 		description = "신청을 REJECTED 상태로 바꿉니다.")
 	@PostMapping("/reject/{id}")
