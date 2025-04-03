@@ -4,19 +4,13 @@ spring:
   application:
     name: WEB3_4_Poten_BE
   profiles:
-    active: dev
+    active: dev, secret
   web:
     resources:
       add-mappings: false
   output:
     ansi:
       enabled: always
-  datasource:
-    url: jdbc:h2:./db_dev;MODE=MySQL
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
-
     hikari:
       auto-commit: false
   jpa:
@@ -24,7 +18,9 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
         default_batch_fetch_size: 100
+        show-sql: true
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
@@ -32,12 +28,6 @@ spring:
     oauth2:
       client:
         registration:
-          google:
-            client-id: ON_SECRET
-            client-secret: ON_SECRET
-            scope:
-              - email
-              - profile
           kakao:
             clientId: ON_SECRET
             scope:
@@ -47,6 +37,7 @@ spring:
             client-name: Kakao
             authorization-grant-type: authorization_code
             redirect-uri: "${custom.site.backUrl}/{action}/oauth2/code/{registrationId}"
+
           naver:
             client-id: ON_SECRET
             scope:

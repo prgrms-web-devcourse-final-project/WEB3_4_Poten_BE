@@ -26,7 +26,7 @@ public class CafeController {
 	private final CafeService cafeService;
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Cafe> updateCafe(@PathVariable Long id, @RequestBody CafeUpdateReq request) {
+	public ResponseEntity<Cafe> updateCafe(@PathVariable("id") Long id, @RequestBody CafeUpdateReq request) {
 		Cafe updatedCafe = cafeService.updateCafe(id, request);
 		return ResponseEntity.ok(updatedCafe);
 	}

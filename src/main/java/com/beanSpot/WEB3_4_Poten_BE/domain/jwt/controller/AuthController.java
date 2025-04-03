@@ -11,8 +11,14 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+
+@Tag(name = "Auth", description = "인증 관련 API")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -22,6 +28,15 @@ public class AuthController {
 	private final MemberRepository memberRepository;
 
 	@PostMapping("/refresh")
+	@Operation(
+		summary = "액세스 토큰 갱신",
+		description = "리프레시 토큰을 사용해 새로운 액세스 토큰을 발급합니다."
+	)
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "토큰 갱신 성공"),
+		@ApiResponse(responseCode = "401", description = "유효하지 않은 리프레시 토큰"),
+		@ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
+	})
 	public ResponseEntity<?> refreshAccessToken(
 		@RequestHeader(value = "RefreshToken", required = false) String refreshToken) {
 
