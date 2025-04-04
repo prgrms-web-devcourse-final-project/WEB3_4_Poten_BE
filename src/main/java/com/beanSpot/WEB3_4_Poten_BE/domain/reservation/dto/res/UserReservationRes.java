@@ -15,6 +15,7 @@ public class UserReservationRes {
 	private LocalDateTime startTime;
 	private LocalDateTime endTime;
 	private LocalDateTime createdAt;
+	private Integer partySize;
 	private String cafeName;
 	private Long cafeId;
 
@@ -27,6 +28,7 @@ public class UserReservationRes {
 			.cafeName(reservation.getCafe().getName())
 			//.userName(userName)
 		    .createdAt(reservation.getCreatedAt())
+				.partySize(reservation.getPartySize())
 				.build();
 
 	}
