@@ -13,7 +13,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/s3")
 @RequiredArgsConstructor
-public class S3Controller {
+public class ImageController {
 
 	private final ImageService imageService;
 
