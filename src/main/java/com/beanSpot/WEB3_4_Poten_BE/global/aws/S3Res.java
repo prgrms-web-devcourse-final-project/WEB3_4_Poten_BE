@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileResponseDto {
+public class S3Res {
 	private String fileName;
 	private String fileUrl;
 	private String fileType;

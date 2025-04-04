@@ -13,7 +13,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
-public class FileUploadController {
+public class S3Controller {
 
 	private final S3Service s3Service;
 
