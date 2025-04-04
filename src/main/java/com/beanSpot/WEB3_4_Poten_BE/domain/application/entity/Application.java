@@ -2,6 +2,8 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.application.entity;
 
 import java.time.LocalDateTime;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,6 +11,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,9 +30,9 @@ public class Application {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	// @ManyToOne
-	// @JoinColumn(name = "user_id", nullable = false)
-	// private User user;
+	@OneToOne
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
 	@Column(nullable = false)
 	private String name;

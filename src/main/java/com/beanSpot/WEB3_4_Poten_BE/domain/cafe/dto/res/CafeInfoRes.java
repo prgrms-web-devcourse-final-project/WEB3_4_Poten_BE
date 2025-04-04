@@ -12,8 +12,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 public record CafeInfoRes(
 	@NonNull
 	Long cafeId,
-	// @NonNull
-	// Long ownerId,
+	Long ownerId,
 	String name,
 	String address,
 	Double latitude,
@@ -29,7 +28,7 @@ public record CafeInfoRes(
 	public static CafeInfoRes fromEntity(Cafe cafe) {
 		return CafeInfoRes.builder()
 			.cafeId(cafe.getCafeId())
-			// .ownerId(cafe.getOwnerId())
+			.ownerId(cafe.getOwner().getId())
 			.name(cafe.getName())
 			.address(cafe.getAddress())
 			.latitude(cafe.getLatitude())
