@@ -1,8 +1,7 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
-
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,7 +17,8 @@ import java.time.LocalDateTime;
 //TODO: 필요한 인덱스 추가하기
 @Table(
 		indexes = {
-				@Index(columnList = "cafe_id, start_time, end_time")
+				@Index(columnList = "cafe_id, start_time, end_time"),
+				@Index(columnList = "member_id, id")
 		}
 )
 public class Reservation {
@@ -33,15 +33,18 @@ public class Reservation {
 	@JoinColumn(name = "cafe_id", nullable = false)
 	private Cafe cafe;
 
-	@ManyToOne // User와의 관계 추가
-	@JoinColumn(name = "user_id", nullable = false) // user_id라는 외래 키 추가
-	private User user; // User 속성 추가
+	@ManyToOne
+	@JoinColumn(name = "member_id", nullable = false)
+	private Member member;
 
 	@Column(nullable = false)
 	private LocalDateTime startTime; // 예약 시작 시간
 
 	@Column(nullable = false)
 	private LocalDateTime endTime; // 예약 종료 시간
+
+	@Column(nullable = false)
+	private Integer partySize;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
@@ -74,25 +77,13 @@ public class Reservation {
 	}
 
 	//예약 업데이트 메소드
-	public void update(LocalDateTime startTime, LocalDateTime endTime) {
-		this.startTime = startTime;
-		this.endTime = endTime;
-	}
-
-	// 예약 취소 메서드 (CHECKED_IN 상태일 때 취소 불가)
-	public void cancelReservation() {
-		this.status = ReservationStatus.CANCELLED;
-	}
-
-	public boolean isOverlapping(LocalDateTime otherStartTime, LocalDateTime otherEndTime) {
-		return this.startTime.isBefore(otherEndTime) && this.endTime.isAfter(otherStartTime);
+	public void update(LocalDateTime startTime, LocalDateTime endTime, int partySize) {
+		updateReservationTime(startTime, endTime);
+		this.partySize = partySize;
 	}
 
 	// 예약 시간 변경 메서드 (시작/종료 시간 변경 가능)
 	public void updateReservationTime(LocalDateTime newStartTime, LocalDateTime newEndTime) {
-		if (this.status != ReservationStatus.CONFIRMED) {
-			throw new IllegalStateException("진행 중이거나 종료된 예약은 변경할 수 없습니다.");
-		}
 		this.startTime = newStartTime;
 		this.endTime = newEndTime;
 	}
@@ -100,18 +91,29 @@ public class Reservation {
 	// 예약 상태 변경 메서드
 	public void updateStatus(ReservationStatus newStatus) {
 		this.status = newStatus;
+		updateValid(newStatus);
+	}
+
+	private void updateValid(ReservationStatus newStatus) {
 		this.valid = newStatus.isValid();
 	}
 
 	// (예약 시작 시간) - (현재시간) >= beforeStartMinutes 이면 true -> 변경 가능
-	public boolean isModifiable(int minutesBeforeStart) {
-		LocalDateTime now = LocalDateTime.now();
-		return Duration.between(now, this.startTime).toMinutes() >= minutesBeforeStart;
+	public boolean isModifiable(LocalDateTime now, int minutesBeforeStart, Member member) {
+		return this.valid &&
+				isOwner(member) &&
+				(Duration.between(now, this.startTime).toMinutes() >= minutesBeforeStart);
 	}
 
 	//체크아웃 시간 가능 유무
-	public boolean isCheckoutTimeValid(LocalDateTime checkoutTime) {
-		return !checkoutTime.isBefore(this.startTime) && checkoutTime.isBefore(this.endTime);
+	public boolean isCheckoutTimeValid(LocalDateTime checkoutTime, Member member) {
+		return this.valid &&
+				isOwner(member) &&
+				!checkoutTime.isBefore(this.startTime) && checkoutTime.isBefore(this.endTime);
+	}
+
+	public boolean isOwner(Member member) {
+		return this.member.getId().equals(member.getId());
 	}
 
 	@Builder
