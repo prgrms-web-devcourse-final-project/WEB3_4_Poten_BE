@@ -23,14 +23,19 @@ public class Payment {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(unique = true)
-	private String tossOrderId;	// 토스 주문ID (예: "ORDER_20250306_ABC123")
+	@Column(unique = true, nullable = false)
+	private String orderId;	// 토스 주문ID (예: "ORDER_20250306_ABC123")
 
+	@Column(nullable = false)
 	private String paymentKey;
 
-	private Long paidAmount;
+	@Column(nullable = false)
+	private Long amount;
 
+	@Column(nullable = false)
 	private LocalDateTime paySuccessDate;
 
+	@Column(nullable = false)
 	private String method;
+
 }
