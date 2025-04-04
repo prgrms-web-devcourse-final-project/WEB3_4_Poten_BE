@@ -3,13 +3,15 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity;
 import java.time.LocalDateTime;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,18 +29,23 @@ public class Cafe {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long cafeId;
 
-	// @NotNull
-	// @Column(name = "owner_id", nullable = false)
-	// private Long ownerId;
+	@ManyToOne
+	@JoinColumn(name = "owner_id")
+	private User owner;
 
+	@Column(nullable = false)
 	private String name;
 
+	@Column(nullable = false)
 	private String address;
 
+	@Column(nullable = false)
 	private Double latitude;
 
+	@Column(nullable = false)
 	private Double longitude;
 
+	@Column(nullable = false)
 	private String phone;
 
 	@Column(columnDefinition = "TEXT")
@@ -50,11 +57,20 @@ public class Cafe {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
+	@Column(nullable = false)
 	private String image;
 
+	@Column(nullable = false)
 	private Boolean disabled;
 
+	@Column(nullable = false)
 	private int capacity;
+
+	private boolean deleted;
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+	}
 
 	public void update(CafeUpdateReq request) {
 		if (request.name() != null) {

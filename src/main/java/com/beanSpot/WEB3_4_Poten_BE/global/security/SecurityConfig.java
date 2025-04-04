@@ -70,6 +70,9 @@ public class SecurityConfig {
 				.requestMatchers("/swagger-resources/**").permitAll()
 				.requestMatchers("/webjars/**").permitAll()
 
+				.requestMatchers("/reservation/payment/api/confirm").permitAll()
+
+
 				// 카페 조회 관련 공개 엔드포인트 (GET 메소드만 허용)
 				//.requestMatchers(HttpMethod.GET, "/api/cafes/**").permitAll()
 				.requestMatchers("/api/cafes/**").permitAll()
@@ -90,6 +93,9 @@ public class SecurityConfig {
 				//테스트환경용 추가
 				.requestMatchers("/api/cafe-application/**").permitAll()
 				.requestMatchers("/api/auth/me/**").permitAll()
+
+				// 파일 업로드
+				.requestMatchers(HttpMethod.POST, "/api/files/upload").permitAll()
 
 				// 그 외 모든 요청은 인증 필요
 				.anyRequest().authenticated()

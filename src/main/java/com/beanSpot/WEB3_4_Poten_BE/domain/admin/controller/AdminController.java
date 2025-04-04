@@ -15,6 +15,8 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.JwtService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,12 +24,16 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin")
+@Tag(name = "Admin", description = "Admin Controller")
 public class AdminController {
 
 	private final JwtService jwtService;
 	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
 
+	@Operation(
+		summary = "관리자 로그인",
+		description = "관리자 로그인입니다.")
 	@PostMapping("/login")
 	public ResponseEntity<?> adminLogin(@RequestBody AdminLoginDto loginDto) {
 		try {

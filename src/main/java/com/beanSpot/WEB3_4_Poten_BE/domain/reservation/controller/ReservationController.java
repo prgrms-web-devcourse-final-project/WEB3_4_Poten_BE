@@ -1,32 +1,52 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.controller;
 
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationCheckoutReq;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchReq;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.*;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service.ReservationService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-//TODO: 예약시 현재 사용중인 좌석수와 기타정보 던져주는 api 작성하기
-//TODO: 시간연장 api 작성?? 꼭 필요한지는 모르겠음
+
 @RestController
 @RequestMapping("/reservations")
 @RequiredArgsConstructor
 public class ReservationController {
     private final ReservationService reservationService;
+    //TODO: 추후삭제
+    private final MemberRepository memberRepository;
+    private Member member = Member.builder()
+            .email("user0@google.com")
+            .name("user0")
+            .memberType(Member.MemberType.USER)
+            .oAuthId("user0")
+            .password("1234")
+            .username("user0")
+            .build();
+
+    @PostConstruct
+    public void initMember() {
+        member = memberRepository.save(member);
+    }
+    // 끝
+
 
     // ✅ 1. 예약 생성 API
-    @PostMapping
-    public ResponseEntity<ReservationPostRes> createReservation(@RequestBody ReservationPostReq dto) {
+    @PostMapping("/{cafeId}")
+    public ResponseEntity<ReservationPostRes> createReservation(
+            @RequestParam Long cafeId,
+            @RequestBody ReservationPostReq dto
+    ) {
         //TODO: 추후 리팩토링 하기
-        if (dto.isValidTimeRange()) throw new RuntimeException("끝시간이 시작시간보다 앞에있을수 없습니다");
-
-        ReservationPostRes response = reservationService.createReservation(dto);
+        ReservationPostRes response = reservationService.createReservation(cafeId, dto, member);
         return ResponseEntity.ok(response);
     }
 
@@ -35,19 +55,16 @@ public class ReservationController {
             @RequestBody ReservationPatchReq dto,
             @PathVariable Long reservationId
     ) {
-        //TODO: 추후 리팩토링 하기
-        if (dto.isValidTimeRange()) throw new RuntimeException("끝시간이 시작시간보다 앞에있을수 없습니다");
-
-        ReservationPostRes response = reservationService.updateReservation(reservationId, dto);
+        ReservationPostRes response = reservationService.updateReservation(reservationId, dto, LocalDateTime.now(), member);
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/checkout/{reservationId}")
     public ResponseEntity<Void> checkout(
-            @PathVariable Long reservationId,
-            @RequestBody ReservationCheckoutReq req
+            @PathVariable Long reservationId
     ) {
-        reservationService.checkout(reservationId, req);
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        reservationService.checkout(reservationId, now, member);
         return ResponseEntity.ok().build();
     }
 
@@ -56,8 +73,27 @@ public class ReservationController {
             @RequestBody ReservationPostReq dto,
             @PathVariable Long reservationId
     ) {
-        reservationService.cancelReservation(reservationId);
+        reservationService.cancelReservation(reservationId, LocalDateTime.now(), member);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/availableCounts/{cafeId}")
+    public ResponseEntity<AvailableSeatsCount> getAvailableSeatsCount(
+            @PathVariable Long cafeId,
+            @RequestBody SeatCountReq req
+            ) {
+
+        AvailableSeatsCount res = reservationService.getAvailableSeatsCount(cafeId, req.reservationTime().startTime(), req.reservationTime().endTime());
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/availableTimeSlots/{cafeId}")
+    public ResponseEntity<List<TimeSlot>> getAvailableTimeSlots(
+            @PathVariable Long cafeId,
+            @RequestBody TimeSlotsReq req
+            ) {
+        List<TimeSlot> res = reservationService.getAvailableTimeSlots(cafeId, req);
+        return ResponseEntity.ok(res);
     }
 
     //예약 디테일 조회
@@ -65,19 +101,22 @@ public class ReservationController {
     public ResponseEntity<ReservationDetailRes> getReservationDetail(
             @PathVariable Long reservationId
     ) {
-        ReservationDetailRes res = reservationService.getReservationDetail(reservationId);
+        ReservationDetailRes res = reservationService.getReservationDetail(reservationId, member);
         return ResponseEntity.ok(res);
     }
 
-    // ✅ 5. 특정 사용자의 예약 목록 조회
+    //특정 사용자의 예약 목록 조회
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<UserReservationRes>> getUserReservations(@PathVariable Long userId) {
-        List<UserReservationRes> reservations = reservationService.getUserReservations(userId);
+    public ResponseEntity<List<UserReservationRes>> getUserReservations(
+            @PathVariable Long userId,
+            @RequestParam(required = false) Long cursorId
+    ) {
+        List<UserReservationRes> reservations = reservationService.getUserReservations(userId, cursorId);
         return ResponseEntity.ok(reservations);
     }
 
 
-    // ✅ 6. 특정 카페의 예약 조회 (날짜 기준 필터링)
+    //특정 카페의 예약 조회 (날짜 기준 필터링)
     @GetMapping("/cafe/{cafeId}")
     public ResponseEntity<List<CafeReservationRes>> getCafeReservations(
             @PathVariable Long cafeId,

@@ -15,6 +15,9 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.application.exception.ApplicationNotF
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.repository.ApplicationRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.exception.UserNotFoundException;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,14 +27,20 @@ import lombok.RequiredArgsConstructor;
 public class ApplicationService {
 	private final ApplicationRepository applicationRepository;
 	private final CafeRepository cafeRepository;
+	private final UserRepository userRepository;
 	// private final UserRepository userRepository;
 
 	@Transactional
-	public ApplicationRes createApplication(ApplicationReq applicationReq) {
+	public ApplicationRes createApplication(ApplicationReq request, Long userId) {
+
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new UserNotFoundException(userId));
+
 		Application application = Application.builder()
-			.name(applicationReq.name())
-			.address(applicationReq.address())
-			.phone(applicationReq.phone())
+			.user(user)
+			.name(request.name())
+			.address(request.address())
+			.phone(request.phone())
 			.status(Status.PENDING)
 			.createdAt(LocalDateTime.now())
 			.build();
@@ -57,29 +66,6 @@ public class ApplicationService {
 			.stream()
 			.map(ApplicationRes::fromEntity)
 			.collect(Collectors.toList());
-	}
-
-	@Transactional
-	public ApplicationApprovedRes approveCafe(Long applicationId) {
-		Application application = applicationRepository.findById(applicationId)
-			.orElseThrow(() -> new ApplicationNotFoundException(applicationId));
-
-		application.approve();
-
-		// Owner 관련 코드 추후 수정필요
-		//User updatedOwner = application.getUser().changeRoleToOwner();
-		//userRepository.save(updatedOwner);
-
-		Cafe newCafe = Cafe.builder()
-			//.owner(ownerId)
-			.name(application.getName())
-			.address(application.getAddress())
-			.phone(application.getPhone())
-			.build();
-
-		cafeRepository.save(newCafe);
-
-		return ApplicationApprovedRes.fromEntity(newCafe);
 	}
 
 	@Transactional

@@ -14,6 +14,7 @@ public record CafeReservationRes(
 	LocalDateTime startTime,
 	LocalDateTime endTime,
 	ReservationStatus status,
+	Integer partySize,
 	LocalDateTime createdAt
 	//Long paymentId
 ) {
@@ -23,6 +24,7 @@ public record CafeReservationRes(
 			.startTime(reservation.getStartTime())
 			.endTime(reservation.getEndTime())
 			.status(reservation.getStatus())
+				.partySize(reservation.getPartySize())
 			.createdAt(reservation.getCreatedAt())
 			.build();
 	}

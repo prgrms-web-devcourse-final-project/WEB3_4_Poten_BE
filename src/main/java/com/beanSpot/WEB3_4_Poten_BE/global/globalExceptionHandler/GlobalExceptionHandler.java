@@ -77,6 +77,31 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(ex.getResultCode()).body(errorResponse);
 	}
 
+	// 존재하지 않는 값 예외 처리
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException ex) {
+		log.error("잘못된 요청 파라미터: {}", ex.getMessage(), ex);
+
+		Map<String, String> errorResponse = new HashMap<>();
+		errorResponse.put("message", ex.getMessage());
+		errorResponse.put("code", "INVALID_ARGUMENT");
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+	}
+
+	// 잘못된 상태 예외 처리
+	@ExceptionHandler(IllegalStateException.class)
+	public ResponseEntity<Map<String, String>> handleIllegalStateException(IllegalStateException ex) {
+		log.error("잘못된 상태 오류: {}", ex.getMessage(), ex);
+
+		Map<String, String> errorResponse = new HashMap<>();
+		errorResponse.put("message", ex.getMessage());
+		errorResponse.put("code", "INVALID_STATE");
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+	}
+
+
 	// 그 외 모든 예외를 처리
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<Map<String, String>> handleException(Exception ex) {

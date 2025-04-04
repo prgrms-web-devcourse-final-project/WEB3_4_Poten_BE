@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequestMapping("/api/auth/me")
-@Tag(name = "Member", description = "Member API")
+@Tag(name = "Member", description = "Member Controller")
 @RequiredArgsConstructor
 public class MemberController {
 
