@@ -21,8 +21,7 @@ public record CafeInfoRes(
 	String description,
 	LocalDateTime createdAt,
 	LocalDateTime updatedAt,
-	String image,
-	Boolean disabled
+	String image
 ) {
 
 	public static CafeInfoRes fromEntity(Cafe cafe) {
@@ -38,7 +37,6 @@ public record CafeInfoRes(
 			.createdAt(cafe.getCreatedAt())
 			.updatedAt(cafe.getUpdatedAt())
 			.image(cafe.getImage())
-			.disabled(cafe.getDisabled())
 			.build();
 	}
 }
