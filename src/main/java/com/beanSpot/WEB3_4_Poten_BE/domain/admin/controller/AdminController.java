@@ -156,7 +156,6 @@ public class AdminController {
 		}
 	}
 
-
 	@PostMapping("/applications/{id}/reject")
 	public ResponseEntity<ApplicationRes> rejectApplication(@PathVariable Long id) {
 		try {
@@ -170,4 +169,5 @@ public class AdminController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 
+	}
 }
