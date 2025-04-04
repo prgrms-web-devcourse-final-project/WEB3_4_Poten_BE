@@ -19,6 +19,7 @@ public class ReservationPostRes {
 	private LocalDate reservationDate;
 	private LocalDateTime startTime;
 	private LocalDateTime endTime;
+	private Integer partySize;
 
 	public static ReservationPostRes from(Reservation reservation) {
 		return ReservationPostRes.builder()
@@ -27,6 +28,7 @@ public class ReservationPostRes {
 				.reservationDate(reservation.getStartTime().toLocalDate())  // 날짜 부분만 추출
 				.startTime(reservation.getStartTime())  // 시간 부분만 추출
 				.endTime(reservation.getEndTime())  // 시간 부분만 추출
+				.partySize(reservation.getPartySize())
 				.build();
 	}
 }

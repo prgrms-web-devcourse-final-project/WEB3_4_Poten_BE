@@ -37,3 +37,10 @@ out/
 .vscode/
 
 .yml
+
+#custom
+db_dev.mv.db
+db_dev.trace.db
+
+### application-secret ###
+/src/main/resources/application-secret.yml
