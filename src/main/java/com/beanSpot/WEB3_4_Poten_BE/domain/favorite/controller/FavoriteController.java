@@ -24,13 +24,13 @@ public class FavoriteController {
     @PostMapping("/{memberId}/{cafeId}")
     public ResponseEntity<String> addFavorite(@PathVariable Long memberId, @PathVariable Long cafeId) {
         favoriteService.addFavorite(memberId, cafeId);
-        return ResponseEntity.ok("즐겨찾기에 추가되었습니다.");
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{memberId}/{cafeId}")
     public ResponseEntity<String> removeFavorite(@PathVariable Long memberId, @PathVariable Long cafeId) {
         favoriteService.removeFavorite(memberId, cafeId);
-        return ResponseEntity.ok("즐겨찾기에서 삭제되었습니다.");
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{memberId}")
