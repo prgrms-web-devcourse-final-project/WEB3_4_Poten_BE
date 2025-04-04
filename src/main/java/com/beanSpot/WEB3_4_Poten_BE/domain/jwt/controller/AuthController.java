@@ -25,8 +25,7 @@ public class AuthController {
 
 	private final JwtService jwtService;
 	private final MemberRepository memberRepository;
-
-	@Operation(summary = "액세스 토큰 갱신", description = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 생성합니다.")
+	
 	@PostMapping("/refresh")
 	@Operation(
 		summary = "액세스 토큰 갱신",

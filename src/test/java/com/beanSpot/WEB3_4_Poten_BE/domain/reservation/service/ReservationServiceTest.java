@@ -1,5 +1,20 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
@@ -14,20 +29,6 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.TimeSlot;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.ReservationStatus;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.repository.ReservationRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @DataJpaTest
@@ -62,7 +63,7 @@ class ReservationServiceTest {
                 .email("user1@google.com")
                 .name("user1")
                 .memberType(Member.MemberType.USER)
-                .oAuthId("user1")
+                .OAuthId("user1")
                 .password("1234")
                 .username("user1")
                 .build();
@@ -71,7 +72,7 @@ class ReservationServiceTest {
                 .email("user2@google.com")
                 .name("user2")
                 .memberType(Member.MemberType.USER)
-                .oAuthId("user2")
+                .OAuthId("user2")
                 .password("1234")
                 .username("user2")
                 .build();

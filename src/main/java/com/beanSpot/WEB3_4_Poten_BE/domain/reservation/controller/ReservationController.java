@@ -1,19 +1,37 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.controller;
 
-import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
-import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.*;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service.ReservationService;
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.SeatCountReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.TimeSlotsReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.AvailableSeatsCount;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.CafeReservationRes;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.ReservationDetailRes;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.ReservationPostRes;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.TimeSlot;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.UserReservationRes;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service.ReservationService;
+
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 
 
 @RestController
@@ -27,7 +45,7 @@ public class ReservationController {
             .email("user0@google.com")
             .name("user0")
             .memberType(Member.MemberType.USER)
-            .oAuthId("user0")
+            .OAuthId("user0")
             .password("1234")
             .username("user0")
             .build();
