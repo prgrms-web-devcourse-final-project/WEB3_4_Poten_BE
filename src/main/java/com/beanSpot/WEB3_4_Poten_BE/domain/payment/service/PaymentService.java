@@ -16,6 +16,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.req.TossPaymentReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.entity.Payment;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.exception.PaymentException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.repository.PaymentRepository;
@@ -47,12 +48,13 @@ public class PaymentService {
 			headers.setContentType(MediaType.APPLICATION_JSON);
 			headers.set("Authorization", "Basic " + encodedSecretKey);
 
-			TossPaymentRequest requestBody = new TossPaymentRequest(paymentKey, orderId, amount);
-			HttpEntity<TossPaymentRequest> request = new HttpEntity<>(requestBody, headers);
+			TossPaymentReq requestBody = new TossPaymentReq(paymentKey, orderId, amount);
+			HttpEntity<TossPaymentReq> request = new HttpEntity<>(requestBody, headers);
 
 			PaymentRes response = restTemplate.postForObject(confirmUrl, request, PaymentRes.class);
 
 			processSuccessfulPayment(response);
+
 			return response;
 		} catch (RestClientException e) {
 			log.error("토스페이먼츠 결제 승인 중 오류 발생: {}", e.getMessage(), e);
@@ -80,8 +82,5 @@ public class PaymentService {
 
 		// 추후 예약(주문)과 연결할 때 추가할 로직
 		// 예약 시스템과 연결 후, 결제 성공 시 예약 상태를 변경하는 로직 추가 예정
-	}
-
-	public record TossPaymentRequest(String paymentKey, String orderId, Long amount) {
 	}
 }
