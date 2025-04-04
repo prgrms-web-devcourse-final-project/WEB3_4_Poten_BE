@@ -2,16 +2,20 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity;
 
 import java.time.LocalDateTime;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,7 +35,11 @@ public class Cafe {
 
 	@ManyToOne
 	@JoinColumn(name = "owner_id")
-	private User owner;
+	private User owner; //수정 필요
+
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "application_id", nullable = false, unique = true)
+	private Application application;
 
 	@Column(nullable = false)
 	private String name;
@@ -58,19 +66,13 @@ public class Cafe {
 	private LocalDateTime updatedAt;
 
 	@Column(nullable = false)
-	private String image;
-
-	@Column(nullable = false)
-	private Boolean disabled;
+	private String image; //이미지 추가 기능 필요
 
 	@Column(nullable = false)
 	private int capacity;
 
-	private boolean deleted;
-
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
-	}
+	@Column(nullable = false)
+	private boolean disabled = false;
 
 	public void update(CafeUpdateReq request) {
 		if (request.name() != null) {
@@ -89,6 +91,11 @@ public class Cafe {
 			this.image = request.image();
 		}
     
+		this.updatedAt = LocalDateTime.now();
+	}
+
+	public void disable() {
+		this.disabled = true;
 		this.updatedAt = LocalDateTime.now();
 	}
 }
