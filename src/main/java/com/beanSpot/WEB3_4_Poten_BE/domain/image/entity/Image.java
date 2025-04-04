@@ -24,4 +24,3 @@ public class Image {
 
 	private long fileSize;
 }
-
