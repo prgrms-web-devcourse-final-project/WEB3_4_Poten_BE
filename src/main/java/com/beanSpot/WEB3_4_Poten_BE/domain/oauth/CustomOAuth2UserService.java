@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.JwtService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
-import com.beanSpot.WEB3_4_Poten_BE.domain.member.service.MemberService;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.service.newMemberService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
-	private final MemberService memberService;
+	private final newMemberService memberService;
 	private final JwtService jwtService;
 
 	@Override

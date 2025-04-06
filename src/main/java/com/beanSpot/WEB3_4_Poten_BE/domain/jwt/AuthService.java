@@ -1,34 +1,26 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.jwt;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
-import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
+import java.util.List;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
+import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthService implements UserDetailsService {
 	private final JwtService jwtService;
 	private final MemberRepository memberRepository;
-
-	// 토큰 유효성 검사 - Authorization 헤더 사용
-	public Member validateTokenAndGetMember(String token) {
-		if (token == null) {
-			throw new ServiceException(401, "로그인이 필요합니다.");
-		}
-
-		if (!jwtService.validateToken(token)) {
-			throw new ServiceException(401, "Invalid token");
-		}
-
-		String oAuthId = jwtService.getOAuthIdFromToken(token);
-		return memberRepository.findByOAuthId(oAuthId)
-			.orElseThrow(() -> new ServiceException(404, "사용자를 찾을 수 없습니다."));
-	}
 
 	// JWT 기반 로그인 처리 - 헤더 기반 응답
 	public ResponseEntity<?> authenticate(String token) {
@@ -43,8 +35,8 @@ public class AuthService {
 			.body("Authentication successful");
 	}
 
-	// 사용자 정보 조회 - 헤더 기반 인증 적용
-	public Member getMemberFromToken(String token) {
+
+	private Member getValidatedMemberFromToken(String token) {
 		if (token == null) {
 			throw new ServiceException(401, "로그인이 필요합니다.");
 		}
@@ -57,6 +49,16 @@ public class AuthService {
 		return memberRepository.findByOAuthId(oAuthId)
 			.orElseThrow(() -> new ServiceException(404, "사용자를 찾을 수 없습니다."));
 	}
+
+	// 기존 메소드들은 공통 메소드를 호출
+	public Member validateTokenAndGetMember(String token) {
+		return getValidatedMemberFromToken(token);
+	}
+
+	public Member getMemberFromToken(String token) {
+		return getValidatedMemberFromToken(token);
+	}
+
 
 	// 로그아웃 - 클라이언트 측에서 토큰 삭제 권장
 	public ResponseEntity<?> logout() {
@@ -115,4 +117,21 @@ public class AuthService {
                 .body("로그아웃 되었습니다.");
     }
     */
+
+	@Override
+	public UserDetails loadUserByUsername(String oAuthId) throws UsernameNotFoundException {
+		Member member = memberRepository.findByOAuthId(oAuthId)
+			.orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+		// 사용자 역할에 따른 권한 설정
+		List<SimpleGrantedAuthority> authorities = member.getMemberType().getRoles().stream()
+			.map(SimpleGrantedAuthority::new)
+			.toList();
+
+		return new User(
+			member.getOAuthId(),
+			"", // OAuth 로그인이므로 비밀번호는 비워둠
+			authorities
+		);
+	}
 }

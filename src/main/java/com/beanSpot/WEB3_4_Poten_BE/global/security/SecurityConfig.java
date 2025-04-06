@@ -22,7 +22,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.JwtAuthenticationFilter;
 import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.JwtService;
-import com.beanSpot.WEB3_4_Poten_BE.domain.member.service.MemberService;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.service.newMemberService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.oauth.CustomAuthorizationRequestResolver;
 import com.beanSpot.WEB3_4_Poten_BE.domain.oauth.CustomOAuth2UserService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.oauth.OAuth2SuccessHandler;
@@ -37,7 +37,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 	private final OAuth2AuthorizedClientService authorizedClientService;
 	private final JwtService jwtService;
-	private final MemberService memberService;
+	private final newMemberService memberService;
 	private final CustomOAuth2UserService customOAuth2UserService;
 	private final CustomAuthorizationRequestResolver authorizationRequestResolver;
 

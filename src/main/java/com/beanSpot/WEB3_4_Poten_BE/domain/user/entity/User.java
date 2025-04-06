@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
-import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Status;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.entity.Review;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.dto.req.UserUpdateReq;
 
@@ -69,6 +67,8 @@ public class User {
 
 	@OneToMany(mappedBy = "user")
 	private List<Review> reviews = new ArrayList<>();
+
+
 
 //	@OneToMany(mappedBy = "user")
 //	private List<Reservation> reservations = new ArrayList<>();

@@ -1,17 +1,20 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.member.dto.res;
 
+import java.time.LocalDateTime;
+
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 
 public record ResponseMemberMyPageDto(
 	Long id,
-	String OAuthId,
+	String oAuthId,
 	String name,
 	String email,
 	Member.MemberType memberType,
 	Member.SnsType snsType,
 	String profileImg,
 	String phoneNumber,
-	String updatedAt
+	LocalDateTime createdAt,
+	LocalDateTime updatedAt
 ) {
 	public static ResponseMemberMyPageDto from(Member entity) {
 		return new ResponseMemberMyPageDto(
@@ -23,8 +26,10 @@ public record ResponseMemberMyPageDto(
 			entity.getSnsType(),
 			entity.getProfileImg(),
 			entity.getPhoneNumber(),
-			java.time.LocalDateTime.now().toString()
+			entity.getCreatedAt(),
+			entity.getUpdatedAt()
 		);
 	}
 }
+
 
