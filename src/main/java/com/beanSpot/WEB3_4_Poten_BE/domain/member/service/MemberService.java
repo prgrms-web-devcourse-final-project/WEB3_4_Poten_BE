@@ -1,4 +1,4 @@
-package com.beanSpot.WEB3_4_Poten_BE.domain.member.service;
+/*package com.beanSpot.WEB3_4_Poten_BE.domain.member.service;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +43,7 @@ public class MemberService implements UserDetailsService {
 			.orElseGet(() -> {
 				// 새 회원 생성 시 기본값으로 USER 타입 설정
 				Member member = Member.builder()
-					.OAuthId(OAuthId)
+					.oAuthId(OAuthId)
 					.email(email)
 					.name(name)
 					.profileImg(profileImg)
@@ -129,4 +129,4 @@ public class MemberService implements UserDetailsService {
 				return List.of(new SimpleGrantedAuthority("ROLE_USER"));
 		}
 	}
-}
+}*/
