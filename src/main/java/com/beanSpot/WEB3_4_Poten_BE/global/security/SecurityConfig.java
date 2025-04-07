@@ -91,6 +91,7 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.POST, "/api/images/upload").authenticated()
 				.requestMatchers(HttpMethod.GET, "/api/images/download/{imageId}").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/images/download-by-name/{fileName}").permitAll()
+				.requestMatchers(HttpMethod.DELETE, "/api/images/{imageId}").permitAll()
 
 				// 그 외 모든 요청은 인증 필요
 				.anyRequest().authenticated()
