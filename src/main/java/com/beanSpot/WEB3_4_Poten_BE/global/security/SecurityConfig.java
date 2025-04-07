@@ -88,7 +88,7 @@ public class SecurityConfig {
 				.requestMatchers("/reservations/**").authenticated()
 
 				// 이미지 업로드, 다운로드
-				.requestMatchers(HttpMethod.POST, "/api/images/upload").permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/images/upload").authenticated()
 				.requestMatchers(HttpMethod.GET, "/api/images/download/{imageId}").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/images/download-by-name/{fileName}").permitAll()
 

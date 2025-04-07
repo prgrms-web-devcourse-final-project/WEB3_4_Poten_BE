@@ -19,27 +19,18 @@ public class ImageController {
 
 	private final ImageService imageService;
 
-	/**
-	 * 이미지 업로드 API (S3 저장 + DB 저장)
-	 */
 	@PostMapping("/upload")
 	public ResponseEntity<S3Res> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
 		S3Res response = imageService.uploadAndSaveImage(file);
 		return ResponseEntity.ok(response);
 	}
 
-	/**
-	 * 업로드한 이미지 정보 조회
-	 */
 	@GetMapping("/{imageId}")
 	public ResponseEntity<Image> getImage(@PathVariable Long imageId) {
 		Image image = imageService.getImageById(imageId);
 		return ResponseEntity.ok(image);
 	}
 
-	/**
-	 * Presigned URL (다운로드용) - ID 기반
-	 */
 	@GetMapping("/download/{imageId}")
 	public ResponseEntity<Map<String, String>> downloadImage(@PathVariable Long imageId) {
 		Image image = imageService.getImageById(imageId);
@@ -47,20 +38,21 @@ public class ImageController {
 
 		Map<String, String> response = new HashMap<>();
 		response.put("presignedUrl", presignedUrl);
-
 		return ResponseEntity.ok(response);
 	}
 
-	/**
-	 * Presigned URL (다운로드용) - fileName 기반
-	 */
 	@GetMapping("/download-by-name/{fileName}")
 	public ResponseEntity<Map<String, String>> downloadImageByFileName(@PathVariable String fileName) {
 		String presignedUrl = imageService.getPresignedUrl(fileName);
 
 		Map<String, String> response = new HashMap<>();
 		response.put("presignedUrl", presignedUrl);
-
 		return ResponseEntity.ok(response);
+	}
+
+	@DeleteMapping("/{imageId}")
+	public ResponseEntity<String> deleteImage(@PathVariable Long imageId) {
+		imageService.deleteImage(imageId);
+		return ResponseEntity.ok("이미지가 삭제되었습니다.");
 	}
 }

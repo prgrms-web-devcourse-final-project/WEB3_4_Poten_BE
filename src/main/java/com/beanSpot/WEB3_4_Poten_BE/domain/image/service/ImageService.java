@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,16 +19,16 @@ public class ImageService {
 	private final S3Service s3Service;
 	private final ImageRepository imageRepository;
 
-	/**
-	 * 이미지 업로드 후 S3 저장 & DB 저장
-	 */
+	private static final List<String> ALLOWED_TYPES = List.of("image/jpeg", "image/png", "image/jpg");
+	private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
 	@Transactional
 	public S3Res uploadAndSaveImage(MultipartFile file) throws IOException {
-		// 1. S3에 파일 업로드
+		validateFile(file);
+
 		String fileName = s3Service.uploadFile(file);
 		String fileUrl = s3Service.getFileUrl(fileName);
 
-		// 2. 응답 객체 생성
 		S3Res s3Res = S3Res.builder()
 			.fileName(fileName)
 			.fileUrl(fileUrl)
@@ -35,7 +36,6 @@ public class ImageService {
 			.fileSize(file.getSize())
 			.build();
 
-		// 3. DB에 이미지 정보 저장
 		Image image = Image.builder()
 			.fileName(fileName)
 			.fileUrl(fileUrl)
@@ -44,23 +44,33 @@ public class ImageService {
 			.build();
 
 		imageRepository.save(image);
-		imageRepository.flush();
-
 		return s3Res;
 	}
 
-	/**
-	 * 이미지 ID로 조회
-	 */
+	private void validateFile(MultipartFile file) {
+		if (file.isEmpty()) {
+			throw new IllegalArgumentException("파일이 비어 있습니다.");
+		}
+		if (!ALLOWED_TYPES.contains(file.getContentType())) {
+			throw new IllegalArgumentException("허용되지 않는 파일 형식입니다.");
+		}
+		if (file.getSize() > MAX_FILE_SIZE) {
+			throw new IllegalArgumentException("파일 크기는 10MB 이하만 허용됩니다.");
+		}
+	}
+
 	public Image getImageById(Long imageId) {
 		return imageRepository.findById(imageId)
 			.orElseThrow(() -> new RuntimeException("이미지를 찾을 수 없습니다. ID: " + imageId));
 	}
 
-	/**
-	 * presigned url 발급
-	 */
 	public String getPresignedUrl(String fileName) {
-		return s3Service.getPresignedUrl(fileName);
+		return s3Service.generatePresignedUrl(fileName);
+	}
+
+	public void deleteImage(Long imageId) {
+		Image image = getImageById(imageId);
+		s3Service.deleteFile(image.getFileName());
+		imageRepository.delete(image);
 	}
 }
