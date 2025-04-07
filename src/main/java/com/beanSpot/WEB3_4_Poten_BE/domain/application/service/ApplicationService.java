@@ -87,5 +87,4 @@ public class ApplicationService {
 		return applicationRepository.findById(id)
 			.orElseThrow(() -> new ApplicationNotFoundException(id));
 	}
-
 }
