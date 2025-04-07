@@ -6,6 +6,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.*;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service.ReservationService;
 import jakarta.annotation.PostConstruct;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,11 +40,11 @@ public class ReservationController {
     // 끝
 
 
-    // ✅ 1. 예약 생성 API
+    // 예약 생성 API
     @PostMapping("/{cafeId}")
     public ResponseEntity<ReservationPostRes> createReservation(
             @RequestParam Long cafeId,
-            @RequestBody ReservationPostReq dto
+            @Valid @RequestBody ReservationPostReq dto
     ) {
         //TODO: 추후 리팩토링 하기
         ReservationPostRes response = reservationService.createReservation(cafeId, dto, member);
@@ -52,7 +53,7 @@ public class ReservationController {
 
     @PatchMapping("/{reservationId}")
     public ResponseEntity<ReservationPostRes> updateReservation(
-            @RequestBody ReservationPatchReq dto,
+            @Valid @RequestBody ReservationPatchReq dto,
             @PathVariable Long reservationId
     ) {
         ReservationPostRes response = reservationService.updateReservation(reservationId, dto, LocalDateTime.now(), member);
@@ -70,7 +71,7 @@ public class ReservationController {
 
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<Void> deleteReservation(
-            @RequestBody ReservationPostReq dto,
+            @Valid @RequestBody ReservationPostReq dto,
             @PathVariable Long reservationId
     ) {
         reservationService.cancelReservation(reservationId, LocalDateTime.now(), member);
@@ -80,17 +81,17 @@ public class ReservationController {
     @GetMapping("/availableCounts/{cafeId}")
     public ResponseEntity<AvailableSeatsCount> getAvailableSeatsCount(
             @PathVariable Long cafeId,
-            @RequestBody SeatCountReq req
+            @Valid @ModelAttribute SeatCountReq req
             ) {
 
-        AvailableSeatsCount res = reservationService.getAvailableSeatsCount(cafeId, req.reservationTime().startTime(), req.reservationTime().endTime());
+        AvailableSeatsCount res = reservationService.getAvailableSeatsCount(cafeId, req.startTime(), req.endTime());
         return ResponseEntity.ok(res);
     }
 
     @GetMapping("/availableTimeSlots/{cafeId}")
     public ResponseEntity<List<TimeSlot>> getAvailableTimeSlots(
             @PathVariable Long cafeId,
-            @RequestBody TimeSlotsReq req
+            @Valid @ModelAttribute TimeSlotsReq req
             ) {
         List<TimeSlot> res = reservationService.getAvailableTimeSlots(cafeId, req);
         return ResponseEntity.ok(res);

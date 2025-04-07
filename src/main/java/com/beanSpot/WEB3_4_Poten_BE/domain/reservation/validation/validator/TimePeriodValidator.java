@@ -1,5 +1,6 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.validation.validator;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.TimePeriod;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.TimePeriodReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.validation.annotation.ValidTimePeriod;
 import jakarta.validation.ConstraintValidator;
@@ -8,10 +9,10 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public class TimePeriodValidator implements ConstraintValidator<ValidTimePeriod, TimePeriodReq> {
+public class TimePeriodValidator implements ConstraintValidator<ValidTimePeriod, TimePeriod> {
 
     @Override
-    public boolean isValid(TimePeriodReq dto, ConstraintValidatorContext context) {
+    public boolean isValid(TimePeriod dto, ConstraintValidatorContext context) {
         if (dto == null) {
             customMessageForViolation(context, "시간 기간 요청이 null일 수 없습니다");
             return false;

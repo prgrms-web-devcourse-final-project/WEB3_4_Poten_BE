@@ -269,7 +269,8 @@ class ReservationServiceTest {
                 .build();
 
         TimeSlotsReq req = TimeSlotsReq.builder()
-                .reservationTime(time)
+                .startTime(time.startTime())
+                .endTime(time.endTime())
                 .partySize(reservation1.getPartySize())
                 .build();
 

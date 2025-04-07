@@ -129,14 +129,14 @@ public class ReservationService {
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 카페입니다"));
 
         List<Reservation> overlappingReservations =
-                reservationRepository.getOverlappingReservations(cafeId, req.reservationTime().startTime(), req.reservationTime().endTime(), null);
+                reservationRepository.getOverlappingReservations(cafeId, req.startTime(), req.endTime(), null);
 
         return getAvailableTimeSlotsHelper(
                 overlappingReservations,
                 cafe.getCapacity(),
                 req.partySize(),
-                req.reservationTime().startTime(),
-                req.reservationTime().endTime()
+                req.startTime(),
+                req.endTime()
         );
     }
 
