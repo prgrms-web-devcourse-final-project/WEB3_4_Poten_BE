@@ -40,7 +40,7 @@ public class ImageController {
 	/**
 	 * Presigned URL (다운로드용) 반환
 	 */
-	@GetMapping("/{imageId}/download")
+	@GetMapping("download/{imageId}")
 	public ResponseEntity<Map<String, String>> downloadImage(@PathVariable Long imageId) {
 		Image image = imageService.getImageById(imageId);
 		String presignedUrl = imageService.getPresignedUrl(image.getFileName());

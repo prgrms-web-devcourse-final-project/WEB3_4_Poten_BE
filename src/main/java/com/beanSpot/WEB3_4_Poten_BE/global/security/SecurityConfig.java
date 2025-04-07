@@ -87,8 +87,9 @@ public class SecurityConfig {
 				// 예약 관련 엔드포인트는 인증된 사용자만 접근
 				.requestMatchers("/reservations/**").authenticated()
 
-				// 파일 업로드
-				.requestMatchers(HttpMethod.POST, "/api/files/upload").permitAll()
+				// 이미지 업로드, 다운로드
+				.requestMatchers(HttpMethod.POST, "/api/images/upload").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/images/download/{imageId}").permitAll()
 
 				// 그 외 모든 요청은 인증 필요
 				.anyRequest().authenticated()
