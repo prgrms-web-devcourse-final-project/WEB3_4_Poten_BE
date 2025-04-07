@@ -16,7 +16,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 
-import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.req.TossPaymentReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.req.PaymentConfirmReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.entity.Payment;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.exception.PaymentException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.repository.PaymentRepository;
@@ -42,11 +42,12 @@ public class PaymentService {
 			PaymentRes response = restClient.post()
 				.uri(confirmUrl)
 				.headers(this::setAuthorizationHeader)
-				.body(new TossPaymentReq(paymentKey, orderId, amount))
+				.body(new PaymentConfirmReq(paymentKey, orderId, amount))
 				.retrieve()
 				.body(PaymentRes.class);
 
 			processSuccessfulPayment(response);
+
 			return response;
 		} catch (RestClientException e) {
 			log.error("토스페이먼츠 결제 승인 중 오류 발생: {}", e.getMessage(), e);
