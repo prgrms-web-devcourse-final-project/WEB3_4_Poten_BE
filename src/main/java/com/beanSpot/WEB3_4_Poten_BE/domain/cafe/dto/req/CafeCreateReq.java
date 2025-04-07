@@ -14,7 +14,9 @@ public record CafeCreateReq(
 	String phone,
 
 	@NotEmpty
-	String description
+	String description,
 
+	@NotEmpty
+	String image
 ) {
 }
