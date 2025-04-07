@@ -10,11 +10,14 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Status;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.repository.ApplicationRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeCreateReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.res.CafeDetailRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.res.CafeInfoRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.exception.CafeNotFoundException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.review.entity.Review;
+import com.beanSpot.WEB3_4_Poten_BE.domain.review.repository.ReviewRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.UserRole;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.exception.UserNotFoundException;
@@ -28,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class CafeService {
 
 	private final CafeRepository cafeRepository;
+	private final ReviewRepository reviewRepository;
 	private final UserRepository userRepository;
 	private final ApplicationRepository applicationRepository;
 
@@ -73,21 +77,23 @@ public class CafeService {
 	}
 
 	@Transactional
-	public CafeInfoRes getCafeDetail(Long cafeId) {
+	public CafeDetailRes getCafeDetail(Long cafeId) {
 		Cafe cafe = cafeRepository.findBycafeIdAndDisabledFalse(cafeId)
 			.orElseThrow(() -> new CafeNotFoundException(cafeId));
 
-		return CafeInfoRes.fromEntity(cafe);
+		List<Review> review = reviewRepository.findByCafe(cafe);
+
+		return CafeDetailRes.fromEntity(cafe, review);
 	}
 
 	@Transactional
-	public Cafe updateCafe(Long id, CafeUpdateReq request) {
+	public CafeInfoRes updateCafe(Long id, CafeUpdateReq request) {
 		Cafe cafe = cafeRepository.findById(id)
 			.orElseThrow(() -> new CafeNotFoundException(id));
 
 		cafe.update(request);
 
-		return cafeRepository.save(cafe);
+		return CafeInfoRes.fromEntity(cafe);
 	}
 
 	//일단 CafeInfoRes dto 활용, 추후 필요에 따라 변경 가능
