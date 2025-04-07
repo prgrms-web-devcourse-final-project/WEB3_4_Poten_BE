@@ -11,6 +11,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.ReservationStatus;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.repository.ReservationRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.vo.TimeWithPartySize;
+import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +36,7 @@ public class ReservationService {
 
         //카페 조회
         Cafe cafe = cafeRepository.findById(cafeId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 카페 Id 입니다."));
+                .orElseThrow(() -> new ServiceException(400, "존재하지 않는 카페 Id 입니다."));
 
         // 예약 가능 여부 확인
         List<Reservation> overlappingReservations = reservationRepository.getOverlappingReservationsWithLock(
@@ -67,11 +68,11 @@ public class ReservationService {
 
         //예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("해당 예약을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ServiceException(400, "해당 예약을 찾을 수 없습니다."));
 
         //원래 예약시간 0분전 변경 가능하게 체크
         if (!reservation.isModifiable(now, 0, member)) {
-            throw new RuntimeException("변경이 불가능합니다. 점주님께 문의하세요.");
+            throw new ServiceException(400, "변경이 불가능합니다. 점주님께 문의하세요.");
         }
 
         // 예약 가능 여부 확인
@@ -100,7 +101,7 @@ public class ReservationService {
 
 
         if (!reservation.isCheckoutTimeValid(checkoutTime, member)) {
-            throw new RuntimeException("잘못된 체크아웃 시간대 입니다");
+            throw new ServiceException(400, "잘못된 체크아웃 시간대 입니다");
         }
 
         reservation.updateReservationTime(reservation.getStartTime(), checkoutTime);
@@ -115,7 +116,7 @@ public class ReservationService {
 
         //시작시간 0분전 취소 불가능
         if (!reservation.isModifiable(now, 0, member)) {
-            throw new RuntimeException("취소가 불가능합니다. 점주님께 문의하세요.");
+            throw new ServiceException(400, "취소가 불가능합니다. 점주님께 문의하세요.");
         }
 
         reservation.updateStatus(ReservationStatus.CANCELLED);
@@ -126,7 +127,7 @@ public class ReservationService {
     public List<TimeSlot> getAvailableTimeSlots(long cafeId, TimeSlotsReq req) {
 
         Cafe cafe = cafeRepository.findById(cafeId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 카페입니다"));
+                .orElseThrow(() -> new ServiceException(400, "존재하지 않는 카페입니다"));
 
         List<Reservation> overlappingReservations =
                 reservationRepository.getOverlappingReservations(cafeId, req.startTime(), req.endTime(), null);
@@ -144,7 +145,7 @@ public class ReservationService {
     @Transactional(readOnly = true)
     public AvailableSeatsCount getAvailableSeatsCount(long cafeId, LocalDateTime start, LocalDateTime end) {
         Cafe cafe = cafeRepository.findById(cafeId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 카페입니다"));
+                .orElseThrow(() -> new ServiceException(400, "존재하지 않는 카페입니다"));
 
         List<Reservation> overlappingReservations = reservationRepository.getOverlappingReservations(cafeId, start, end, null);
         int availableSeats =  cafe.getCapacity() - getMaxOccupiedSeatsCount(overlappingReservations);
@@ -159,7 +160,7 @@ public class ReservationService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
 
         if (!reservation.isOwner(member)) {
-            throw new RuntimeException("해당 예약조회 권한이 없습니다");
+            throw new ServiceException(400, "해당 예약조회 권한이 없습니다");
         }
 
         return ReservationDetailRes.from(reservation);
