@@ -90,7 +90,7 @@ public class SecurityConfig {
 				// 이미지 업로드, 다운로드
 				.requestMatchers(HttpMethod.POST, "/api/images/upload").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/images/download/{imageId}").permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/images//download-by-name/{fileName}").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/images/download-by-name/{fileName}").permitAll()
 
 				// 그 외 모든 요청은 인증 필요
 				.anyRequest().authenticated()
