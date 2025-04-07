@@ -20,7 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.JwtAuthenticationFilter;
+import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.TokenAuthenticationFilter;
 import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.JwtService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.service.newMemberService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.oauth.CustomAuthorizationRequestResolver;
@@ -42,8 +42,8 @@ public class SecurityConfig {
 	private final CustomAuthorizationRequestResolver authorizationRequestResolver;
 
 	@Bean
-	public JwtAuthenticationFilter jwtAuthenticationFilter() {
-		return new JwtAuthenticationFilter(jwtService, memberService);
+	public TokenAuthenticationFilter tokenAuthenticationFilter() {
+		return new TokenAuthenticationFilter(jwtService, memberService);
 	}
 
 	@Bean
@@ -138,7 +138,7 @@ public class SecurityConfig {
 				)
 				.successHandler(oAuth2SuccessHandler())
 			)
-			.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
