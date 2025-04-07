@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeCreateReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.res.CafeDetailRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.res.CafeInfoRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
@@ -44,8 +45,8 @@ public class CafeController {
 		summary = "카페 수정",
 		description = "카페를 수정합니다. 이름, 주소, 전화번호, 설명, 이미지 데이터를 넘겨받습니다.")
 	@PutMapping("/{id}")
-	public ResponseEntity<Cafe> updateCafe(@PathVariable Long id, @RequestBody CafeUpdateReq request) {
-		Cafe updatedCafe = cafeService.updateCafe(id, request);
+	public ResponseEntity<CafeInfoRes> updateCafe(@PathVariable Long id, @RequestBody CafeUpdateReq request) {
+		CafeInfoRes updatedCafe = cafeService.updateCafe(id, request);
 		return ResponseEntity.ok(updatedCafe);
 	}
 
@@ -79,9 +80,9 @@ public class CafeController {
 		summary = "카페 상세 조회",
 		description = "카페의 상세 정보를 조회합니다.")
 	@GetMapping("/{id}")
-	public ResponseEntity<CafeInfoRes> getCafeDetail(@PathVariable Long id) {
-		CafeInfoRes cafeInfoRes = cafeService.getCafeDetail(id);
-		return ResponseEntity.ok(cafeInfoRes);
+	public ResponseEntity<CafeDetailRes> getCafeDetail(@PathVariable Long id) {
+		CafeDetailRes cafeDetailRes = cafeService.getCafeDetail(id);
+		return ResponseEntity.ok(cafeDetailRes);
 	}
 }
 
