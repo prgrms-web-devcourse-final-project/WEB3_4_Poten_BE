@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/reservations")
 @RequiredArgsConstructor
-public class ReservationController {
+public class ReservationController implements ReservationApi{
     private final ReservationService reservationService;
     //TODO: 추후삭제
     private final MemberRepository memberRepository;
