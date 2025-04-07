@@ -1,6 +1,7 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,5 +19,7 @@ public interface CafeRepository extends JpaRepository<Cafe, Long> {
 	List<Cafe> findAllByDisabledFalse();
 
 	boolean existsByNameAndAddress(String name, String address);
+
+	Optional<Cafe> findBycafeIdAndDisabledFalse(Long cafeId);
 }
 

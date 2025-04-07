@@ -29,7 +29,6 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/cafes")
 @RequiredArgsConstructor
 public class CafeController {
-
 	private final CafeService cafeService;
 
 	@Operation(
@@ -66,6 +65,7 @@ public class CafeController {
 		List<CafeInfoRes> result = cafeService.searchCafe(keyword);
 		return ResponseEntity.ok(result);
 	}
+
 	@Operation(
 		summary = "카페 삭제",
 		description = "카페를 삭제합니다.")
@@ -73,6 +73,15 @@ public class CafeController {
 	public ResponseEntity<Void> deleteCafe(@PathVariable Long id) {
 		cafeService.deleteCafe(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	@Operation(
+		summary = "카페 상세 조회",
+		description = "카페의 상세 정보를 조회합니다.")
+	@GetMapping("/{id}")
+	public ResponseEntity<CafeInfoRes> getCafeDetail(@PathVariable Long id) {
+		CafeInfoRes cafeInfoRes = cafeService.getCafeDetail(id);
+		return ResponseEntity.ok(cafeInfoRes);
 	}
 }
 

@@ -73,6 +73,14 @@ public class CafeService {
 	}
 
 	@Transactional
+	public CafeInfoRes getCafeDetail(Long cafeId) {
+		Cafe cafe = cafeRepository.findBycafeIdAndDisabledFalse(cafeId)
+			.orElseThrow(() -> new CafeNotFoundException(cafeId));
+
+		return CafeInfoRes.fromEntity(cafe);
+	}
+
+	@Transactional
 	public Cafe updateCafe(Long id, CafeUpdateReq request) {
 		Cafe cafe = cafeRepository.findById(id)
 			.orElseThrow(() -> new CafeNotFoundException(id));
@@ -96,15 +104,15 @@ public class CafeService {
 			.collect(Collectors.toList());
 	}
 
-@Transactional
-public void deleteCafe(Long cafeId) {
-	Cafe cafe = cafeRepository.findById(cafeId)
-		.orElseThrow(() -> new CafeNotFoundException(cafeId));
+	@Transactional
+	public void deleteCafe(Long cafeId) {
+		Cafe cafe = cafeRepository.findById(cafeId)
+			.orElseThrow(() -> new CafeNotFoundException(cafeId));
 
-	// Application 삭제
-	applicationRepository.delete(cafe.getApplication());
+		// Application 삭제
+		applicationRepository.delete(cafe.getApplication());
 
-	// Cafe soft delete 처리
-	cafe.disable();
-}
+		// Cafe soft delete 처리
+		cafe.disable();
+	}
 }
