@@ -38,12 +38,25 @@ public class ImageController {
 	}
 
 	/**
-	 * Presigned URL (다운로드용) 반환
+	 * Presigned URL (다운로드용) - ID 기반
 	 */
-	@GetMapping("download/{imageId}")
+	@GetMapping("/download/{imageId}")
 	public ResponseEntity<Map<String, String>> downloadImage(@PathVariable Long imageId) {
 		Image image = imageService.getImageById(imageId);
 		String presignedUrl = imageService.getPresignedUrl(image.getFileName());
+
+		Map<String, String> response = new HashMap<>();
+		response.put("presignedUrl", presignedUrl);
+
+		return ResponseEntity.ok(response);
+	}
+
+	/**
+	 * Presigned URL (다운로드용) - fileName 기반
+	 */
+	@GetMapping("/download-by-name/{fileName}")
+	public ResponseEntity<Map<String, String>> downloadImageByFileName(@PathVariable String fileName) {
+		String presignedUrl = imageService.getPresignedUrl(fileName);
 
 		Map<String, String> response = new HashMap<>();
 		response.put("presignedUrl", presignedUrl);
