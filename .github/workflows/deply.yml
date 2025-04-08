@@ -27,8 +27,7 @@ jobs:
 
             cd WEB3_4_Poten_BE
             rm -rf src/main/resources/application-secret.yml
-            git reset --hard
-            git clean -fd
+          
             git fetch origin
             git checkout -B feature/#51 origin/feature/#51
             echo "$APPLICATION_PROPERTIES" > src/main/resources/application-secret.yml
