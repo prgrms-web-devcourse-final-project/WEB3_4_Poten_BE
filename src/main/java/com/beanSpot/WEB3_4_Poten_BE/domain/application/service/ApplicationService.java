@@ -84,6 +84,5 @@ public class ApplicationService {
 		applicationRepository.save(application);
 
 		return ApplicationRes.fromEntity(application);
-
 	}
 }
