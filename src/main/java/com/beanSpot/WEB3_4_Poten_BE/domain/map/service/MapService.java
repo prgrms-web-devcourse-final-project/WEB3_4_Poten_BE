@@ -132,7 +132,7 @@ public class MapService {
                 .latitude(latitude)
                 .longitude(longitude)
                 .createdAt(LocalDateTime.now())
-                .image(imageUrl)
+                .imageFilename(imageUrl)
                 .disabled(false)
                 .build();
 
