@@ -22,6 +22,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.UserRole;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.exception.UserNotFoundException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.repository.UserRepository;
+import com.beanSpot.WEB3_4_Poten_BE.global.aws.S3Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class CafeService {
 	private final ReviewRepository reviewRepository;
 	private final UserRepository userRepository;
 	private final ApplicationRepository applicationRepository;
+	private final S3Service s3Service;
 
 	@Transactional
 	public CafeInfoRes createCafe(CafeCreateReq request, Long ownerId) {
@@ -59,20 +61,21 @@ public class CafeService {
 			.description(request.description())
 			.createdAt(LocalDateTime.now())
 			.updatedAt(LocalDateTime.now())
-			.image("url") //추후 수정
+			.imageFilename(request.imageFilename())
 			.capacity(0) //추후 수정
 			.disabled(false)
 			.build();
 
 		cafeRepository.save(cafe);
 
-		return CafeInfoRes.fromEntity(cafe);
+		String imageUrl = s3Service.getFileUrl(cafe.getImageFilename());
+		return CafeInfoRes.fromEntity(cafe, imageUrl);
 	}
 
 	@Transactional
 	public List<CafeInfoRes> getCafeList() {
 		return cafeRepository.findAllByDisabledFalse().stream()
-			.map(CafeInfoRes::fromEntity)
+			.map(cafe -> CafeInfoRes.fromEntity(cafe, s3Service.getFileUrl(cafe.getImageFilename())))
 			.collect(Collectors.toList());
 	}
 
@@ -83,7 +86,8 @@ public class CafeService {
 
 		List<Review> review = reviewRepository.findByCafe(cafe);
 
-		return CafeDetailRes.fromEntity(cafe, review);
+		String imageUrl = s3Service.getFileUrl(cafe.getImageFilename());
+		return CafeDetailRes.fromEntity(cafe, imageUrl, review);
 	}
 
 	@Transactional
@@ -93,7 +97,8 @@ public class CafeService {
 
 		cafe.update(request);
 
-		return CafeInfoRes.fromEntity(cafe);
+		String imageUrl = s3Service.getFileUrl(cafe.getImageFilename());
+		return CafeInfoRes.fromEntity(cafe, imageUrl);
 	}
 
 	//일단 CafeInfoRes dto 활용, 추후 필요에 따라 변경 가능
@@ -106,7 +111,7 @@ public class CafeService {
 		List<Cafe> cafes = cafeRepository.searchByKeywordAndDisabledFalse(keyword);
 
 		return cafes.stream()
-			.map(CafeInfoRes::fromEntity)
+			.map(cafe -> CafeInfoRes.fromEntity(cafe, s3Service.getFileUrl(cafe.getImageFilename())))
 			.collect(Collectors.toList());
 	}
 

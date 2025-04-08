@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeCreateReq;
@@ -62,7 +63,7 @@ public class CafeController {
 		summary = "카페 검색",
 		description = "주어진 키워드를 기반으로 카페를 검색해 검색된 카페 목록은 카페의 정보를 포함한 리스트로 반환됩니다. 검색은 카페의 이름과 주소로 이루어집니다.")
 	@GetMapping("/search")
-	public ResponseEntity<List<CafeInfoRes>> searchCafe(@RequestBody String keyword) {
+	public ResponseEntity<List<CafeInfoRes>> searchCafe(@RequestParam String keyword) {
 		List<CafeInfoRes> result = cafeService.searchCafe(keyword);
 		return ResponseEntity.ok(result);
 	}

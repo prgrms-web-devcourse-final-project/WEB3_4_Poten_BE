@@ -65,8 +65,8 @@ public class Cafe {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
-	@Column(nullable = false)
-	private String image; //이미지 추가 기능 필요
+	@Column(name = "image_filename", nullable = true)
+	private String imageFilename;
 
 	@Column(nullable = false)
 	private int capacity;
@@ -87,8 +87,8 @@ public class Cafe {
 		if (request.description() != null) {
 			this.description = request.description();
 		}
-		if (request.image() != null) {
-			this.image = request.image();
+		if (request.imageFilename() != null) {
+			this.imageFilename = request.imageFilename();
 		}
     
 		this.updatedAt = LocalDateTime.now();

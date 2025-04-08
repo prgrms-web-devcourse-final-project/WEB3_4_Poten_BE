@@ -24,7 +24,8 @@ public record CafeInfoRes(
 	String image
 ) {
 
-	public static CafeInfoRes fromEntity(Cafe cafe) {
+	public static CafeInfoRes fromEntity(Cafe cafe, String imageUrl) {
+
 		return CafeInfoRes.builder()
 			.cafeId(cafe.getCafeId())
 			.ownerId(cafe.getOwner().getId())
@@ -36,7 +37,7 @@ public record CafeInfoRes(
 			.description(cafe.getDescription())
 			.createdAt(cafe.getCreatedAt())
 			.updatedAt(cafe.getUpdatedAt())
-			.image(cafe.getImage())
+			.image(imageUrl)
 			.build();
 	}
 }

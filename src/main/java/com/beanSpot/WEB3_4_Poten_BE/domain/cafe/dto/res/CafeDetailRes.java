@@ -22,7 +22,7 @@ public record CafeDetailRes(
 	String image,
 	List<ReviewRes> reviews
 ) {
-	public static CafeDetailRes fromEntity(Cafe cafe, List<Review> reviews) {
+	public static CafeDetailRes fromEntity(Cafe cafe, String imageUrl, List<Review> reviews) {
 		return new CafeDetailRes(
 			cafe.getCafeId(),
 			cafe.getOwner().getId(),
@@ -34,7 +34,7 @@ public record CafeDetailRes(
 			cafe.getDescription(),
 			cafe.getCreatedAt(),
 			cafe.getUpdatedAt(),
-			cafe.getImage(),
+			imageUrl,
 			reviews.stream().map(ReviewRes::fromEntity).collect(Collectors.toList())
 		);
 	}
