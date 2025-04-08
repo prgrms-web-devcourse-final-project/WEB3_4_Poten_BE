@@ -1,6 +1,7 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.application.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -169,6 +170,78 @@ class ApplicationServiceTest {
 			});
 
 			verify(applicationRepository, never()).delete(any());
+		}
+	}
+
+	@Nested
+	@DisplayName("보류 중 신청 조회 (getPendingRequests)")
+	class GetPendingRequestsTest {
+
+		@DisplayName("성공 - 상태가 PENDING인 신청 목록만 반환한다.")
+		@Test
+		void getPendingRequests_onlyPendingReturned() {
+			// given
+			Application pendingApp = Application.builder()
+				.id(1L)
+				.status(Status.PENDING)
+				.name("홍길동")
+				.address("서울시 강남구")
+				.phone("010-1111-1111")
+				.user(User.builder().id(1L).name("홍길동").build())
+				.createdAt(LocalDateTime.now())
+				.build();
+
+			Application acceptedApp = Application.builder()
+				.id(2L)
+				.status(Status.APPROVED)
+				.name("김영희")
+				.address("부산시 해운대구")
+				.phone("010-2222-2222")
+				.user(User.builder().id(2L).name("김영희").build())
+				.createdAt(LocalDateTime.now())
+				.build();
+
+			Application rejectedApp = Application.builder()
+				.id(3L)
+				.status(Status.REJECTED)
+				.name("이철수")
+				.address("대전시 유성구")
+				.phone("010-3333-3333")
+				.user(User.builder().id(3L).name("이철수").build())
+				.createdAt(LocalDateTime.now())
+				.build();
+
+			// 이 테스트에서는 repository가 PENDING만 넘겨줘야 함.
+			// 따라서 findByStatus(Status.PENDING)만 포함해야 함.
+			when(applicationRepository.findByStatus(Status.PENDING))
+				.thenReturn(List.of(pendingApp));
+
+			// when
+			List<ApplicationRes> result = applicationService.getPendingRequests();
+
+			// then
+			assertEquals(1, result.size());
+			assertEquals("홍길동", result.get(0).name());
+			assertEquals(Status.PENDING.name(), result.get(0).status());
+
+			verify(applicationRepository, times(1)).findByStatus(Status.PENDING);
+		}
+
+		@DisplayName("빈 목록 반환 - PENDING 상태가 없으면 빈 리스트를 반환한다.")
+		@Test
+		void getPendingRequests_noneFound_returnsEmptyList() {
+			// given
+			when(applicationRepository.findByStatus(Status.PENDING))
+				.thenReturn(List.of());
+
+			// when
+			List<ApplicationRes> result = applicationService.getPendingRequests();
+
+			// then
+			assertNotNull(result);
+			assertTrue(result.isEmpty());
+
+			verify(applicationRepository, times(1)).findByStatus(Status.PENDING);
 		}
 	}
 }
