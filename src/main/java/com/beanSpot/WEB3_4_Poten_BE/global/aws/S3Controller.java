@@ -1,6 +1,5 @@
 package com.beanSpot.WEB3_4_Poten_BE.global.aws;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +36,7 @@ public class S3Controller {
 
 	@GetMapping("/{fileName}")
 	public ResponseEntity<Map<String, String>> getFileUrl(@PathVariable String fileName) {
-		String presignedUrl = s3Service.getPresignedUrl(fileName);
+		String presignedUrl = s3Service.generatePresignedUrl(fileName);
 
 		Map<String, String> response = new HashMap<>();
 		response.put("fileUrl", presignedUrl);

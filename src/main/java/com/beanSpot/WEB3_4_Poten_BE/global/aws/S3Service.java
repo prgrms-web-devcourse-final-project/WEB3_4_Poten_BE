@@ -33,14 +33,14 @@ public class S3Service {
 
 	public String uploadFile(MultipartFile file) throws IOException {
 		String fileName = generateFileName(file);
-
 		PutObjectRequest putObjectRequest = PutObjectRequest.builder()
 			.bucket(bucketName)
 			.key(fileName)
 			.contentType(file.getContentType())
 			.build();
 
-		s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+		s3Client.putObject(putObjectRequest,
+			RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
 		return fileName;
 	}
@@ -52,9 +52,9 @@ public class S3Service {
 			.build()).toString();
 	}
 
-	public String getPresignedUrl(String fileName) {
+	public String generatePresignedUrl(String fileName) {
 		GetObjectPresignRequest getObjectPresignRequest = GetObjectPresignRequest.builder()
-			.signatureDuration(Duration.ofMinutes(60))
+			.signatureDuration(Duration.ofMinutes(10))
 			.getObjectRequest(req -> req.bucket(bucketName).key(fileName))
 			.build();
 
@@ -67,11 +67,10 @@ public class S3Service {
 			.bucket(bucketName)
 			.key(fileName)
 			.build();
-
 		s3Client.deleteObject(deleteObjectRequest);
 	}
 
 	private String generateFileName(MultipartFile file) {
-		return UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+		return UUID.randomUUID() + "-" + file.getOriginalFilename();
 	}
 }
