@@ -11,10 +11,13 @@ jobs:
     steps:
       - name: SSH로 EC2에 접속하기
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          APPLICATION_PROPERTIES: ${{ secrets.APPLICATION_PROPERTIES }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
+          envs: APPLICATION_PROPERTIES
           script_stop: true
           script: |
             cd ~
@@ -23,9 +26,12 @@ jobs:
             fi
 
             cd WEB3_4_Poten_BE
-            git stash
+            rm -rf src/main/resources/application-secret.yml
+            git reset --hard
+            git clean -fd
             git fetch origin
             git checkout -B feature/#51 origin/feature/#51
+            echo "$APPLICATION_PROPERTIES" > src/main/resources/application-secret.yml
 
             chmod +x ./gradlew
             ./gradlew clean build -x test
@@ -35,5 +41,5 @@ jobs:
             nohup java -jar build/libs/*SNAPSHOT.jar > ./output.log 2>&1 &
 
             echo "🔧 배포 완료! 실행 로그:"
-            tail -n 20 ./output.log
+            tail -n 50 ./output.log
           
