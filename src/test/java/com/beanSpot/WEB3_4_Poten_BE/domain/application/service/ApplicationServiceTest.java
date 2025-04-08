@@ -244,6 +244,58 @@ class ApplicationServiceTest {
 			verify(applicationRepository, times(1)).findByStatus(Status.PENDING);
 		}
 	}
+
+	@Nested
+	@DisplayName("카페 신청 거절 (rejectCafe)")
+	class RejectCafeTest {
+
+		@DisplayName("성공 - 신청 상태를 REJECTED로 변경하고 반환한다.")
+		@Test
+		void rejectCafe_success() {
+			// given
+			Long applicationId = 1L;
+
+			Application pendingApp = Application.builder()
+				.id(applicationId)
+				.status(Status.PENDING)
+				.name("홍길동")
+				.address("서울시 강남구")
+				.phone("010-1111-1111")
+				.user(User.builder().id(1L).name("홍길동").build())
+				.createdAt(LocalDateTime.now())
+				.build();
+
+			when(applicationRepository.findById(applicationId)).thenReturn(Optional.of(pendingApp));
+			when(applicationRepository.save(any(Application.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+			// when
+			ApplicationRes result = applicationService.rejectCafe(applicationId);
+
+			// then
+			assertNotNull(result);
+			assertEquals(Status.REJECTED.name(), result.status());
+			assertEquals("홍길동", result.name());
+
+			verify(applicationRepository).findById(applicationId);
+			verify(applicationRepository).save(pendingApp);
+		}
+
+		@DisplayName("실패 - 신청이 존재하지 않으면 예외를 던진다.")
+		@Test
+		void rejectCafe_notFound_throwsException() {
+			// given
+			Long invalidId = 999L;
+			when(applicationRepository.findById(invalidId)).thenReturn(Optional.empty());
+
+			// when & then
+			assertThrows(ApplicationNotFoundException.class, () -> {
+				applicationService.rejectCafe(invalidId);
+			});
+
+			verify(applicationRepository).findById(invalidId);
+			verify(applicationRepository, never()).save(any());
+		}
+	}
 }
 
 
