@@ -34,7 +34,7 @@ public class ApplicationController {
 		description = "신청을 추가합니다. 추가 시 신청의 상태 기본값은 PENDING입니다.")
 	@PostMapping
 	public ResponseEntity<ApplicationRes> createApplication(@RequestBody ApplicationReq applicationReq) {
-		ApplicationRes applicationRes = applicationService.createApplication(applicationReq, 2L);
+		ApplicationRes applicationRes = applicationService.createApplication(applicationReq, 1L);
 		return ResponseEntity.ok(applicationRes);
 	}
 
@@ -71,8 +71,7 @@ public class ApplicationController {
 		description = "신청을 APPROVED 상태로 바꿉니다.")
 	@PostMapping("/approve/{id}")
 	public ResponseEntity<ApplicationRes> approveCafe(@PathVariable Long id) {
-		applicationService.approveCafe(id);
-		Application application = applicationService.findById(id);
-		return ResponseEntity.ok(ApplicationRes.fromEntity(application));
+		ApplicationRes approved = applicationService.approveCafe(id);
+		return ResponseEntity.ok(approved);
 	}
 }

@@ -75,17 +75,15 @@ public class ApplicationService {
 		return ApplicationRes.fromEntity(application);
 	}
 
-	public void approveCafe(Long applicationId) {
+	@Transactional
+	public ApplicationRes approveCafe(Long applicationId) {
 		Application application = applicationRepository.findById(applicationId)
 			.orElseThrow(() -> new ApplicationNotFoundException(applicationId));
 
 		application.approve();
-
 		applicationRepository.save(application);
-	}
 
-	public Application findById(Long id) {
-		return applicationRepository.findById(id)
-			.orElseThrow(() -> new ApplicationNotFoundException(id));
+		return ApplicationRes.fromEntity(application);
+
 	}
 }
