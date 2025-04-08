@@ -17,11 +17,16 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
           script: |
-            cd ~/WEB3_4_Poten_BE
+            cd ~
+            if [ ! -d "WEB3_4_Poten_BE" ]; then
+              git clone https://github.com/prgrms-web-devcourse-final-project/WEB3_4_Poten_BE.git
+            fi
+
+            cd WEB3_4_Poten_BE
             git stash
             git fetch origin
-            git checkout -B feature/#51 origin/feature/#51 # 나중에 main으로 바꿔야함
-            
+            git checkout -B feature/#51 origin/feature/#51
+
             chmod +x ./gradlew
             ./gradlew clean build -x test
 
@@ -29,6 +34,7 @@ jobs:
 
             JAR_NAME=$(ls build/libs/*SNAPSHOT.jar | head -n 1)
             nohup java -jar "$JAR_NAME" > ./output.log 2>&1 &
-            
+
             echo "🔧 배포 완료! 실행 로그:"
             tail -n 20 ./output.log
+          
