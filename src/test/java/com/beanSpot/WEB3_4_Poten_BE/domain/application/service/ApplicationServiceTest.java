@@ -1,5 +1,6 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.application.service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,6 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.req.ApplicationReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.res.ApplicationRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
+import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Status;
+import com.beanSpot.WEB3_4_Poten_BE.domain.application.exception.ApplicationNotFoundException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.repository.ApplicationRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.exception.UserNotFoundException;
@@ -93,5 +96,82 @@ class ApplicationServiceTest {
 			});
 		}
 	}
+
+	@Nested
+	@DisplayName("거절된 신청 삭제 (deleteRejectedApplication)")
+	class DeleteRejectedApplicationTest {
+
+		@DisplayName("성공 - 상태가 REJECTED인 신청서를 정상적으로 삭제한다.")
+		@Test
+		void deleteRejectedApplication_success() {
+			// given
+			Long applicationId = 1L;
+
+			Application rejectedApplication = Application.builder()
+				.id(applicationId)
+				.status(Status.REJECTED)
+				.name("홍길동")
+				.address("서울시")
+				.phone("010-1234-5678")
+				.user(User.builder().id(1L).name("홍길동").build())
+				.createdAt(LocalDateTime.now())
+				.build();
+
+			when(applicationRepository.findById(applicationId))
+				.thenReturn(Optional.of(rejectedApplication));
+
+			// when
+			applicationService.deleteRejectedApplication(applicationId);
+
+			// then
+			verify(applicationRepository).delete(rejectedApplication);
+		}
+
+		@DisplayName("실패 - 신청 상태가 REJECTED가 아닌 경우 예외가 발생한다.")
+		@Test
+		void deleteRejectedApplication_notRejected_throwsException() {
+			// given
+			Long applicationId = 2L;
+
+			Application pendingApplication = Application.builder()
+				.id(applicationId)
+				.status(Status.PENDING)
+				.name("홍길동")
+				.address("서울시")
+				.phone("010-1234-5678")
+				.user(User.builder().id(1L).name("홍길동").build())
+				.createdAt(LocalDateTime.now())
+				.build();
+
+			when(applicationRepository.findById(applicationId))
+				.thenReturn(Optional.of(pendingApplication));
+
+			// when & then
+			assertThrows(IllegalStateException.class, () -> {
+				applicationService.deleteRejectedApplication(applicationId);
+			});
+
+			verify(applicationRepository, never()).delete(any());
+		}
+
+		@DisplayName("실패 - 존재하지 않는 신청 ID일 경우 예외가 발생한다.")
+		@Test
+		void deleteRejectedApplication_notFound_throwsException() {
+			// given
+			Long applicationId = 3L;
+
+			when(applicationRepository.findById(applicationId))
+				.thenReturn(Optional.empty());
+
+			// when & then
+			assertThrows(ApplicationNotFoundException.class, () -> {
+				applicationService.deleteRejectedApplication(applicationId);
+			});
+
+			verify(applicationRepository, never()).delete(any());
+		}
+	}
 }
+
+
 
