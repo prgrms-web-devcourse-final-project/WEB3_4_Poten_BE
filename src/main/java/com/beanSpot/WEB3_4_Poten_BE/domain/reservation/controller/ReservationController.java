@@ -45,7 +45,7 @@ public class ReservationController {
             .email("user0@google.com")
             .name("user0")
             .memberType(Member.MemberType.USER)
-            .OAuthId("user0")
+            .oAuthId("user0")
             .password("1234")
             .username("user0")
             .build();
