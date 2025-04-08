@@ -21,6 +21,8 @@ jobs:
             git stash
             git fetch origin
             git checkout -B feature/#51 origin/feature/#51 # 나중에 main으로 바꿔야함
+            
+            chmod +x ./gradlew
             ./gradlew clean build -x test
 
             sudo fuser -k -n tcp 8080 || true
