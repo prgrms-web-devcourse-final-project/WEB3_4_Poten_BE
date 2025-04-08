@@ -2,7 +2,6 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.review.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +16,6 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.review.dto.req.ReviewCreateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.dto.req.ReviewUpdateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.dto.res.ReviewRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.service.ReviewService;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.repository.UserRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,7 +28,6 @@ import lombok.RequiredArgsConstructor;
 public class ReviewController {
 
 	private final ReviewService reviewService;
-	private final UserRepository userRepository;
 
 	@Operation(
 		summary = "리뷰 추가",
