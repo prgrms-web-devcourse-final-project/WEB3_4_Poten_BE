@@ -32,8 +32,7 @@ jobs:
 
             sudo fuser -k -n tcp 8080 || true
 
-            JAR_NAME=$(ls build/libs/*SNAPSHOT.jar | head -n 1)
-            nohup java -jar "$JAR_NAME" > ./output.log 2>&1 &
+            nohup java -jar build/libs/*SNAPSHOT.jar > ./output.log 2>&1 &
 
             echo "🔧 배포 완료! 실행 로그:"
             tail -n 20 ./output.log
