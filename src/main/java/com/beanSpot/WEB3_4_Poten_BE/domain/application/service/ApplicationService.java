@@ -40,8 +40,9 @@ public class ApplicationService {
 			.createdAt(LocalDateTime.now())
 			.build();
 
-		applicationRepository.save(application);
-		return ApplicationRes.fromEntity(application);
+		Application savedApplication = applicationRepository.save(application);
+
+		return ApplicationRes.fromEntity(savedApplication);
 	}
 
 	@Transactional
