@@ -16,6 +16,6 @@ public record CafeUpdateReq(
 	String description,
 
 	@NotEmpty
-	String image
+	String imageFilename
 ) {
 }

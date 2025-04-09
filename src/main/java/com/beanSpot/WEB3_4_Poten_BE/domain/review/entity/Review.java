@@ -43,8 +43,8 @@ public class Review {
 	@Column(length = 1000, nullable = false) //추후 수정 가능
 	private String comment;
 
-	@Column(name = "created_at", nullable = false)
-	private LocalDateTime createdAt = LocalDateTime.now();
+	@Column(name = "created_at")
+	private LocalDateTime createdAt;
 
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;

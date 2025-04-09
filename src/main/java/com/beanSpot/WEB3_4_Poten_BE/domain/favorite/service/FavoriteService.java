@@ -71,7 +71,7 @@ public class FavoriteService {
                         .cafeId(favorite.getCafe().getCafeId())
                         .name(favorite.getCafe().getName())
                         .address(favorite.getCafe().getAddress())
-                        .image(favorite.getCafe().getImage())
+                        .image(favorite.getCafe().getImageFilename())
                         .build()
                 )
                 .collect(Collectors.toList());
