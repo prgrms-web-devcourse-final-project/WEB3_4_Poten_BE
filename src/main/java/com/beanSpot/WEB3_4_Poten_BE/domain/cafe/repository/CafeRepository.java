@@ -1,6 +1,7 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,8 +16,10 @@ public interface CafeRepository extends JpaRepository<Cafe, Long> {
 	@Query("SELECT c FROM Cafe c WHERE (LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(c.address) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND c.disabled = false")
 	List<Cafe> searchByKeywordAndDisabledFalse(@Param("keyword") String keyword);
 
-	List<Cafe> findByDisabledFalse();
+	List<Cafe> findAllByDisabledFalse();
 
 	boolean existsByNameAndAddress(String name, String address);
+
+	Optional<Cafe> findBycafeIdAndDisabledFalse(Long cafeId);
 }
 

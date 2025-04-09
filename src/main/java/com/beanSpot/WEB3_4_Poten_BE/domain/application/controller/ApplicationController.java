@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.req.ApplicationReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.res.ApplicationRes;
+import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.service.ApplicationService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 
@@ -28,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class ApplicationController {
 	private final ApplicationService applicationService;
 	private final MemberRepository memberRepository;
+
 
 	//인증 방식에 따라서 수정해야합니다.
 	@Operation(
@@ -65,5 +67,14 @@ public class ApplicationController {
 	public ResponseEntity<ApplicationRes> rejectCafe(@PathVariable Long id) {
 		ApplicationRes rejectedCafe = applicationService.rejectCafe(id);
 		return ResponseEntity.ok(rejectedCafe);
+	}
+
+	@Operation(
+		summary = "신청 수락",
+		description = "신청을 APPROVED 상태로 바꿉니다.")
+	@PostMapping("/approve/{id}")
+	public ResponseEntity<ApplicationRes> approveCafe(@PathVariable Long id) {
+		ApplicationRes approved = applicationService.approveCafe(id);
+		return ResponseEntity.ok(approved);
 	}
 }

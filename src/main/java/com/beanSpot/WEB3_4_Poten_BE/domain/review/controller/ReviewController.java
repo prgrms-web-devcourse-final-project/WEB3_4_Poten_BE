@@ -40,6 +40,7 @@ public class ReviewController {
 		request = new ReviewCreateReq(request.userId(), cafeId, request.rating(), request.comment());
 		ReviewRes reviewRes = reviewService.addReview(request,1L);
 		return ResponseEntity.ok(reviewRes);
+		// TODO: 인증 구현 후 userId는 RequestBody에서 제거하고 SecurityContext에서 가져오기
 	}
 
 	@Operation(

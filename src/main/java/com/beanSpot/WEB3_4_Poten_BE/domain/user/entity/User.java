@@ -69,11 +69,6 @@ public class User {
 	@OneToMany(mappedBy = "user")
 	private List<Review> reviews = new ArrayList<>();
 
-
-
-//	@OneToMany(mappedBy = "user")
-//	private List<Reservation> reservations = new ArrayList<>();
-
 	// 사용자가 카페 소유자인 경우
 	@OneToMany(mappedBy = "owner")
 	private List<Cafe> owner = new ArrayList<>();

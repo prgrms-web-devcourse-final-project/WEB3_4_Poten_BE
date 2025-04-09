@@ -1,20 +1,19 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.payment.controller;
 
-import java.net.URI;
-import java.util.Map;
-
+import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.req.PaymentCancelReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.req.PaymentConfirmReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.res.PaymentRes;
+import com.beanSpot.WEB3_4_Poten_BE.domain.payment.exception.PaymentException;
+import com.beanSpot.WEB3_4_Poten_BE.domain.payment.service.PaymentService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.req.PaymentConfirmReq;
-import com.beanSpot.WEB3_4_Poten_BE.domain.payment.exception.PaymentException;
-import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.res.PaymentRes;
-import com.beanSpot.WEB3_4_Poten_BE.domain.payment.service.PaymentService;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.net.URI;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -72,7 +71,7 @@ public class PaymentController {
 	/**
 	 * 프론트에서 결제 확인 요청
 	 */
-	@PostMapping("/api/confirm")
+	@PostMapping("/confirm")
 	public ResponseEntity<?> confirmPayment(@RequestBody PaymentConfirmReq request) {
 		try {
 			PaymentRes response = paymentService.confirmPayment(
@@ -93,5 +92,27 @@ public class PaymentController {
 			"message", message,
 			"code", code
 		));
+	}
+
+	/**
+	 * 결제 취소 요청 처리 컨트롤러
+	 *
+	 * @author -- 김남우 --
+	 * @since -- 4월 5일 --
+	 */
+	@PostMapping("/cancel")
+	public ResponseEntity<?> cancelPayment(@RequestBody PaymentCancelReq request) {
+		try {
+			PaymentRes response = paymentService.cancelPayment(
+					request.paymentKey(),
+					request.cancelAmount(),
+					request.cancelReason()
+			);
+			return ResponseEntity.ok(response);
+		} catch (PaymentException e) {
+			return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage(), "RESERVATION_CANCEL_ERROR");
+		} catch (Exception e) {
+			return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "결제 취소 중 오류가 발생했습니다.", "SERVER_ERROR");
+		}
 	}
 }

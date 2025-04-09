@@ -27,6 +27,7 @@ public class ApplicationService {
 	private final MemberRepository memberRepository;
 	// private final UserRepository userRepository;
 
+
 	@Transactional
 	public ApplicationRes createApplication(ApplicationReq request, Long memberId) {
 		Member member = memberRepository.findById(memberId)
@@ -41,8 +42,9 @@ public class ApplicationService {
 			.createdAt(LocalDateTime.now())
 			.build();
 
-		applicationRepository.save(application);
-		return ApplicationRes.fromEntity(application);
+		Application savedApplication = applicationRepository.save(application);
+
+		return ApplicationRes.fromEntity(savedApplication);
 	}
 
 	@Transactional
@@ -74,5 +76,15 @@ public class ApplicationService {
 
 		return ApplicationRes.fromEntity(application);
 	}
-}
 
+	@Transactional
+	public ApplicationRes approveCafe(Long applicationId) {
+		Application application = applicationRepository.findById(applicationId)
+			.orElseThrow(() -> new ApplicationNotFoundException(applicationId));
+
+		application.approve();
+		applicationRepository.save(application);
+
+		return ApplicationRes.fromEntity(application);
+	}
+}
