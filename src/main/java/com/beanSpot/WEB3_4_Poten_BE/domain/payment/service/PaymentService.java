@@ -59,15 +59,17 @@ public class PaymentService {
 		log.info("결제 성공: orderId={}, amount={}", response.getOrderId(), response.getTotalAmount());
 		log.info("response: {}", response);
 
-		OffsetDateTime offsetDateTime = OffsetDateTime.parse(response.getApprovedAt(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+		OffsetDateTime offsetDateTime = OffsetDateTime.parse(
+				response.getApprovedAt(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 
 		paymentRepository.save(Payment.builder()
-			.orderId(response.getOrderId())
-			.paymentKey(response.getPaymentKey())
-			.amount(response.getTotalAmount())
-			.paySuccessDate(offsetDateTime.toLocalDateTime())
-			.method(response.getMethod())
-			.build());
+				.orderId(response.getOrderId())
+				.paymentKey(response.getPaymentKey())
+				.amount(response.getTotalAmount())
+				.paySuccessDate(offsetDateTime.toLocalDateTime())
+				.method(response.getMethod())
+				.paymentStatus(PaymentStatus.SUCCESS)
+				.build());
 	}
 
 	private void setAuthorizationHeader(HttpHeaders headers) {
