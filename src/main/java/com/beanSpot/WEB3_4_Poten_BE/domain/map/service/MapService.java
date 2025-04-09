@@ -4,9 +4,10 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import java.util.Map;
 public class MapService {
 
     private final CafeRepository cafeRepository;
+    private final RestClient restClient;
 
     @Value("${kakao.key}")
     private String kakaoKey;
@@ -34,21 +36,22 @@ public class MapService {
     @Value("${kakao.imageurl}")
     private String kakaoImageUrl;
 
+    /**
+     * 카카오 API를 호출하여 카페 정보를 검색, Cafe 엔티티로 저장하여 리스트로 반환
+     */
     public List<Cafe> searchAndSaveCafes(double x, double y, int page) {
-        RestTemplate restTemplate = new RestTemplate();
-
         String apiUrl = String.format(
                 "%s?query=%s&x=%f&y=%f&radius=%d&category_group_code=%s&size=%d&page=%d",
                 kakaoPlaceUrl, "cafe", x, y, 2000, "CE7", 15, page
         );
 
-        // HTTP 요청 헤더 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "KakaoAK " + kakaoKey);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
         // API 요청 및 응답 처리
-        ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, Map.class);
+        ResponseEntity<Map> response = restClient.get()
+                .uri(apiUrl)
+                .header("Authorization", "KakaoAK " + kakaoKey)
+                .retrieve()
+                .toEntity(Map.class);
+
         if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
             throw new RuntimeException("카카오 API 요청 실패: " + response.getStatusCode());
         }
@@ -78,15 +81,13 @@ public class MapService {
      * 카페 주소로 카카오 이미지 검색 API를 호출하여 대표 이미지 URL을 가져옴
      */
     private String searchCafeImage(String address) {
-        RestTemplate restTemplate = new RestTemplate();
-
         String apiUrl = String.format("%s?query=%s&size=1", kakaoImageUrl, address);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "KakaoAK " + kakaoKey);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, Map.class);
+        ResponseEntity<Map> response = restClient.get()
+                .uri(apiUrl)
+                .header("Authorization", "KakaoAK " + kakaoKey)
+                .retrieve()
+                .toEntity(Map.class);
 
         // 디버깅용 응답 데이터
         System.out.println("응답: " + response.getBody());
