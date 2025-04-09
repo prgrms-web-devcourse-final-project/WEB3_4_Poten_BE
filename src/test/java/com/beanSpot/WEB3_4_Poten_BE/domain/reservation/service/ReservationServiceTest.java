@@ -63,7 +63,7 @@ class ReservationServiceTest {
                 .email("user1@google.com")
                 .name("user1")
                 .memberType(Member.MemberType.USER)
-                .OAuthId("user1")
+                .oAuthId("user1")
                 .password("1234")
                 .username("user1")
                 .build();
@@ -72,7 +72,7 @@ class ReservationServiceTest {
                 .email("user2@google.com")
                 .name("user2")
                 .memberType(Member.MemberType.USER)
-                .OAuthId("user2")
+                .oAuthId("user2")
                 .password("1234")
                 .username("user2")
                 .build();

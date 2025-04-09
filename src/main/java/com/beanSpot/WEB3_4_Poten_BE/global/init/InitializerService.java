@@ -26,7 +26,6 @@ public class InitializerService implements ApplicationRunner {
 	}
 
 	private void initAdminAccount() {
-		// 기존 코드와 동일
 		if (memberRepository.findByEmailAndMemberType("admin@beanspot.com", Member.MemberType.ADMIN).isPresent()) {
 			log.info("관리자 계정이 이미 존재합니다.");
 			return;

@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtService {
 	// 기존 필드
 	private final Key key;
-	private static final long TOKEN_VALIDITY = 14 * 24 * 60 * 60 * 1000L;  // 1시간
+	private static final long TOKEN_VALIDITY = 14 * 24 * 60 * 60 * 1000L;  // 14일
 	private static final long REFRESH_TOKEN_VALIDITY = 14 * 24 * 60 * 60 * 1000L;  // 7일
 
 	// Redis 관련 필드 추가
