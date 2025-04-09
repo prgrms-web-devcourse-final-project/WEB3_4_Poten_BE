@@ -18,4 +18,5 @@ public record TimePeriodReq(
         @NotNull(message = "종료 시간은 필수입니다.")
         @Future(message = "종료 시간은 현재 시간 이후여야 합니다.")
         LocalDateTime endTime
-) {}
+) implements TimePeriod
+{}

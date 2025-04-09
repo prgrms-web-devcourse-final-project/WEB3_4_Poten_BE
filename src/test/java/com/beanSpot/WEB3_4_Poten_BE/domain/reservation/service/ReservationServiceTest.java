@@ -1,5 +1,8 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
+import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Status;
+import com.beanSpot.WEB3_4_Poten_BE.domain.application.repository.ApplicationRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
@@ -14,6 +17,8 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.TimeSlot;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.ReservationStatus;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.repository.ReservationRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
+import com.beanSpot.WEB3_4_Poten_BE.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,7 +51,15 @@ class ReservationServiceTest {
     @Autowired
     private TestEntityManager entityManager;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ApplicationRepository applicationRepository;
+
     private ReservationService reservationService;
+
+
 
     private Cafe cafe;
     private Member member1;
@@ -76,10 +89,31 @@ class ReservationServiceTest {
                 .username("user2")
                 .build();
 
+        User user = User.builder()
+                .name("dfs")
+                .email("sdf")
+                .createdAt(LocalDateTime.now())
+                .password("sdf")
+                .build();
+
+        userRepository.save(user);
+
+        Application application = Application.builder()
+                .address("sdf")
+                .name("starbucks")
+                .status(Status.APPROVED)
+                .user(user)
+                .createdAt(LocalDateTime.now())
+                .phone("0101")
+                .build();
+
+        //applicationRepository.save(application);
+
         // 테스트용 Cafe 및 Reservation 저장
         cafe = Cafe.builder()
                 .name("cafe1")
-                .image("img1")
+                .application(application)
+                .imageFilename("a")
                 .address("seoul")
                 .capacity(5)
                 .disabled(false)
@@ -269,7 +303,8 @@ class ReservationServiceTest {
                 .build();
 
         TimeSlotsReq req = TimeSlotsReq.builder()
-                .reservationTime(time)
+                .startTime(time.startTime())
+                .endTime(time.endTime())
                 .partySize(reservation1.getPartySize())
                 .build();
 
