@@ -29,7 +29,7 @@ public class newMemberService {
 	// 회원 정보 수정 또는 신규 가입
 	@Transactional
 	public Member modifyOrJoin(String oAuthId, String email, String name, String profileImg, Member.SnsType snsType) {
-		return memberRepository.findByOAuthId(oAuthId)
+		return memberRepository.findByoAuthId(oAuthId)
 			.map(member -> updateMemberInfo(member, email, name, profileImg, snsType)) // 기존 회원 업데이트
 			.orElseGet(() -> createNewMember(oAuthId, email, name, profileImg, snsType)); // 신규 회원 생성
 	}
@@ -59,7 +59,7 @@ public class newMemberService {
 	// 회원 정보 업데이트 (중복 제거 및 Optional 반환 제거)
 	@Transactional
 	public Member updateMemberInfo(String oAuthId, UpdateMemberMyPageDto dto, String currentEmail) {
-		Member member = memberRepository.findByOAuthId(oAuthId)
+		Member member = memberRepository.findByoAuthId(oAuthId)
 			.orElseThrow(() -> new ServiceException("사용자를 찾을 수 없습니다."));
 
 		if (dto.email() != null && !dto.email().equals(currentEmail)) {
@@ -93,6 +93,6 @@ public class newMemberService {
 	}
 
 	public Optional<Member> findByOAuthId(String oAuthId) {
-		return memberRepository.findByOAuthId(oAuthId);
+		return memberRepository.findByoAuthId(oAuthId);
 	}
 }

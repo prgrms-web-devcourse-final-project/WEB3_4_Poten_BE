@@ -2,7 +2,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.application.entity;
 
 import java.time.LocalDateTime;
 
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,9 +30,9 @@ public class Application {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@OneToOne
+	/*@OneToOne
 	@JoinColumn(name = "user_id", nullable = false)
-	private User user;
+	private User user;*/
 
 	@Column(nullable = false)
 	private String name;
@@ -48,6 +48,10 @@ public class Application {
 
 	@Column(nullable = false)
 	private LocalDateTime createdAt;
+
+	@OneToOne
+	@JoinColumn(name = "member_id", nullable = false)
+	private Member member;
 
 	public void approve() {
 		this.status = Status.APPROVED;

@@ -28,7 +28,7 @@ public record ApplicationRes(
 	public static ApplicationRes fromEntity(Application application) {
 		return new ApplicationRes(
 			application.getId(),
-			application.getUser().getId(),
+			application.getMember().getId(),
 			application.getName(),
 			application.getAddress(),
 			application.getPhone(),

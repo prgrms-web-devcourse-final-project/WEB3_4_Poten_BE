@@ -3,7 +3,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.review.entity;
 import java.time.LocalDateTime;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +31,7 @@ public class Review {
 
 	@ManyToOne
 	@JoinColumn(name = "user_id")
-	private User user;
+	private Member member;
 
 	@ManyToOne
 	@JoinColumn(name = "cafe_id")

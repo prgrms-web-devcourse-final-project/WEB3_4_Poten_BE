@@ -3,7 +3,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity;
 import java.time.LocalDateTime;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +31,7 @@ public class Cafe {
 
 	@ManyToOne
 	@JoinColumn(name = "owner_id")
-	private User owner;
+	private Member owner;
 
 	@Column(nullable = false)
 	private String name;
