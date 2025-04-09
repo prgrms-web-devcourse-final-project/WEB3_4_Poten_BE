@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: application-secret.yml 파일 만들기
-        run: echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./src/main/resources/application-secret.yml
+        run: echo "${{ secrets.APPLICATION_PROPERTIES_BASE64 }}" | base64 --decode > ./src/main/resources/application-secret.yml
 
       - name: 테스트 및 빌드하기
         run: ./gradlew clean build -x test
