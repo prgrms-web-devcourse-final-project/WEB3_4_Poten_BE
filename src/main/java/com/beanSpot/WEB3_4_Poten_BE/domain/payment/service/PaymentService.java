@@ -3,8 +3,11 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.payment.service;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.req.TossPaymentReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.res.PaymentRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.entity.Payment;
+import com.beanSpot.WEB3_4_Poten_BE.domain.payment.entity.PaymentStatus;
+import com.beanSpot.WEB3_4_Poten_BE.domain.payment.entity.Refund;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.exception.PaymentException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.repository.PaymentRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.payment.repository.RefundRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +19,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
@@ -27,6 +31,7 @@ import java.util.Map;
 public class PaymentService {
 
 	private final PaymentRepository paymentRepository;
+	private final RefundRepository refundRepository;
 
 	@Value("${payment.toss.secret-key}")
 	private String secretKey;
@@ -82,9 +87,6 @@ public class PaymentService {
 
 	/**
 	 * 결제 취소 요청을 외부 API에 보내고, 성공 시 DB 상태를 업데이트
-	 *
-	 * @author -- 김남우 --
-	 * @since -- 4월 5일 --
 	 */
 	@Transactional
 	public PaymentRes cancelPayment(String paymentKey, Long cancelAmount, String cancelReason) {
@@ -118,18 +120,32 @@ public class PaymentService {
 
 	/**
 	 * DB에서 해당 결제 정보를 찾아 취소 상태로 업데이트
-	 *
-	 * @author -- 김남우 --
-	 * @since -- 4월 7일 --
 	 */
 	private void updatePaymentStatusAsCanceled(String paymentKey, PaymentRes response) {
-//		paymentRepository.findByPaymentKey(paymentKey).ifPresent(payment -> {
-//			payment.cancel(response.getCanceledAt()); // 취소 시간 저장
-//			paymentRepository.save(payment);
-//		});
+		paymentRepository.findByPaymentKey(paymentKey).ifPresent(payment -> {
+			if (response.getCancels() != null && !response.getCancels().isEmpty()) {
+				PaymentRes.CancelHistory cancelInfo = response.getCancels().get(0);
+
+				OffsetDateTime canceledOffsetTime = cancelInfo.getCanceledAt();
+				LocalDateTime canceledAt = canceledOffsetTime.toLocalDateTime();
+
+				// Payment 상태 변경
+				payment.cancel(canceledAt);
+				paymentRepository.save(payment);
+
+				// Refund 엔티티 저장
+				Refund refund = Refund.builder()
+						.payment(payment)
+						.refundAmount(cancelInfo.getCancelAmount())
+						.requestedAt(LocalDateTime.now())
+						.refundedAt(canceledAt)
+						.reason(cancelInfo.getCancelReason())
+						.build();
+
+				refundRepository.save(refund);
+			}
+		});
 	}
-
-
 }
 
 // 추후 예약(주문)과 연결할 때 추가할 로직
