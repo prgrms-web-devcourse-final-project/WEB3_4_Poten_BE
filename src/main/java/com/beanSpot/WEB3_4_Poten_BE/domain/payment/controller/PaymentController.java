@@ -72,7 +72,7 @@ public class PaymentController {
 	/**
 	 * 프론트에서 결제 확인 요청
 	 */
-	@PostMapping("/api/confirm")
+	@PostMapping("/confirm")
 	public ResponseEntity<?> confirmPayment(@RequestBody PaymentConfirmReq request) {
 		try {
 			PaymentRes response = paymentService.confirmPayment(

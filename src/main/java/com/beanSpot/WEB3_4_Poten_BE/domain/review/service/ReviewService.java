@@ -1,5 +1,6 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.review.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,6 +45,8 @@ public class ReviewService {
 			.cafe(cafe)
 			.rating(request.rating())
 			.comment(request.comment())
+			.createdAt(LocalDateTime.now())
+			.updatedAt(LocalDateTime.now())
 			.build();
 
 		reviewRepository.save(review);

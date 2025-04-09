@@ -2,6 +2,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.application.entity;
 
 import java.time.LocalDateTime;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
 
 import jakarta.persistence.Column;
@@ -33,6 +34,9 @@ public class Application {
 	@OneToOne
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
+
+	@OneToOne(mappedBy = "application")
+	private Cafe cafe;
 
 	@Column(nullable = false)
 	private String name;
