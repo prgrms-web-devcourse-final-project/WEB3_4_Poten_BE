@@ -1,9 +1,9 @@
-name: Deploy To EC2 (feature/#51)
+name: Deploy To EC2 (main)
 
 on:
   push:
     branches:
-      - feature/#51 # 나중에 main으로 바꿔야함
+      - main
 
 jobs:
   deploy:
