@@ -55,4 +55,14 @@ public class ImageController {
 		imageService.deleteImage(imageId);
 		return ResponseEntity.ok("이미지가 삭제되었습니다.");
 	}
+
+	// 이미지 수정
+	@PutMapping("/{id}")
+	public ResponseEntity<Image> updateImage(
+		@PathVariable("id") Long imageId,
+		@RequestParam("file") MultipartFile file
+	) throws IOException {
+		Image updatedImage = imageService.updateImage(imageId, file);
+		return ResponseEntity.ok(updatedImage);
+	}
 }

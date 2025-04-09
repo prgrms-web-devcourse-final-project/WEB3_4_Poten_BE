@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -72,5 +73,27 @@ public class ImageService {
 		Image image = getImageById(imageId);
 		s3Service.deleteFile(image.getFileName());
 		imageRepository.delete(image);
+	}
+
+	// 기존 이미지 수정하기
+	@Transactional
+	public Image updateImage(Long imageId, MultipartFile newFile) throws IOException {
+		Image image = imageRepository.findById(imageId)
+			.orElseThrow(() -> new IllegalArgumentException("해당 이미지를 찾을 수 없습니다. id=" + imageId));
+
+		// S3에서 기존 이미지 삭제
+		s3Service.deleteFile(image.getFileName());
+
+		// 새 파일 S3에 업로드
+		String newFileName = UUID.randomUUID() + "_" + newFile.getOriginalFilename();
+		String newUrl = s3Service.uploadFile(newFile, newFileName);
+
+		// 이미지 정보 갱신
+		image.setFileName(newFileName);
+		image.setFileUrl(newUrl);
+		image.setFileType(newFile.getContentType());
+		image.setFileSize(newFile.getSize());
+
+		return image;
 	}
 }
