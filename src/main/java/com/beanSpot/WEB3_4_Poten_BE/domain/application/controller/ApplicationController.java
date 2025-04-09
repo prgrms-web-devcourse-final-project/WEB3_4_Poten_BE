@@ -15,6 +15,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.req.ApplicationReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.res.ApplicationRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.service.ApplicationService;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ApplicationController {
 	private final ApplicationService applicationService;
+	private final MemberRepository memberRepository;
 
 	//인증 방식에 따라서 수정해야합니다.
 	@Operation(

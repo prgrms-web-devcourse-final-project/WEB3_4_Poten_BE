@@ -1,3 +1,4 @@
+/*
 package com.beanSpot.WEB3_4_Poten_BE.domain.user.dto.res;
 
 import java.time.LocalDateTime;
@@ -50,3 +51,4 @@ public record UserRes(
 		);
 	}
 }
+*/

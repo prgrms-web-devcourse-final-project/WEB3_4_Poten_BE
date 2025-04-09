@@ -1,4 +1,4 @@
-package com.beanSpot.WEB3_4_Poten_BE.domain.user.service;
+/*package com.beanSpot.WEB3_4_Poten_BE.domain.user.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -75,3 +75,4 @@ public class UserService {
 		userRepository.delete(user);
 	}
 }
+*/

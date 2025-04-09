@@ -9,16 +9,15 @@ import org.springframework.stereotype.Service;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.exception.CafeNotFoundException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.dto.req.ReviewCreateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.dto.req.ReviewUpdateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.dto.res.ReviewRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.entity.Review;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.exception.ReviewNotFoundException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.repository.ReviewRepository;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.exception.UserNotFoundException;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.repository.UserRepository;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.service.UserService;
+import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,20 +27,20 @@ import lombok.RequiredArgsConstructor;
 public class ReviewService {
 
 	private final ReviewRepository reviewRepository;
-	private final UserRepository userRepository;
+	private final MemberRepository memberRepository;
 	private final CafeRepository cafeRepository;
 
 	@Transactional
 	public ReviewRes addReview(ReviewCreateReq request, Long userId) {
 
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new UserNotFoundException(userId));
+		Member member = memberRepository.findById(userId)
+			.orElseThrow(() -> new ServiceException(400, "사용자를 찾을 수 없습니다."));
 
 		Cafe cafe = cafeRepository.findById(request.cafeId())
 			.orElseThrow(() -> new CafeNotFoundException(request.cafeId()));
 
 		Review review = Review.builder()
-			.user(user)
+			.member(member)
 			.cafe(cafe)
 			.rating(request.rating())
 			.comment(request.comment())

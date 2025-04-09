@@ -6,7 +6,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.review.entity.Review;
 
 public record ReviewRes(
 	Long id,
-	Long userId,
+	Long memberId,
 	Long cafeId,
 	int rating,
 	String comment,
@@ -17,7 +17,7 @@ public record ReviewRes(
 	public static ReviewRes fromEntity(Review review) {
 		return new ReviewRes(
 			review.getId(),
-			review.getUser().getId(),
+			review.getMember().getId(),
 			review.getCafe().getCafeId(),
 			review.getRating(),
 			review.getComment(),

@@ -31,7 +31,7 @@ public class AuthService {
 		String oAuthId = jwtService.getOAuthIdFromToken(token);
 		log.debug("토큰에서 추출한 oAuthId: {}", oAuthId);
 
-		return memberRepository.findByOAuthId(oAuthId)
+		return memberRepository.findByoAuthId(oAuthId)
 			.orElseThrow(() -> {
 				log.error("사용자를 찾을 수 없습니다: {}", oAuthId);
 				return new ServiceException(400, "사용자를 찾을 수 없습니다.");

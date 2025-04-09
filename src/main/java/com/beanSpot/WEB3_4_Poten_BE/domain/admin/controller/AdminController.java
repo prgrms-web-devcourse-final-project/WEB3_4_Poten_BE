@@ -1,5 +1,6 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.admin.controller;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -37,19 +38,26 @@ public class AdminController {
 	@PostMapping("/login")
 	public ResponseEntity<?> adminLogin(@RequestBody AdminLoginDto loginDto) {
 		try {
+			log.debug("관리자 로그인 시도: {}", loginDto.email());
+
 			// 관리자 계정 조회 (이메일 기준)
 			Optional<Member> optionalMember = memberRepository.findByEmailAndMemberType(loginDto.email(),
 				Member.MemberType.ADMIN);
+
 			if (optionalMember.isEmpty()) {
 				log.error("로그인 실패: 해당 이메일의 관리자 계정이 존재하지 않음");
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패 - 계정을 찾을 수 없음");
 			}
+
 			Member admin = optionalMember.get();
+			log.debug("관리자 계정 찾음: {}, 암호화된 비밀번호 존재: {}", admin.getEmail(), admin.getPassword() != null);
 
 			// 비밀번호 확인
 			boolean isPasswordCorrect = passwordEncoder.matches(loginDto.password(), admin.getPassword());
+			log.debug("비밀번호 검증 결과: {}", isPasswordCorrect);
 
 			if (!isPasswordCorrect) {
+				log.error("로그인 실패: 비밀번호 불일치");
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패 - 비밀번호 불일치");
 			}
 
@@ -57,35 +65,15 @@ public class AdminController {
 			String accessToken = jwtService.generateToken(admin);
 			String refreshToken = jwtService.generateRefreshToken(admin);
 
-			/*
-			ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
-					.httpOnly(true)
-					.secure(true)
-					.sameSite("None")
-					.path("/")
-					.maxAge(60 * 60) // 1시간
-					.build();
-
-			ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
-					.httpOnly(true)
-					.secure(true)
-					.sameSite("None")
-					.path("/api/auth/refresh")
-					.maxAge(7 * 24 * 60 * 60) // 7일
-					.build();
-
-			return ResponseEntity.ok()
-					.header("Set-Cookie", accessTokenCookie.toString())
-					.header("Set-Cookie", refreshTokenCookie.toString())
-					.body("관리자 로그인 성공");
-			*/
+			log.debug("토큰 생성 완료: accessToken={}, refreshToken={}", accessToken != null, refreshToken != null);
 
 			return ResponseEntity.ok()
 				.header("Authorization", "Bearer " + accessToken)
 				.header("RefreshToken", refreshToken)
-				.body("관리자 로그인 성공");
+				.body(Map.of("message", "관리자 로그인 성공", "userId", admin.getId()));
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패");
+			log.error("로그인 처리 중 예외 발생", e);
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "로그인 실패: " + e.getMessage()));
 		}
 	}
 }

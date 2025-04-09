@@ -79,8 +79,9 @@ public class SecurityConfig {
 				.requestMatchers("/api/cafes/**").permitAll()
 
 				// 관리자 엔드포인트 접근 제한
-				.requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-				.requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+				.requestMatchers("/admin/login").permitAll()
+				//.requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+				//.requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
 
 				// 카페 주인 엔드포인트 접근 제한 - OWNER 권한을 가진 사용자만 접근 가능
 				//.requestMatchers(HttpMethod.POST, "/api/cafes/**").hasAuthority("ROLE_OWNER")

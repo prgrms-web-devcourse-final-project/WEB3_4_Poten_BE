@@ -111,3 +111,7 @@ custom:
     expirationSeconds: "#{60 * 20}"
   genFile:
     dirPath:
+
+  admin:
+    email: admin@beanspot.com
+    password: adminPassword

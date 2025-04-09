@@ -1,3 +1,4 @@
+/*
 package com.beanSpot.WEB3_4_Poten_BE.domain.user.entity;
 
 import java.time.LocalDateTime;
@@ -94,3 +95,4 @@ public class User {
 		this.updatedAt = LocalDateTime.now();
 	}
 }
+*/
