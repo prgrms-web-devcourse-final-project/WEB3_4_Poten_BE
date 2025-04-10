@@ -1,4 +1,4 @@
-package com.beanSpot.WEB3_4_Poten_BE.domain.user.repository;
+/*package com.beanSpot.WEB3_4_Poten_BE.domain.user.repository;
 
 import java.util.Optional;
 
@@ -11,3 +11,4 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findById(Long id);
 }
+*/

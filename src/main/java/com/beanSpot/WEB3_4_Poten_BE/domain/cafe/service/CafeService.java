@@ -16,12 +16,11 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.exception.CafeNotFoundException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
+import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.entity.Review;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.repository.ReviewRepository;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.UserRole;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.exception.UserNotFoundException;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.repository.UserRepository;
 import com.beanSpot.WEB3_4_Poten_BE.global.aws.S3Service;
 
 import jakarta.transaction.Transactional;
@@ -32,17 +31,19 @@ import lombok.RequiredArgsConstructor;
 public class CafeService {
 
 	private final CafeRepository cafeRepository;
+	private final MemberRepository memberRepository;
 	private final ReviewRepository reviewRepository;
-	private final UserRepository userRepository;
 	private final ApplicationRepository applicationRepository;
 	private final S3Service s3Service;
+	private final MemberRepository memberRepository;
 
 	@Transactional
 	public CafeInfoRes createCafe(CafeCreateReq request, Long ownerId) {
-		User owner = userRepository.findById(ownerId)
-			.orElseThrow(() -> new UserNotFoundException(ownerId));
+		Member owner = memberRepository.findById(ownerId)
+			.orElseThrow(() -> new ServiceException("사용자를 찾을 수 없습니다. ID: " + ownerId));
 
-		if (owner.getRole() != UserRole.ROLE_OWNER) {
+		// MemberType이 OWNER가 아니면 OWNER로 변경
+		if (owner.getMemberType() != Member.MemberType.OWNER) {
 			owner.changeRoleToOwner();
 		}
 

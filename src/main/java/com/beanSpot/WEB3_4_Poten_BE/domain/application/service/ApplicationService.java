@@ -12,10 +12,10 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Status;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.exception.ApplicationNotFoundException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.repository.ApplicationRepository;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.exception.UserNotFoundException;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.repository.UserRepository;
-
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
+import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -23,16 +23,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ApplicationService {
 	private final ApplicationRepository applicationRepository;
-	private final UserRepository userRepository;
+	private final CafeRepository cafeRepository;
+	private final MemberRepository memberRepository;
+	// private final UserRepository userRepository;
+
 
 	@Transactional
-	public ApplicationRes createApplication(ApplicationReq request, Long userId) {
-
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new UserNotFoundException(userId));
+	public ApplicationRes createApplication(ApplicationReq request, Long memberId) {
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new ServiceException(400, "사용자를 찾을 수 없습니다."));
 
 		Application application = Application.builder()
-			.user(user)
+			.member(member)  // user 대신 member로 변경
 			.name(request.name())
 			.address(request.address())
 			.phone(request.phone())

@@ -1,0 +1,21 @@
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: # Redis password if applicable
+      database: 0 # Redis database index
+      timeout: 60000 # Connection timeout in milliseconds
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms # Negative for no limit
+
+  # Optional: Spring Session configuration if you plan to use Redis for session management
+  session:
+    store-type: redis
+    redis:
+      namespace: beanspot:session # Prefix for session keys
+      flush-mode: on-save

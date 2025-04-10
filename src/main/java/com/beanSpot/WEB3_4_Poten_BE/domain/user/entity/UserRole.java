@@ -1,3 +1,4 @@
+/*
 package com.beanSpot.WEB3_4_Poten_BE.domain.user.entity;
 
 public enum UserRole {
@@ -5,3 +6,4 @@ public enum UserRole {
 	ROLE_USER,
 	ROLE_OWNER,
 }
+*/

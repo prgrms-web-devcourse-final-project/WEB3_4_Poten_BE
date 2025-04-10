@@ -20,9 +20,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.JwtAuthenticationFilter;
+import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.TokenAuthenticationFilter;
 import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.JwtService;
-import com.beanSpot.WEB3_4_Poten_BE.domain.member.service.MemberService;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.service.newMemberService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.oauth.CustomAuthorizationRequestResolver;
 import com.beanSpot.WEB3_4_Poten_BE.domain.oauth.CustomOAuth2UserService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.oauth.OAuth2SuccessHandler;
@@ -37,13 +37,13 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 	private final OAuth2AuthorizedClientService authorizedClientService;
 	private final JwtService jwtService;
-	private final MemberService memberService;
+	private final newMemberService memberService;
 	private final CustomOAuth2UserService customOAuth2UserService;
 	private final CustomAuthorizationRequestResolver authorizationRequestResolver;
 
 	@Bean
-	public JwtAuthenticationFilter jwtAuthenticationFilter() {
-		return new JwtAuthenticationFilter(jwtService, memberService);
+	public TokenAuthenticationFilter tokenAuthenticationFilter() {
+		return new TokenAuthenticationFilter(jwtService, memberService);
 	}
 
 	@Bean
@@ -66,26 +66,35 @@ public class SecurityConfig {
 				.requestMatchers("/api/admin/login").permitAll() // Admin 로그인 엔드포인트 추가
 
 				// API 문서 관련 공개 엔드포인트
-				.requestMatchers("/swagger-ui/**").permitAll()
-				.requestMatchers("/v3/api-docs/**").permitAll()
+				.requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
+				.requestMatchers("/v3/api-docs/**", "/api-docs/**").permitAll()
+				.requestMatchers("/swagger-resources/**").permitAll()
+				.requestMatchers("/webjars/**").permitAll()
 
 				.requestMatchers("/reservation/payment/api/confirm").permitAll()
 
 
 				// 카페 조회 관련 공개 엔드포인트 (GET 메소드만 허용)
-				.requestMatchers(HttpMethod.GET, "/api/cafes/**").permitAll()
+				//.requestMatchers(HttpMethod.GET, "/api/cafes/**").permitAll()
+				.requestMatchers("/api/cafes/**").permitAll()
 
 				// 관리자 엔드포인트 접근 제한
-				.requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-				.requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+				.requestMatchers("/admin/login").permitAll()
+				//.requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+				//.requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
 
 				// 카페 주인 엔드포인트 접근 제한 - OWNER 권한을 가진 사용자만 접근 가능
-				.requestMatchers(HttpMethod.POST, "/api/cafes/**").hasAuthority("ROLE_OWNER")
-				.requestMatchers(HttpMethod.PUT, "/api/cafes/**").hasAuthority("ROLE_OWNER")
-				.requestMatchers(HttpMethod.DELETE, "/api/cafes/**").hasAuthority("ROLE_OWNER")
+				//.requestMatchers(HttpMethod.POST, "/api/cafes/**").hasAuthority("ROLE_OWNER")
+				//.requestMatchers(HttpMethod.PUT, "/api/cafes/**").hasAuthority("ROLE_OWNER")
+				//.requestMatchers(HttpMethod.DELETE, "/api/cafes/**").hasAuthority("ROLE_OWNER")
 
 				// 예약 관련 엔드포인트는 인증된 사용자만 접근
-				.requestMatchers("/reservations/**").authenticated()
+				//.requestMatchers("/reservations/**").authenticated()
+				.requestMatchers("/reservations/**").permitAll()
+
+				//테스트환경용 추가
+				.requestMatchers("/api/cafe-application/**").permitAll()
+				.requestMatchers("/api/auth/me/**").permitAll()
 
 				// 이미지 업로드, 다운로드
 				.requestMatchers(HttpMethod.POST, "/api/images/upload").authenticated()
@@ -133,7 +142,7 @@ public class SecurityConfig {
 				)
 				.successHandler(oAuth2SuccessHandler())
 			)
-			.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}

@@ -1,10 +1,8 @@
-package com.beanSpot.WEB3_4_Poten_BE.domain.member.service;
+/*package com.beanSpot.WEB3_4_Poten_BE.domain.member.service;
 
 import java.util.List;
 import java.util.Optional;
 
-
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +15,6 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.member.dto.req.UpdateMemberMyPageDto;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
-
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +30,8 @@ public class MemberService implements UserDetailsService {
 	}
 
 	@Transactional
-	public Member modifyOrJoin(String oAuthId, String email, String name, String profileImg, Member.SnsType snsType) {
-		return memberRepository.findByoAuthId(oAuthId) // 기존 회원인지 확인 (oAuthId 기준으로 검색)
+	public Member modifyOrJoin(String OAuthId, String email, String name, String profileImg, Member.SnsType snsType) {
+		return memberRepository.findByOAuthId(OAuthId) // 기존 회원인지 확인 (OAuthId 기준으로 검색)
 			.map(member -> {
 				// 기존 회원 정보 업데이트
 				member.setName(name);
@@ -46,7 +43,7 @@ public class MemberService implements UserDetailsService {
 			.orElseGet(() -> {
 				// 새 회원 생성 시 기본값으로 USER 타입 설정
 				Member member = Member.builder()
-					.oAuthId(oAuthId)
+					.oAuthId(OAuthId)
 					.email(email)
 					.name(name)
 					.profileImg(profileImg)
@@ -58,27 +55,27 @@ public class MemberService implements UserDetailsService {
 	}
 
 	@Transactional
-	public Member updateMemberInfo(String oAuthId, UpdateMemberMyPageDto dto, String currentEmail) {
-		return memberRepository.findByoAuthId(oAuthId)
+	public Member updateMemberInfo(String OAuthId, UpdateMemberMyPageDto dto, String currentEmail) {
+		return memberRepository.findByOAuthId(OAuthId)
 			.map(member -> {
 				// 이메일 중복 확인 (현재 자신의 이메일이 아닌 다른 이메일로 변경하려는 경우)
-				if (dto.getEmail() != null && !dto.getEmail().equals(currentEmail)) {
-					memberRepository.findByEmail(dto.getEmail())
+				if (dto.email() != null && !dto.email().equals(currentEmail)) {
+					memberRepository.findByEmail(dto.email())
 						.ifPresent(m -> {
 							// 다른 사용자가 이미 사용 중인 이메일인 경우
-							if (!m.getOAuthId().equals(oAuthId)) {
+							if (!m.getOAuthId().equals(OAuthId)) {
 								throw new ServiceException("이미 사용 중인 이메일입니다.");
 							}
 						});
-					member.setEmail(dto.getEmail());
+					member.setEmail(dto.email());
 				}
 
 				// 기존 회원 정보 업데이트
-				if (dto.getName() != null) {
-					member.setName(dto.getName());
+				if (dto.name() != null) {
+					member.setName(dto.name());
 				}
-				if (dto.getPhoneNumber() != null) {
-					member.setPhoneNumber(dto.getPhoneNumber());
+				if (dto.phoneNumber() != null) {
+					member.setPhoneNumber(dto.phoneNumber());
 				}
 
 				return memberRepository.save(member);
@@ -100,7 +97,7 @@ public class MemberService implements UserDetailsService {
 	}
 
 	public Optional<Member> findByOAuthId(String oAuthId) {
-		return memberRepository.findByoAuthId(oAuthId);
+		return memberRepository.findByOAuthId(oAuthId);
 	}
 
 	@Override
@@ -132,4 +129,4 @@ public class MemberService implements UserDetailsService {
 				return List.of(new SimpleGrantedAuthority("ROLE_USER"));
 		}
 	}
-}
+}*/

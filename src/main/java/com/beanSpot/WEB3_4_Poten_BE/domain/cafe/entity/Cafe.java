@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
-import com.beanSpot.WEB3_4_Poten_BE.domain.user.entity.User;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -35,7 +35,8 @@ public class Cafe {
 
 	@ManyToOne
 	@JoinColumn(name = "owner_id")
-	private User owner; //수정 필요
+	private Member owner;
+
 
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "application_id", nullable = false, unique = true)

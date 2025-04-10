@@ -2,7 +2,6 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.oauth;
 
 import java.io.IOException;
 
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -37,6 +36,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		log.info("JWT 토큰 생성 완료: accessToken 존재 = {}, refreshToken 존재 = {}",
 			jwtToken != null, refreshToken != null);
 
+
+
 		/* 쿠키 설정 -> 추후에 인증 방식 설정시 적용
 		ResponseCoo	kie accessTokenCookie = ResponseCookie.from("accessToken", jwtToken)
 			.path("/")
@@ -61,6 +62,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		response.addHeader("Set-Cookie", refreshTokenCookie.toString());*/
 
 		// 프론트엔드 리다이렉션 URL (환경에 맞게 조정 필요)
-		getRedirectStrategy().sendRedirect(request, response, "http://localhost:3000/");
+		// SNS 타입에 따라 다른 콜백 URL로 리다이렉트
+		String snsType = member.getSnsType().toString().toLowerCase();
+		String redirectUrl = String.format(
+			"http://localhost:3000/auth/callback/%s?accessToken=%s&refreshToken=%s",
+			snsType, jwtToken, refreshToken
+		);
+
+		getRedirectStrategy().sendRedirect(request, response, redirectUrl);
 	}
 }

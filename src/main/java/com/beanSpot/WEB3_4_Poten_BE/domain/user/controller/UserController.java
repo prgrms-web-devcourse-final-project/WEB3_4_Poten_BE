@@ -1,3 +1,4 @@
+/*
 package com.beanSpot.WEB3_4_Poten_BE.domain.user.controller;
 
 import java.util.List;
@@ -59,3 +60,4 @@ public class UserController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }
+*/
