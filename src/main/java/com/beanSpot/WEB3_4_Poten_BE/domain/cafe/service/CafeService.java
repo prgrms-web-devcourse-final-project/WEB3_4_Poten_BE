@@ -47,7 +47,7 @@ public class CafeService {
 		}
 
 		//승인된 신청이 있어야만 카페 생성 가능.
-		Application approvedApplication = applicationRepository.findByUserIdAndStatus(ownerId, Status.APPROVED)
+		Application approvedApplication = applicationRepository.findByMemberIdAndStatus(ownerId, Status.APPROVED)
 			.orElseThrow(() -> new IllegalStateException("승인된 신청이 없습니다."));
 
 		Cafe cafe = Cafe.builder()
