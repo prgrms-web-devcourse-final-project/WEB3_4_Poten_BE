@@ -1,5 +1,6 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.repository;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.common.entity.Reservable;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -39,7 +40,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     // 락이 없는 버전
     @Query(SELECT_OVERLAPPING_RESERVATIONS)
-    List<Reservation> getOverlappingReservations(
+    List<Reservable> getOverlappingReservations(
             @Param("cafeId") long cafeId,
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime,
@@ -49,7 +50,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     // 락이 있는 버전
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query(SELECT_OVERLAPPING_RESERVATIONS)
-    List<Reservation> getOverlappingReservationsWithLock(
+    List<Reservable> getOverlappingReservationsWithLock(
             @Param("cafeId") long cafeId,
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime,

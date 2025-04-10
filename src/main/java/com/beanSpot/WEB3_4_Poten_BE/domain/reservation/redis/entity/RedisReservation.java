@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 public class RedisReservation implements Reservable {
     private Long Id;
+    private Long memberId;
     private int partySize;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
