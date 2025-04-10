@@ -83,7 +83,6 @@ public class ReservationController implements ReservationApi{
             @PathVariable Long cafeId,
             @Valid @ModelAttribute SeatCountReq req
             ) {
-
         AvailableSeatsCount res = reservationService.getAvailableSeatsCount(cafeId, req.startTime(), req.endTime());
         return ResponseEntity.ok(res);
     }
