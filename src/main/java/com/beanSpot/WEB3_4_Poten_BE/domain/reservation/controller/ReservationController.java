@@ -1,43 +1,26 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.controller;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.*;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service.ReservationService;
+import jakarta.annotation.PostConstruct;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
-import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchReq;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.SeatCountReq;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.TimeSlotsReq;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.AvailableSeatsCount;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.CafeReservationRes;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.ReservationDetailRes;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.ReservationPostRes;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.TimeSlot;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.UserReservationRes;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service.ReservationService;
-
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-
 
 @RestController
 @RequestMapping("/reservations")
 @RequiredArgsConstructor
-public class ReservationController {
+public class ReservationController implements ReservationApi{
     private final ReservationService reservationService;
     //TODO: 추후삭제
     private final MemberRepository memberRepository;
@@ -57,11 +40,11 @@ public class ReservationController {
     // 끝
 
 
-    // ✅ 1. 예약 생성 API
+    // 예약 생성 API
     @PostMapping("/{cafeId}")
     public ResponseEntity<ReservationPostRes> createReservation(
             @RequestParam Long cafeId,
-            @RequestBody ReservationPostReq dto
+            @Valid @RequestBody ReservationPostReq dto
     ) {
         //TODO: 추후 리팩토링 하기
         ReservationPostRes response = reservationService.createReservation(cafeId, dto, member);
@@ -70,7 +53,7 @@ public class ReservationController {
 
     @PatchMapping("/{reservationId}")
     public ResponseEntity<ReservationPostRes> updateReservation(
-            @RequestBody ReservationPatchReq dto,
+            @Valid @RequestBody ReservationPatchReq dto,
             @PathVariable Long reservationId
     ) {
         ReservationPostRes response = reservationService.updateReservation(reservationId, dto, LocalDateTime.now(), member);
@@ -88,7 +71,7 @@ public class ReservationController {
 
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<Void> deleteReservation(
-            @RequestBody ReservationPostReq dto,
+            @Valid @RequestBody ReservationPostReq dto,
             @PathVariable Long reservationId
     ) {
         reservationService.cancelReservation(reservationId, LocalDateTime.now(), member);
@@ -98,18 +81,17 @@ public class ReservationController {
     @GetMapping("/availableCounts/{cafeId}")
     public ResponseEntity<AvailableSeatsCount> getAvailableSeatsCount(
             @PathVariable Long cafeId,
-            @RequestBody SeatCountReq req
-            ) {
-
-        AvailableSeatsCount res = reservationService.getAvailableSeatsCount(cafeId, req.reservationTime().startTime(), req.reservationTime().endTime());
+            @Valid @ModelAttribute SeatCountReq req
+    ) {
+        AvailableSeatsCount res = reservationService.getAvailableSeatsCount(cafeId, req.startTime(), req.endTime());
         return ResponseEntity.ok(res);
     }
 
     @GetMapping("/availableTimeSlots/{cafeId}")
     public ResponseEntity<List<TimeSlot>> getAvailableTimeSlots(
             @PathVariable Long cafeId,
-            @RequestBody TimeSlotsReq req
-            ) {
+            @Valid @ModelAttribute TimeSlotsReq req
+    ) {
         List<TimeSlot> res = reservationService.getAvailableTimeSlots(cafeId, req);
         return ResponseEntity.ok(res);
     }

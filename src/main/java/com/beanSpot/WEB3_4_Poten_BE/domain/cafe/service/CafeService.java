@@ -35,7 +35,6 @@ public class CafeService {
 	private final ReviewRepository reviewRepository;
 	private final ApplicationRepository applicationRepository;
 	private final S3Service s3Service;
-	private final MemberRepository memberRepository;
 
 	@Transactional
 	public CafeInfoRes createCafe(CafeCreateReq request, Long ownerId) {
