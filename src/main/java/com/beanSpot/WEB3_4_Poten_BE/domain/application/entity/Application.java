@@ -3,8 +3,6 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.application.entity;
 import java.time.LocalDateTime;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
-import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
-
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,7 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,12 +30,9 @@ public class Application {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	/*@OneToOne
-	@JoinColumn(name = "user_id", nullable = false)
-	private User user;*/
-
-	@OneToOne(mappedBy = "application")
-	private Cafe cafe;
+	 @ManyToOne
+	 @JoinColumn(name = "user_id", nullable = false)
+	 private Member user;
 
 	@Column(nullable = false)
 	private String name;
@@ -54,16 +49,6 @@ public class Application {
 	@Column(nullable = false)
 	private LocalDateTime createdAt;
 
-	@OneToOne
-	@JoinColumn(name = "member_id", nullable = false)
-	private Member member;
-
-
-	/*@Column(columnDefinition = "TEXT")
-	private String rejectReason;*/
-
-
-
 
 	/*@Column(columnDefinition = "TEXT")
 	private String rejectReason;*/
@@ -77,5 +62,9 @@ public class Application {
 	public void reject() {
 		this.status = Status.REJECTED;
 		//this.rejectReason = rejectReason;
+	}
+
+	public Long getUserId() {
+		return user != null ? user.getId() : null;
 	}
 }
