@@ -35,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfig {
+
 	private final OAuth2AuthorizedClientService authorizedClientService;
 	private final JwtService jwtService;
 	private final newMemberService memberService;

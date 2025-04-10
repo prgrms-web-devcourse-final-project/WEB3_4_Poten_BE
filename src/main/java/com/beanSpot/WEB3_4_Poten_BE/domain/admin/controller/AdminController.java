@@ -1,25 +1,37 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.admin.controller;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.admin.dto.AdminLoginDto;
+import com.beanSpot.WEB3_4_Poten_BE.domain.admin.service.AdminService;
+import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.res.ApplicationRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.JwtService;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.dto.res.MemberResponseDto;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
+import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+;
 
 @Slf4j
 @RestController
@@ -31,6 +43,7 @@ public class AdminController {
 	private final JwtService jwtService;
 	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final AdminService adminService;
 
 	@Operation(
 		summary = "관리자 로그인",
@@ -40,16 +53,13 @@ public class AdminController {
 		try {
 			log.debug("관리자 로그인 시도: {}", loginDto.email());
 
-			// 관리자 계정 조회 (이메일 기준)
-			Optional<Member> optionalMember = memberRepository.findByEmailAndMemberType(loginDto.email(),
-				Member.MemberType.ADMIN);
+			// 관리자 계정 조회 (이메일 기준) - orElseThrow 사용
+			Member admin = memberRepository.findByEmailAndMemberType(loginDto.email(), Member.MemberType.ADMIN)
+				.orElseThrow(() -> {
+					log.error("로그인 실패: 해당 이메일의 관리자 계정이 존재하지 않음");
+					return new ServiceException(HttpStatus.UNAUTHORIZED.value(), "로그인 실패 - 계정을 찾을 수 없음");
+				});
 
-			if (optionalMember.isEmpty()) {
-				log.error("로그인 실패: 해당 이메일의 관리자 계정이 존재하지 않음");
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패 - 계정을 찾을 수 없음");
-			}
-
-			Member admin = optionalMember.get();
 			log.debug("관리자 계정 찾음: {}, 암호화된 비밀번호 존재: {}", admin.getEmail(), admin.getPassword() != null);
 
 			// 비밀번호 확인
@@ -74,6 +84,98 @@ public class AdminController {
 		} catch (Exception e) {
 			log.error("로그인 처리 중 예외 발생", e);
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "로그인 실패: " + e.getMessage()));
+		}
+	}
+
+	@Operation(
+		summary = "대기 중인 카페 신청 목록 조회",
+		description = "관리자가 승인 대기 중인 카페 신청 목록을 조회합니다.")
+	@GetMapping("/applications/pending")
+	public ResponseEntity<List<ApplicationRes>> getPendingApplications() {
+		try {
+			List<ApplicationRes> pendingApplications = adminService.getPendingApplications();
+			return ResponseEntity.ok(pendingApplications);
+		} catch (Exception e) {
+			log.error("대기 중인 신청 목록 조회 중 오류 발생", e);
+			throw new ServiceException("대기 중인 신청 목록 조회 실패: " + e.getMessage());
+		}
+	}
+
+	@Operation(
+		summary = "카페 신청 승인",
+		description = "관리자가 카페 신청을 승인합니다. 승인 시 신청자의 권한이 OWNER로 변경됩니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "신청 승인 성공"),
+		@ApiResponse(responseCode = "400", description = "이미 처리된 신청이거나 유효하지 않은 신청"),
+		@ApiResponse(responseCode = "404", description = "신청을 찾을 수 없음")
+	})
+	@PostMapping("/applications/{applicationId}/approve")
+	public ResponseEntity<ApplicationRes> approveApplication(@PathVariable Long applicationId) {
+		try {
+			ApplicationRes approvedApplication = adminService.approveApplication(applicationId);
+			return ResponseEntity.ok(approvedApplication);
+		} catch (ServiceException e) {
+			log.error("신청 승인 중 오류 발생: {}", e.getMessage());
+			throw e;
+		} catch (Exception e) {
+			log.error("신청 승인 중 예상치 못한 오류 발생", e);
+			throw new ServiceException("신청 승인 처리 실패: " + e.getMessage());
+		}
+	}
+
+	@Operation(
+		summary = "카페 신청 거절",
+		description = "관리자가 카페 신청을 거절합니다.")
+	@PostMapping("/applications/{applicationId}/reject")
+	public ResponseEntity<ApplicationRes> rejectApplication(@PathVariable Long applicationId) {
+		try {
+			ApplicationRes rejectedApplication = adminService.rejectApplication(applicationId);
+			return ResponseEntity.ok(rejectedApplication);
+		} catch (Exception e) {
+			log.error("신청 거절 중 오류 발생", e);
+			throw new ServiceException("신청 거절 처리 실패: " + e.getMessage());
+		}
+	}
+
+	@Operation(
+		summary = "회원 목록 조회",
+		description = "관리자가 회원 목록을 조회합니다. 선택적으로 회원 유형으로 필터링할 수 있습니다.")
+	@GetMapping("/members")
+	public ResponseEntity<List<MemberResponseDto>> getMembers(
+		@RequestParam(required = false) Member.MemberType memberType) {
+		try {
+			// 회원 목록 조회 및 DTO 변환
+			List<Member> members = (memberType != null)
+				? adminService.getMembersByType(memberType)
+				: adminService.getAllMembers();
+
+			List<MemberResponseDto> memberDtos = members.stream()
+				.map(MemberResponseDto::fromEntity)
+				.collect(Collectors.toList());
+
+			return ResponseEntity.ok(memberDtos);
+		} catch (Exception e) {
+			log.error("회원 목록 조회 중 오류 발생", e);
+			throw new ServiceException("회원 목록 조회 실패: " + e.getMessage());
+		}
+	}
+
+	@Operation(
+		summary = "회원 상세 정보 조회",
+		description = "관리자가 특정 회원의 상세 정보를 조회합니다.")
+	@GetMapping("/members/{memberId}")
+	public ResponseEntity<MemberResponseDto> getMemberDetails(@PathVariable Long memberId) {
+		try {
+			Member member = adminService.getMemberById(memberId);
+			// DTO로 변환하여 반환
+			MemberResponseDto memberDto = MemberResponseDto.fromEntity(member);
+			return ResponseEntity.ok(memberDto);
+		} catch (ServiceException e) {
+			log.error("회원 상세 정보 조회 중 오류 발생: {}", e.getMessage());
+			throw e;
+		} catch (Exception e) {
+			log.error("회원 상세 정보 조회 중 예상치 못한 오류 발생", e);
+			throw new ServiceException("회원 상세 정보 조회 실패: " + e.getMessage());
 		}
 	}
 }
