@@ -13,5 +13,5 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Status;
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
 	List<Application> findByStatus(Status status);
 
-	Optional<Application> findByUserIdAndStatus(Long userId, Status status);
+	Optional<Application> findByMemberIdAndStatus(Long userId, Status status);
 }
