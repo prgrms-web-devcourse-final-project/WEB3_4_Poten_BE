@@ -45,6 +45,19 @@ public class S3Service {
 		return fileName;
 	}
 
+	public String uploadFile(MultipartFile file, String customFileName) throws IOException {
+		PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+			.bucket(bucketName)
+			.key(customFileName)
+			.contentType(file.getContentType())
+			.build();
+
+		s3Client.putObject(putObjectRequest,
+			RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+
+		return customFileName;
+	}
+
 	public String getFileUrl(String fileName) {
 		return s3Client.utilities().getUrl(GetUrlRequest.builder()
 			.bucket(bucketName)
