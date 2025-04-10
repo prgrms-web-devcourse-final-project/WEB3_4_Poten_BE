@@ -1,11 +1,13 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.jwt.controller;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.Map;
+
 import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.AuthService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.JwtService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
@@ -82,7 +84,6 @@ public class AuthController {
 		return authService.logout(authHeader);
 	}
 
-
 	@GetMapping("/validate")
 	@Operation(
 		summary = "토큰 유효성 검사",
@@ -100,8 +101,10 @@ public class AuthController {
 		}
 
 		String token = authHeader.substring(7);
+
 		try {
 			Member member = authService.validateTokenAndGetMember(token);
+
 			return ResponseEntity.ok(Map.of(
 				"valid", true,
 				"userId", member.getId(),

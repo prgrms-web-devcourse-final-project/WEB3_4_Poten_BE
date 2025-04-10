@@ -16,7 +16,6 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +26,7 @@ public class ApplicationService {
 	private final CafeRepository cafeRepository;
 	private final MemberRepository memberRepository;
 	// private final UserRepository userRepository;
+
 
 	@Transactional
 	public ApplicationRes createApplication(ApplicationReq request, Long memberId) {

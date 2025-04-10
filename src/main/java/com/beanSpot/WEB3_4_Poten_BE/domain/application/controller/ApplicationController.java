@@ -30,6 +30,7 @@ public class ApplicationController {
 	private final ApplicationService applicationService;
 	private final MemberRepository memberRepository;
 
+
 	//인증 방식에 따라서 수정해야합니다.
 	@Operation(
 		summary = "신청 추가",
