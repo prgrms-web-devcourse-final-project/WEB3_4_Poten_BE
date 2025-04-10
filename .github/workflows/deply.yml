@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+      # Git tag push 시 prod 배포
+  tags:
+    - 'v*'   # 예: v1.0.0, v2.1.5 등
 
 jobs:
   deploy:
@@ -18,11 +21,21 @@ jobs:
       - name: Gradle Wrapper에 실행 권한 부여
         run: chmod +x ./gradlew
 
-      - name: 테스트 및 빌드하기
+      - name: 빌드하기
         run: ./gradlew clean build -x test
 
       - name: 빌드된 파일 이름 변경하기
         run: mv ./build/libs/*SNAPSHOT.jar ./project.jar
+
+      - name: EC2에서 temp 파일 초기화하기
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            rm -rf ~/WEB3_4_Poten_BE/temp
+            mkdir -p ~/WEB3_4_Poten_BE/temp
 
       - name: SCP로 EC2에 빌드된 파일 전송하기
         uses: appleboy/scp-action@v0.1.7
@@ -31,7 +44,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           source: project.jar
-          target: ~/WEB3_4_Poten_BE/new
+          target: ~/WEB3_4_Poten_BE/temp
 
 
       - name: SSH로 EC2에 접속하기
@@ -43,11 +56,34 @@ jobs:
           envs: APPLICATION_PROPERTIES_BASE64
           script_stop: true
           script: |
-            rm -rf ~/WEB3_4_Poten_BE/current
-            mkdir ~/WEB3_4_Poten_BE/current
-            mv ~/WEB3_4_Poten_BE/new/project.jar ~/WEB3_4_Poten_BE/current/project.jar
-            cd ~/WEB3_4_Poten_BE/current
-            sudo fuser -k -n tcp 8080 || true
-            nohup java -jar project.jar > ./output.log 2>&1 & 
-            rm -rf ~/WEB3_4_Poten_BE/new
+            # 1. 태그 여부로 prod/staging 판별
+            if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+              echo "프로덕션 배포 시작"
+              TARGET_DIR=~/WEB3_4_Poten_BE/prod
+              PORT=8080
+              PROFILE=prod
+            else
+              echo "스테이징 배포 시작"
+              TARGET_DIR=~/WEB3_4_Poten_BE/staging
+              PORT=8081
+              PROFILE=staging
+            fi
+            
+            # 2. 이전 배포 디렉토리 제거 및 새로 생성
+            rm -rf $TARGET_DIR
+            mkdir -p $TARGET_DIR
+            
+             # 3. JAR 이동
+            mv ~/WEB3_4_Poten_BE/temp/project.jar $TARGET_DIR/project.jar
+            cd $TARGET_DIR
+            
+            # 4. 기존 프로세스 종료
+            echo "포트 $PORT 프로세스 종료"
+            sudo fuser -k -n tcp $PORT || true
+            
+            # 5. 서버 실행
+            echo "새 애플리케이션 실행"
+            nohup java -Dspring.profiles.active=$PROFILE -jar project.jar > output.log 2>&1 &
+            echo "배포 완료. 실행중인 포트: $PORT"
+            tail -n 200 output.log
           
