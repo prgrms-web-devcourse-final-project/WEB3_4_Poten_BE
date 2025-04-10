@@ -2,6 +2,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.common.entity.Reservable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +22,7 @@ import java.time.LocalDateTime;
 				@Index(columnList = "member_id, id")
 		}
 )
-public class Reservation {
+public class Reservation implements Reservable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

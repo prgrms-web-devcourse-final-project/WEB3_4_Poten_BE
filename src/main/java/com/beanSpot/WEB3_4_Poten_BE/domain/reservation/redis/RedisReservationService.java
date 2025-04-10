@@ -1,7 +1,9 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.redis;
 
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
-import com.beanSpot.WEB3_4_Poten_BE.global.config.RedissonConfig;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.common.entity.Reservable;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.redis.entity.RedisReservation;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.util.ReservationUtil;
+import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -43,12 +45,12 @@ public class RedisReservationService {
             }
 
             // 1. Redis에서 유효 예약 가져오기
-            List<RedisReservation> reservations = getReservations(cafeId, date);
+            List<Reservable> reservations = getReservations(cafeId, date);
 
             // 2. 좌석 수 계산
-            int occupied = getMaxOccupiedSeatsCount(reservations);
+            int occupied = ReservationUtil.getMaxOccupiedSeatsCount(reservations);
             if (occupied + reservation.getPartySize() > capacity) {
-                throw new IllegalStateException("선택한 예약시간에 빈좌석이 없습니다.");
+                throw new ServiceException(400, "선택한 예약시간에 빈좌석이 없습니다.");
             }
 
             // 3. 저장
@@ -88,7 +90,7 @@ public class RedisReservationService {
     }
 
 
-    public List<RedisReservation> getReservations(Long cafeId, LocalDate date) {
+    public List<Reservable> getReservations(Long cafeId, LocalDate date) {
         String key = buildKey(cafeId, date);
         ZSetOperations<String, String> zSetOps = redisTemplate.opsForZSet();
 
