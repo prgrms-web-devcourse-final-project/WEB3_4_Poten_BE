@@ -4,13 +4,21 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.image.entity.Image;
 import com.beanSpot.WEB3_4_Poten_BE.domain.image.service.ImageService;
 import com.beanSpot.WEB3_4_Poten_BE.global.aws.S3Res;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequestMapping("/api/images")
@@ -53,7 +61,12 @@ public class ImageController {
 	@DeleteMapping("/{imageId}")
 	public ResponseEntity<String> deleteImage(@PathVariable Long imageId) {
 		imageService.deleteImage(imageId);
-		return ResponseEntity.ok("이미지가 삭제되었습니다.");
+
+		// 인코딩 설정을 명시적으로 지정
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(new MediaType(MediaType.TEXT_PLAIN, StandardCharsets.UTF_8));
+
+		return new ResponseEntity<>("이미지가 삭제되었습니다.", headers, HttpStatus.OK);
 	}
 
 	// 이미지 수정
