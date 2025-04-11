@@ -87,6 +87,6 @@ public class AdminService {
 	public Member getMemberById(Long memberId) {
 		log.info("회원 상세 정보 조회: ID={}", memberId);
 		return memberRepository.findById(memberId)
-			.orElseThrow(() -> new ServiceException(404, "회원을 찾을 수 없습니다."));
+			.orElseThrow(() -> new ServiceException(400, "회원을 찾을 수 없습니다."));
 	}
 }
