@@ -3,8 +3,6 @@ server:
 spring:
   application:
     name: WEB3_4_Poten_BE
-  profiles:
-    active: dev, secret, redis
   web:
     resources:
       add-mappings: false
