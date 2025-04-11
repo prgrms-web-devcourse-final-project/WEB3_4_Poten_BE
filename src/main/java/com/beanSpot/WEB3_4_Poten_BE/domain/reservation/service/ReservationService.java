@@ -42,8 +42,7 @@ public class ReservationService {
         List<Reservation> overlappingReservations = reservationRepository.getOverlappingReservationsWithLock(
                 cafeId,
                 dto.getReservationTime().startTime(),
-                dto.getReservationTime().endTime(),
-                null);
+                dto.getReservationTime().endTime());
 
         if (getMaxOccupiedSeatsCount(overlappingReservations) + dto.getPartySize() > cafe.getCapacity()) {
             throw new IllegalStateException("선택한 예약시간에 빈좌석이 없습니다.");
@@ -130,7 +129,7 @@ public class ReservationService {
                 .orElseThrow(() -> new ServiceException(400, "존재하지 않는 카페입니다"));
 
         List<Reservation> overlappingReservations =
-                reservationRepository.getOverlappingReservations(cafeId, req.startTime(), req.endTime(), null);
+                reservationRepository.getOverlappingReservations(cafeId, req.startTime(), req.endTime());
 
         return getAvailableTimeSlotsHelper(
                 overlappingReservations,
@@ -147,7 +146,7 @@ public class ReservationService {
         Cafe cafe = cafeRepository.findById(cafeId)
                 .orElseThrow(() -> new ServiceException(400, "존재하지 않는 카페입니다"));
 
-        List<Reservation> overlappingReservations = reservationRepository.getOverlappingReservations(cafeId, start, end, null);
+        List<Reservation> overlappingReservations = reservationRepository.getOverlappingReservations(cafeId, start, end);
         int availableSeats =  cafe.getCapacity() - getMaxOccupiedSeatsCount(overlappingReservations);
         return new AvailableSeatsCount(availableSeats, cafe.getCapacity());
     }
