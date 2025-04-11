@@ -162,4 +162,15 @@ public class ReservationController implements ReservationApi{
 
         return ResponseEntity.ok(reservations);
     }
+
+    //TODO: 인증 구현 후 userId는 RequestBody에서 제거하고 SecurityContext에서 가져오기
+    @PostMapping("/{cafeId}")
+    public ResponseEntity<ReservationPostRes> createReservation1(
+        @PathVariable Long cafeId,
+        @Valid @RequestBody ReservationPostReq dto,
+        @AuthenticationPrincipal SecurityUser securityUser
+    ) {
+        ReservationPostRes response = reservationService.createReservation(cafeId, dto, securityUser.getMember());
+        return ResponseEntity.ok(response);
+    }
 }
