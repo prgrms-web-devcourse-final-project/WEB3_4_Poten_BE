@@ -3,7 +3,7 @@ name: Deploy To EC2 (main)
 on:
   push:
     branches:
-      - main
+      - deployment
 
 jobs:
   deploy:
@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: application-secret.yml 파일 만들기
-        run: echo "${{ secrets.APPLICATION_PROPERTIES_BASE64 }}" | base64 --decode > ./src/main/resources/application-secret.yml
+        run: echo "${{ secrets.APPLICATION_SECRET_YML }}" > ./src/main/resources/application-secret.yml
 
       - name: Gradle Wrapper에 실행 권한 부여
         run: chmod +x ./gradlew
@@ -48,6 +48,6 @@ jobs:
             mv ~/WEB3_4_Poten_BE/new/project.jar ~/WEB3_4_Poten_BE/current/project.jar
             cd ~/WEB3_4_Poten_BE/current
             sudo fuser -k -n tcp 8080 || true
-            nohup java -jar project.jar > ./output.log 2>&1 & 
+            nohup java -Dspring.profiles.active=prod -jar project.jar > ./output.log 2>&1 & 
             rm -rf ~/WEB3_4_Poten_BE/new
           
