@@ -12,6 +12,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.ReservationStatus;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.repository.ReservationRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.vo.TimeWithPartySize;
 import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
+import com.beanSpot.WEB3_4_Poten_BE.global.util.timeProvider.TimeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final CafeRepository cafeRepository;
+    private final TimeProvider timeProvider;
     //예약 생성
     @Transactional
     public ReservationPostRes createReservation(Long cafeId, ReservationPostReq dto, Member member) {
@@ -63,14 +65,14 @@ public class ReservationService {
 
     //예약 수정
     @Transactional
-    public ReservationPostRes updateReservation(Long reservationId, ReservationPatchReq dto, LocalDateTime now, Member member) {
+    public ReservationPostRes updateReservation(Long reservationId, ReservationPatchReq dto, Member member) {
 
         //예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ServiceException(400, "해당 예약을 찾을 수 없습니다."));
 
         //원래 예약시간 0분전 변경 가능하게 체크
-        if (!reservation.isModifiable(now, 0, member)) {
+        if (!reservation.isModifiable(timeProvider.now(), 0, member)) {
             throw new ServiceException(400, "변경이 불가능합니다. 점주님께 문의하세요.");
         }
 
@@ -93,28 +95,28 @@ public class ReservationService {
 
     //사용중간에 체크아웃 하는 메소드
     @Transactional
-    public void checkout(long reservationId, LocalDateTime checkoutTime, Member member) {
+    public void checkout(long reservationId, Member member) {
         // 예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
 
 
-        if (!reservation.isCheckoutTimeValid(checkoutTime, member)) {
+        if (!reservation.isCheckoutTimeValid(timeProvider.nowMinute(), member)) {
             throw new ServiceException(400, "잘못된 체크아웃 시간대 입니다");
         }
 
-        reservation.updateReservationTime(reservation.getStartTime(), checkoutTime);
+        reservation.updateReservationTime(reservation.getStartTime(), timeProvider.nowMinute());
     }
 
     //예약 취소
     @Transactional
-    public void cancelReservation(long reservationId, LocalDateTime now, Member member) {
+    public void cancelReservation(long reservationId, Member member) {
         // 예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
 
         //시작시간 0분전 취소 불가능
-        if (!reservation.isModifiable(now, 0, member)) {
+        if (!reservation.isModifiable(timeProvider.now(), 0, member)) {
             throw new ServiceException(400, "취소가 불가능합니다. 점주님께 문의하세요.");
         }
 

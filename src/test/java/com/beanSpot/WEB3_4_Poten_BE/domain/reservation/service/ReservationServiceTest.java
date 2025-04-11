@@ -7,6 +7,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.MockTimeProvider;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.TimePeriodReq;
@@ -17,6 +18,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.TimeSlot;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.ReservationStatus;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.repository.ReservationRepository;
+import com.beanSpot.WEB3_4_Poten_BE.global.util.timeProvider.TimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,6 +55,8 @@ class ReservationServiceTest {
     private ApplicationRepository applicationRepository;
 
     private ReservationService reservationService;
+
+    private MockTimeProvider timeProvider;
 
 
 
@@ -116,7 +120,8 @@ class ReservationServiceTest {
                 .build();
         cafe = cafeRepository.save(cafe);
 
-        reservationService = new ReservationService(reservationRepository, cafeRepository);
+        timeProvider = new MockTimeProvider();
+        reservationService = new ReservationService(reservationRepository, cafeRepository, timeProvider);
 
         reservation1 = Reservation.builder()
                 .cafe(cafe)
@@ -227,11 +232,11 @@ class ReservationServiceTest {
                 .partySize(5)
                 .build();
 
+        timeProvider.setCurrentTime(LocalDateTime.of(2025, 1, 1, 10, 0));
         // When
         ReservationPostRes response = reservationService.updateReservation(
                 reservation1.getId(),
                 request,
-                LocalDateTime.of(2025, 1, 1, 10, 0),
                 member1);
 
         // Then
@@ -255,7 +260,8 @@ class ReservationServiceTest {
         reservation1 = reservationRepository.save(reservation1);
 
         // When
-        reservationService.cancelReservation(reservation1.getId(), LocalDateTime.of(2025, 1, 1, 10, 0), member1);
+        timeProvider.setCurrentTime(LocalDateTime.of(2025, 1, 1, 10, 0));
+        reservationService.cancelReservation(reservation1.getId(), member1);
 
         // Then
         Reservation canceledReservation = reservationRepository.findById(reservation1.getId()).orElseThrow();
@@ -280,7 +286,8 @@ class ReservationServiceTest {
                 .build();
 
         // Then
-        assertThrows(RuntimeException.class, () -> reservationService.updateReservation(reservation1.getId(), request, LocalDateTime.of(2025, 1, 1, 10, 0), member1));
+        timeProvider.setCurrentTime(LocalDateTime.of(2025, 1, 1, 10, 0));
+        assertThrows(RuntimeException.class, () -> reservationService.updateReservation(reservation1.getId(), request, member1));
     }
 
     @Test
