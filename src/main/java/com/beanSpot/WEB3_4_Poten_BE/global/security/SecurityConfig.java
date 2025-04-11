@@ -1,8 +1,13 @@
 package com.beanSpot.WEB3_4_Poten_BE.global.security;
 
-import java.util.Arrays;
-import java.util.List;
-
+import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.JwtService;
+import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.TokenAuthenticationFilter;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.service.newMemberService;
+import com.beanSpot.WEB3_4_Poten_BE.domain.oauth.CustomAuthorizationRequestResolver;
+import com.beanSpot.WEB3_4_Poten_BE.domain.oauth.CustomOAuth2UserService;
+import com.beanSpot.WEB3_4_Poten_BE.domain.oauth.OAuth2SuccessHandler;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,15 +25,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.TokenAuthenticationFilter;
-import com.beanSpot.WEB3_4_Poten_BE.domain.jwt.JwtService;
-import com.beanSpot.WEB3_4_Poten_BE.domain.member.service.newMemberService;
-import com.beanSpot.WEB3_4_Poten_BE.domain.oauth.CustomAuthorizationRequestResolver;
-import com.beanSpot.WEB3_4_Poten_BE.domain.oauth.CustomOAuth2UserService;
-import com.beanSpot.WEB3_4_Poten_BE.domain.oauth.OAuth2SuccessHandler;
-
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -151,7 +149,10 @@ public class SecurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowCredentials(true);
-		config.setAllowedOrigins(List.of("http://localhost:3000"));
+		config.setAllowedOrigins(List.of(
+				"http://localhost:3000",
+				"https://www.beanspot.shop"
+		));
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 		config.setAllowedHeaders(List.of("*"));
 		config.setExposedHeaders(Arrays.asList("Authorization", "RefreshToken"));
