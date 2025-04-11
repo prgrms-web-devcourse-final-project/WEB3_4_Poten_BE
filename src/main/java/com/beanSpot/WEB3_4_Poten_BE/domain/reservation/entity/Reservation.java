@@ -76,6 +76,13 @@ public class Reservation {
 		this.updatedAt = LocalDateTime.now();
 	}
 
+	public ReservationStatus getStatus() {
+		if (status.equals(ReservationStatus.CONFIRMED) && LocalDateTime.now().isAfter(endTime)) {
+			return ReservationStatus.FINISHED;
+		}
+		return status;
+	}
+
 	//예약 업데이트 메소드
 	public void update(LocalDateTime startTime, LocalDateTime endTime, int partySize) {
 		updateReservationTime(startTime, endTime);
