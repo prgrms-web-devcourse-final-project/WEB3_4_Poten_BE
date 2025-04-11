@@ -33,137 +33,138 @@ import java.util.List;
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfig {
-	private final OAuth2AuthorizedClientService authorizedClientService;
-	private final JwtService jwtService;
-	private final newMemberService memberService;
-	private final CustomOAuth2UserService customOAuth2UserService;
-	private final CustomAuthorizationRequestResolver authorizationRequestResolver;
+    private final OAuth2AuthorizedClientService authorizedClientService;
+    private final JwtService jwtService;
+    private final newMemberService memberService;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomAuthorizationRequestResolver authorizationRequestResolver;
 
-	@Bean
-	public TokenAuthenticationFilter tokenAuthenticationFilter() {
-		return new TokenAuthenticationFilter(jwtService, memberService);
-	}
+    @Bean
+    public TokenAuthenticationFilter tokenAuthenticationFilter() {
+        return new TokenAuthenticationFilter(jwtService, memberService);
+    }
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-	@Bean
-	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http
-			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-			.csrf(AbstractHttpConfigurer::disable)
-			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-			.authorizeHttpRequests(auth -> auth
-				// 인증 관련 공개 엔드포인트
-				.requestMatchers("/admin/login").permitAll()
-				.requestMatchers("/oauth2/**").permitAll()
-				.requestMatchers("/api/auth/**").permitAll()
-				.requestMatchers("/refresh").permitAll()
-				.requestMatchers("/api/admin/login").permitAll() // Admin 로그인 엔드포인트 추가
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        // 인증 관련 공개 엔드포인트
+                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/admin/login").permitAll()
+                        .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/refresh").permitAll()
+                        .requestMatchers("/api/admin/login").permitAll() // Admin 로그인 엔드포인트 추가
 
-				// API 문서 관련 공개 엔드포인트
-				.requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
-				.requestMatchers("/v3/api-docs/**", "/api-docs/**").permitAll()
-				.requestMatchers("/swagger-resources/**").permitAll()
-				.requestMatchers("/webjars/**").permitAll()
+                        // API 문서 관련 공개 엔드포인트
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-resources/**").permitAll()
+                        .requestMatchers("/webjars/**").permitAll()
 
-				.requestMatchers("/reservation/payment/api/confirm").permitAll()
+                        .requestMatchers("/reservation/payment/api/confirm").permitAll()
 
 
-				// 카페 조회 관련 공개 엔드포인트 (GET 메소드만 허용)
-				//.requestMatchers(HttpMethod.GET, "/api/cafes/**").permitAll()
-				.requestMatchers("/api/cafes/**").permitAll()
+                        // 카페 조회 관련 공개 엔드포인트 (GET 메소드만 허용)
+                        //.requestMatchers(HttpMethod.GET, "/api/cafes/**").permitAll()
+                        .requestMatchers("/api/cafes/**").permitAll()
 
-				// 관리자 엔드포인트 접근 제한
-				.requestMatchers("/admin/login").permitAll()
-				//.requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-				//.requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                        // 관리자 엔드포인트 접근 제한
+                        .requestMatchers("/admin/login").permitAll()
+                        //.requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+                        //.requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
 
-				// 카페 주인 엔드포인트 접근 제한 - OWNER 권한을 가진 사용자만 접근 가능
-				//.requestMatchers(HttpMethod.POST, "/api/cafes/**").hasAuthority("ROLE_OWNER")
-				//.requestMatchers(HttpMethod.PUT, "/api/cafes/**").hasAuthority("ROLE_OWNER")
-				//.requestMatchers(HttpMethod.DELETE, "/api/cafes/**").hasAuthority("ROLE_OWNER")
+                        // 카페 주인 엔드포인트 접근 제한 - OWNER 권한을 가진 사용자만 접근 가능
+                        //.requestMatchers(HttpMethod.POST, "/api/cafes/**").hasAuthority("ROLE_OWNER")
+                        //.requestMatchers(HttpMethod.PUT, "/api/cafes/**").hasAuthority("ROLE_OWNER")
+                        //.requestMatchers(HttpMethod.DELETE, "/api/cafes/**").hasAuthority("ROLE_OWNER")
 
-				// 예약 관련 엔드포인트는 인증된 사용자만 접근
-				//.requestMatchers("/reservations/**").authenticated()
-				.requestMatchers("/reservations/**").permitAll()
+                        // 예약 관련 엔드포인트는 인증된 사용자만 접근
+                        //.requestMatchers("/reservations/**").authenticated()
+                        .requestMatchers("/reservations/**").permitAll()
 
-				//테스트환경용 추가
-				.requestMatchers("/api/cafe-application/**").permitAll()
-				.requestMatchers("/api/auth/me/**").permitAll()
+                        //테스트환경용 추가
+                        .requestMatchers("/api/cafe-application/**").permitAll()
+                        .requestMatchers("/api/auth/me/**").permitAll()
 
-				// 이미지 업로드, 다운로드
-				.requestMatchers(HttpMethod.POST, "/api/images/upload").authenticated()
-				.requestMatchers(HttpMethod.GET, "/api/images/download/{imageId}").permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/images/download-by-name/{fileName}").permitAll()
-				.requestMatchers(HttpMethod.DELETE, "/api/images/{imageId}").permitAll()
+                        // 이미지 업로드, 다운로드
+                        .requestMatchers(HttpMethod.POST, "/api/images/upload").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/images/download/{imageId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/images/download-by-name/{fileName}").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/images/{imageId}").permitAll()
 
-				// 그 외 모든 요청은 인증 필요
-				.anyRequest().authenticated()
-			)
-			.formLogin(form -> form
-				.loginPage("/admin/login") // 로그인 페이지 URL
-				.loginProcessingUrl("/api/admin/login") // 로그인 처리 URL
-				.usernameParameter("email") // 이메일 파라미터 이름
-				.passwordParameter("password") // 비밀번호 파라미터 이름
-				.successHandler((request, response, authentication) -> {
-					response.setContentType("application/json");
-					response.getWriter().write("{\"success\":true,\"message\":\"로그인 성공\"}");
-				})
-				.failureHandler((request, response, exception) -> {
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					response.setContentType("application/json");
-					response.getWriter().write("{\"success\":false,\"message\":\"로그인 실패: "
-						+ exception.getMessage() + "\"}");
-				})
-			)
-			.exceptionHandling(exception -> exception
-				.authenticationEntryPoint((request, response, authException) -> {
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					response.setContentType("application/json;charset=UTF-8");
-					response.getWriter().write("{\"message\":\"인증이 필요합니다.\",\"code\":\"UNAUTHORIZED\"}");
-				})
-				.accessDeniedHandler((request, response, accessDeniedException) -> {
-					response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-					response.setContentType("application/json;charset=UTF-8");
-					response.getWriter().write("{\"message\":\"접근 권한이 없습니다.\",\"code\":\"FORBIDDEN\"}");
-				})
-			)
-			.oauth2Login(oauth2 -> oauth2
-				.authorizationEndpoint(authorization -> authorization
-					.authorizationRequestResolver(authorizationRequestResolver)
-				)
-				.userInfoEndpoint(userInfo -> userInfo
-					.userService(customOAuth2UserService)
-				)
-				.successHandler(oAuth2SuccessHandler())
-			)
-			.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                        // 그 외 모든 요청은 인증 필요
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginPage("/admin/login") // 로그인 페이지 URL
+                        .loginProcessingUrl("/api/admin/login") // 로그인 처리 URL
+                        .usernameParameter("email") // 이메일 파라미터 이름
+                        .passwordParameter("password") // 비밀번호 파라미터 이름
+                        .successHandler((request, response, authentication) -> {
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"success\":true,\"message\":\"로그인 성공\"}");
+                        })
+                        .failureHandler((request, response, exception) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"success\":false,\"message\":\"로그인 실패: "
+                                    + exception.getMessage() + "\"}");
+                        })
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"message\":\"인증이 필요합니다.\",\"code\":\"UNAUTHORIZED\"}");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"message\":\"접근 권한이 없습니다.\",\"code\":\"FORBIDDEN\"}");
+                        })
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(authorization -> authorization
+                                .authorizationRequestResolver(authorizationRequestResolver)
+                        )
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                        )
+                        .successHandler(oAuth2SuccessHandler())
+                )
+                .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
-		return http.build();
-	}
+        return http.build();
+    }
 
-	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowCredentials(true);
-		config.setAllowedOrigins(List.of(
-				"http://localhost:3000",
-				"https://www.beanspot.shop"
-		));
-		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-		config.setAllowedHeaders(List.of("*"));
-		config.setExposedHeaders(Arrays.asList("Authorization", "RefreshToken"));
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "https://www.beanspot.shop"
+        ));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(Arrays.asList("Authorization", "RefreshToken"));
 
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", config);
-		return source;
-	}
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
 
-	@Bean
-	public OAuth2SuccessHandler oAuth2SuccessHandler() {
-		return new OAuth2SuccessHandler(jwtService, authorizedClientService);
-	}
+    @Bean
+    public OAuth2SuccessHandler oAuth2SuccessHandler() {
+        return new OAuth2SuccessHandler(jwtService, authorizedClientService);
+    }
 }
