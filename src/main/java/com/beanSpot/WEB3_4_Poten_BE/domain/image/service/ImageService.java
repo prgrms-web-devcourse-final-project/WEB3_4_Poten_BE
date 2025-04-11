@@ -27,25 +27,33 @@ public class ImageService {
 	public S3Res uploadAndSaveImage(MultipartFile file) throws IOException {
 		validateFile(file);
 
-		String fileName = s3Service.uploadFile(file);
-		String fileUrl = s3Service.getFileUrl(fileName);
+		String fileName = null;
+		try {
+			fileName = s3Service.uploadFile(file);
+			String fileUrl = s3Service.getFileUrl(fileName);
 
-		S3Res s3Res = S3Res.builder()
-			.fileName(fileName)
-			.fileUrl(fileUrl)
-			.fileType(file.getContentType())
-			.fileSize(file.getSize())
-			.build();
+			Image image = Image.builder()
+				.fileName(fileName)
+				.fileUrl(fileUrl)
+				.fileType(file.getContentType())
+				.fileSize(file.getSize())
+				.build();
 
-		Image image = Image.builder()
-			.fileName(fileName)
-			.fileUrl(fileUrl)
-			.fileType(file.getContentType())
-			.fileSize(file.getSize())
-			.build();
+			imageRepository.save(image);
 
-		imageRepository.save(image);
-		return s3Res;
+			return S3Res.builder()
+				.fileName(fileName)
+				.fileUrl(fileUrl)
+				.fileType(file.getContentType())
+				.fileSize(file.getSize())
+				.build();
+
+		} catch (Exception e) {
+			if (fileName != null) {
+				s3Service.deleteFile(fileName); // 실패 시 S3 롤백
+			}
+			throw e;
+		}
 	}
 
 	private void validateFile(MultipartFile file) {
@@ -69,31 +77,37 @@ public class ImageService {
 		return s3Service.generatePresignedUrl(fileName);
 	}
 
+	@Transactional
 	public void deleteImage(Long imageId) {
 		Image image = getImageById(imageId);
 		s3Service.deleteFile(image.getFileName());
 		imageRepository.delete(image);
 	}
 
-	// 기존 이미지 수정하기
 	@Transactional
 	public Image updateImage(Long imageId, MultipartFile newFile) throws IOException {
-		Image image = imageRepository.findById(imageId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 이미지를 찾을 수 없습니다. id=" + imageId));
+		Image image = getImageById(imageId);
+		String oldFileName = image.getFileName();
 
-		// S3에서 기존 이미지 삭제
-		s3Service.deleteFile(image.getFileName());
-
-		// 새 파일 S3에 업로드
 		String newFileName = UUID.randomUUID() + "_" + newFile.getOriginalFilename();
-		String newUrl = s3Service.uploadFile(newFile, newFileName);
+		String newUrl = null;
 
-		// 이미지 정보 갱신
-		image.setFileName(newFileName);
-		image.setFileUrl(newUrl);
-		image.setFileType(newFile.getContentType());
-		image.setFileSize(newFile.getSize());
+		try {
+			newUrl = s3Service.uploadFile(newFile, newFileName);
 
-		return image;
+			// 기존 이미지 삭제
+			s3Service.deleteFile(oldFileName);
+
+			// DB 정보 갱신
+			image.setFileName(newFileName);
+			image.setFileUrl(newUrl);
+			image.setFileType(newFile.getContentType());
+			image.setFileSize(newFile.getSize());
+
+			return image;
+		} catch (Exception e) {
+			s3Service.deleteFile(newFileName); // 새 이미지 롤백
+			throw e;
+		}
 	}
 }
