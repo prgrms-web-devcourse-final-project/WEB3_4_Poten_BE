@@ -1,20 +1,8 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
+import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Status;
+import com.beanSpot.WEB3_4_Poten_BE.domain.application.repository.ApplicationRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
@@ -29,6 +17,20 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.TimeSlot;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.ReservationStatus;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.repository.ReservationRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @DataJpaTest
@@ -47,7 +49,12 @@ class ReservationServiceTest {
     @Autowired
     private TestEntityManager entityManager;
 
+    @Autowired
+    private ApplicationRepository applicationRepository;
+
     private ReservationService reservationService;
+
+
 
     private Cafe cafe;
     private Member member1;
@@ -77,10 +84,27 @@ class ReservationServiceTest {
                 .username("user2")
                 .build();
 
+
+
+        member1 = memberRepository.save(member1);
+        member2 = memberRepository.save(member2);
+
+        Application application = Application.builder()
+                .address("sdf")
+                .name("starbucks")
+                .status(Status.APPROVED)
+                .member(member1)
+                .createdAt(LocalDateTime.now())
+                .phone("0101")
+                .build();
+
+        //applicationRepository.save(application);
+
         // 테스트용 Cafe 및 Reservation 저장
         cafe = Cafe.builder()
                 .name("cafe1")
-                .image("img1")
+                .application(application)
+                .imageFilename("a")
                 .address("seoul")
                 .capacity(5)
                 .disabled(false)
@@ -91,8 +115,6 @@ class ReservationServiceTest {
                 .createdAt(LocalDateTime.of(2025, 1, 1, 0, 0))
                 .build();
         cafe = cafeRepository.save(cafe);
-        member1 = memberRepository.save(member1);
-        member2 = memberRepository.save(member2);
 
         reservationService = new ReservationService(reservationRepository, cafeRepository);
 
@@ -270,7 +292,8 @@ class ReservationServiceTest {
                 .build();
 
         TimeSlotsReq req = TimeSlotsReq.builder()
-                .reservationTime(time)
+                .startTime(time.startTime())
+                .endTime(time.endTime())
                 .partySize(reservation1.getPartySize())
                 .build();
 
