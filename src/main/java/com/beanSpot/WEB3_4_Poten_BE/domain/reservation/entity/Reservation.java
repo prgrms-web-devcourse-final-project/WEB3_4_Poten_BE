@@ -2,6 +2,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -74,6 +75,24 @@ public class Reservation {
 	@PreUpdate
 	protected void onUpdate() {
 		this.updatedAt = LocalDateTime.now();
+	}
+
+	public static Reservation of(ReservationPostReq dto, Cafe cafe, Member member) {
+		return  Reservation.builder()
+				.cafe(cafe)
+				.member(member)
+				.startTime(dto.getReservationTime().startTime())
+				.endTime(dto.getReservationTime().endTime())
+				.status(ReservationStatus.CONFIRMED)
+				.partySize(dto.getPartySize())
+				.build();
+	}
+
+	public ReservationStatus getStatus() {
+		if (status.equals(ReservationStatus.CONFIRMED) && LocalDateTime.now().isAfter(endTime)) {
+			return ReservationStatus.FINISHED;
+		}
+		return status;
 	}
 
 	//예약 업데이트 메소드

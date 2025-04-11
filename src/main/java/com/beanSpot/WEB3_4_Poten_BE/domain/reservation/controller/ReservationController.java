@@ -56,7 +56,7 @@ public class ReservationController implements ReservationApi{
             @Valid @RequestBody ReservationPatchReq dto,
             @PathVariable Long reservationId
     ) {
-        ReservationPostRes response = reservationService.updateReservation(reservationId, dto, LocalDateTime.now(), member);
+        ReservationPostRes response = reservationService.updateReservation(reservationId, dto, member);
         return ResponseEntity.ok(response);
     }
 
@@ -64,8 +64,7 @@ public class ReservationController implements ReservationApi{
     public ResponseEntity<Void> checkout(
             @PathVariable Long reservationId
     ) {
-        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        reservationService.checkout(reservationId, now, member);
+        reservationService.checkout(reservationId, member);
         return ResponseEntity.ok().build();
     }
 
@@ -74,7 +73,7 @@ public class ReservationController implements ReservationApi{
             @Valid @RequestBody ReservationPostReq dto,
             @PathVariable Long reservationId
     ) {
-        reservationService.cancelReservation(reservationId, LocalDateTime.now(), member);
+        reservationService.cancelReservation(reservationId, member);
         return ResponseEntity.ok().build();
     }
 
