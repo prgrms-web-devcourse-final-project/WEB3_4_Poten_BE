@@ -50,14 +50,7 @@ public class ReservationService {
             throw new IllegalStateException("선택한 예약시간에 빈좌석이 없습니다.");
         }
 
-        Reservation reservation = Reservation.builder()
-                .cafe(cafe)
-                .member(member)
-                .startTime(dto.getReservationTime().startTime())
-                .endTime(dto.getReservationTime().endTime())
-                .status(ReservationStatus.CONFIRMED)
-                .partySize(dto.getPartySize())
-                .build();
+        Reservation reservation = Reservation.of(dto, cafe, member);
         reservationRepository.save(reservation);
 
         return ReservationPostRes.from(reservation);
