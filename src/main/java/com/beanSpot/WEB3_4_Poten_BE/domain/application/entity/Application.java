@@ -65,4 +65,8 @@ public class Application {
 	public void reject() {
 		this.status = Status.REJECTED;
 	}
+
+	public Long getUserId() {
+		return member != null ? member.getId() : null;
+	}
 }

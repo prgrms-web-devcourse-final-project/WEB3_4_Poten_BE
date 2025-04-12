@@ -33,14 +33,14 @@ import lombok.RequiredArgsConstructor;
 public class CafeController {
 	private final CafeService cafeService;
 
-	@Operation(
+	/*@Operation(
 		summary = "카페 추가",
 		description = "카페를 추가합니다. 카페에 할당된 사용자는 OWNER 상태로 변경됩니다.")
 	@PostMapping
 	public ResponseEntity<CafeInfoRes> createCafe(@RequestBody CafeCreateReq cafeCreateReq) {
 		CafeInfoRes cafeInfoRes = cafeService.createCafe(cafeCreateReq, 1L);
 		return ResponseEntity.ok(cafeInfoRes);
-	}
+	}*/
 
 	@Operation(
 		summary = "카페 수정",
