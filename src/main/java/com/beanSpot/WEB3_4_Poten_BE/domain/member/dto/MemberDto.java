@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 
 public record MemberDto(
@@ -22,6 +23,18 @@ public record MemberDto(
 	List<Long> ownedCafeIds
 ) {
 	public static MemberDto from(Member member) {
+		List<Long> cafeIds = List.of(); // 기본적으로 빈 리스트
+
+		try {
+			if (member.getOwnedCafes() != null) {
+				cafeIds = member.getOwnedCafes().stream()
+					.map(Cafe::getCafeId)
+					.collect(Collectors.toList());
+			}
+		} catch (Exception e) {
+			// 지연 로딩 예외 발생 시 무시하고 빈 리스트 사용
+		}
+
 		return new MemberDto(
 			member.getId(),
 			member.getOAuthId(),
@@ -33,11 +46,7 @@ public record MemberDto(
 			member.getSnsType(),
 			member.getCreatedAt(),
 			member.getUpdatedAt(),
-			member.getOwnedCafes() != null
-				? member.getOwnedCafes().stream()
-				.map(cafe -> cafe.getCafeId())
-				.collect(Collectors.toList())
-				: List.of()
+			cafeIds
 		);
 	}
 
