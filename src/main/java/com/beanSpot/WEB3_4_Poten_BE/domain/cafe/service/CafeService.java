@@ -41,6 +41,7 @@ public class CafeService {
 	private final ApplicationRepository applicationRepository;
 	private final S3Service s3Service;
 
+	//이 부분 관리자가 신청서 승인시 신청서 바탕으로 카페를 생성해주고 owner는 수정만 하는지 아니면 관리자는 신청만 수락하는지 알려주세요
 	@Transactional
 	public CafeInfoRes createCafe(CafeCreateReq request, Long ownerId) {
 		Member owner = memberRepository.findById(ownerId)

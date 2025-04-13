@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
-import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.oauth.SecurityUser;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
@@ -34,115 +33,133 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.TimeSlot;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.UserReservationRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.service.ReservationService;
 
-import jakarta.annotation.PostConstruct;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 
+@Tag(name = "Reservation", description = "예약 관련 API")
 @RestController
 @RequestMapping("/reservations")
 @RequiredArgsConstructor
-public class ReservationController implements ReservationApi{
+public class ReservationController implements ReservationApi {
+
     private final ReservationService reservationService;
-    //TODO: 추후삭제
-    private final MemberRepository memberRepository;
-    private Member member = Member.builder()
-            .email("user0@google.com")
-            .name("user0")
-            .memberType(Member.MemberType.USER)
-            .oAuthId("user0")
-            .password("1234")
-            .username("user0")
-            .build();
-
-    @PostConstruct
-    public void initMember() {
-        member = memberRepository.save(member);
-    }
-    // 끝
-
 
     // 예약 생성 API
+    @Override
     @PostMapping("/{cafeId}")
     public ResponseEntity<ReservationPostRes> createReservation(
-            @RequestParam Long cafeId,
-            @Valid @RequestBody ReservationPostReq dto
+        @PathVariable Long cafeId,
+        @Valid @RequestBody ReservationPostReq dto,
+        @AuthenticationPrincipal SecurityUser securityUser
     ) {
-        //TODO: 추후 리팩토링 하기
-        ReservationPostRes response = reservationService.createReservation(cafeId, dto, member);
+        if (securityUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        ReservationPostRes response = reservationService.createReservation(cafeId, dto, securityUser.getMember());
         return ResponseEntity.ok(response);
     }
 
+    @Override
     @PatchMapping("/{reservationId}")
     public ResponseEntity<ReservationPostRes> updateReservation(
-            @Valid @RequestBody ReservationPatchReq dto,
-            @PathVariable Long reservationId
+        @Valid @RequestBody ReservationPatchReq dto,
+        @PathVariable Long reservationId,
+        @AuthenticationPrincipal SecurityUser securityUser
     ) {
-        ReservationPostRes response = reservationService.updateReservation(reservationId, dto, LocalDateTime.now(), member);
+        if (securityUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        ReservationPostRes response = reservationService.updateReservation(reservationId, dto, LocalDateTime.now(), securityUser.getMember());
         return ResponseEntity.ok(response);
     }
 
+    @Override
     @PatchMapping("/checkout/{reservationId}")
     public ResponseEntity<Void> checkout(
-            @PathVariable Long reservationId
+        @PathVariable Long reservationId,
+        @AuthenticationPrincipal SecurityUser securityUser
     ) {
+        if (securityUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        reservationService.checkout(reservationId, now, member);
+        reservationService.checkout(reservationId, now, securityUser.getMember());
         return ResponseEntity.ok().build();
     }
 
+    @Override
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<Void> deleteReservation(
-            @Valid @RequestBody ReservationPostReq dto,
-            @PathVariable Long reservationId
+        @PathVariable Long reservationId,
+        @AuthenticationPrincipal SecurityUser securityUser
     ) {
-        reservationService.cancelReservation(reservationId, LocalDateTime.now(), member);
+        if (securityUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        reservationService.cancelReservation(reservationId, LocalDateTime.now(), securityUser.getMember());
         return ResponseEntity.ok().build();
     }
 
+    @Override
     @GetMapping("/availableCounts/{cafeId}")
     public ResponseEntity<AvailableSeatsCount> getAvailableSeatsCount(
-            @PathVariable Long cafeId,
-            @Valid @ModelAttribute SeatCountReq req
+        @PathVariable Long cafeId,
+        @Valid @ModelAttribute SeatCountReq req
     ) {
         AvailableSeatsCount res = reservationService.getAvailableSeatsCount(cafeId, req.startTime(), req.endTime());
         return ResponseEntity.ok(res);
     }
 
+    @Override
     @GetMapping("/availableTimeSlots/{cafeId}")
     public ResponseEntity<List<TimeSlot>> getAvailableTimeSlots(
-            @PathVariable Long cafeId,
-            @Valid @ModelAttribute TimeSlotsReq req
+        @PathVariable Long cafeId,
+        @Valid @ModelAttribute TimeSlotsReq req
     ) {
         List<TimeSlot> res = reservationService.getAvailableTimeSlots(cafeId, req);
         return ResponseEntity.ok(res);
     }
 
-    //예약 디테일 조회
+    @Override
     @GetMapping("/{reservationId}")
     public ResponseEntity<ReservationDetailRes> getReservationDetail(
-            @PathVariable Long reservationId
+        @PathVariable Long reservationId,
+        @AuthenticationPrincipal SecurityUser securityUser
     ) {
-        ReservationDetailRes res = reservationService.getReservationDetail(reservationId, member);
+        if (securityUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        ReservationDetailRes res = reservationService.getReservationDetail(reservationId, securityUser.getMember());
         return ResponseEntity.ok(res);
     }
 
-    //특정 사용자의 예약 목록 조회
-    @GetMapping("/user/{userId}")
+    @Override
+    @GetMapping("/user")
     public ResponseEntity<List<UserReservationRes>> getUserReservations(
-            @PathVariable Long userId,
-            @RequestParam(required = false) Long cursorId
+        @AuthenticationPrincipal SecurityUser securityUser,
+        @RequestParam(required = false) Long cursorId
     ) {
-        List<UserReservationRes> reservations = reservationService.getUserReservations(userId, cursorId);
+        if (securityUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        List<UserReservationRes> reservations = reservationService.getUserReservations(securityUser.getMember().getId(), cursorId);
         return ResponseEntity.ok(reservations);
     }
 
-
-    //특정 카페의 예약 조회 (날짜 기준 필터링)
+    @Override
     @GetMapping("/cafe/{cafeId}")
     public ResponseEntity<List<CafeReservationRes>> getCafeReservations(
-            @PathVariable Long cafeId,
-            @RequestParam LocalDate date)  {
+        @PathVariable Long cafeId,
+        @RequestParam LocalDate date
+    ) {
         List<CafeReservationRes> res = reservationService.getCafeReservations(cafeId, date);
         return ResponseEntity.ok(res);
     }
@@ -159,18 +176,6 @@ public class ReservationController implements ReservationApi{
         Member authenticatedMember = securityUser.getMember();
         List<UserReservationRes> reservations = reservationService.getUserReservations(
             authenticatedMember.getId(), cursorId);
-
         return ResponseEntity.ok(reservations);
     }
-
-   /* //TODO: 인증 구현 후 userId는 RequestBody에서 제거하고 SecurityContext에서 가져오기
-    @PostMapping("/{cafeId}")
-    public ResponseEntity<ReservationPostRes> createReservation1(
-        @PathVariable Long cafeId,
-        @Valid @RequestBody ReservationPostReq dto,
-        @AuthenticationPrincipal SecurityUser securityUser
-    ) {
-        ReservationPostRes response = reservationService.createReservation(cafeId, dto, securityUser.getMember());
-        return ResponseEntity.ok(response);
-    }*/
 }
