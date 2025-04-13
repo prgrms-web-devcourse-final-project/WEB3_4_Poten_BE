@@ -154,7 +154,9 @@ public class SecurityConfig {
         config.setAllowCredentials(true);
         config.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "https://www.beanspot.shop"
+                "https://www.beanspot.shop",
+            "http://localhost:5173",
+            "https://api.beanspot.shop"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
