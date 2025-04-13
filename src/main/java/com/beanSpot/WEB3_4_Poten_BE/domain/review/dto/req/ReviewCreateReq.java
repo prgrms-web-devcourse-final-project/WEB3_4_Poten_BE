@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record ReviewCreateReq(
 	@NotNull
-	Long userId,
+	Long userId,//이부분 @AuthenticationPrincipal에서 가져와서 필요가 없음
 
 	@NotNull
 	Long cafeId,
