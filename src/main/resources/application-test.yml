@@ -1,12 +1,3 @@
 spring:
   datasource:
     url: jdbc:h2:mem:db_test;MODE=MySQL
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
-    hikari:
-      auto-commit: false
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect

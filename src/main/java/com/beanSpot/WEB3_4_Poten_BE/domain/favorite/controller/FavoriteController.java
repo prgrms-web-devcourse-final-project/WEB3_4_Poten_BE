@@ -50,4 +50,32 @@ public class FavoriteController {
         List<FavoriteCafeRes> favoriteCafes = favoriteService.getFavoriteCafes(memberId);
         return ResponseEntity.ok(favoriteCafes);
     }
+
+    //TODO: 인증 구현 후 userId는 RequestBody에서 제거하고 SecurityContext에서 가져오기
+    @PostMapping("/{cafeId}")
+    public ResponseEntity<String> addFavorite(
+        @PathVariable Long cafeId,
+        @AuthenticationPrincipal SecurityUser securityUser
+    ) {
+        favoriteService.addFavorite(securityUser.getMember().getId(), cafeId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{cafeId}")
+    public ResponseEntity<String> removeFavorite(
+        @PathVariable Long cafeId,
+        @AuthenticationPrincipal SecurityUser securityUser
+    ) {
+        favoriteService.removeFavorite(securityUser.getMember().getId(), cafeId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<FavoriteCafeRes>> getFavorites(
+        @AuthenticationPrincipal SecurityUser securityUser
+    ) {
+        List<FavoriteCafeRes> favoriteCafes = favoriteService.getFavoriteCafes(securityUser.getMember().getId());
+        return ResponseEntity.ok(favoriteCafes);
+    }
+
 }
