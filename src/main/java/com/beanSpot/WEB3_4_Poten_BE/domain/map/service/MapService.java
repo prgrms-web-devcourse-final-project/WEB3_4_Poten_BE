@@ -3,6 +3,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.map.service;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ import java.util.Map;
  */
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class MapService {
 
     private final CafeRepository cafeRepository;
@@ -57,7 +59,7 @@ public class MapService {
         }
 
         // 디버깅용 카카오 API 응답 데이터
-        System.out.println("카카오 API 응답: " + response.getBody());
+        log.debug("카카오 API 응답: {}", response.getBody());
 
         // documents 리스트 추출
         List<Map<String, Object>> documents = (List<Map<String, Object>>) response.getBody().get("documents");
@@ -90,16 +92,16 @@ public class MapService {
                 .toEntity(Map.class);
 
         // 디버깅용 응답 데이터
-        System.out.println("응답: " + response.getBody());
+        log.debug("이미지 검색 응답: {}", response.getBody());
 
         if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
-            System.out.println("이미지 검색 API 요청 실패: " + response.getStatusCode());
+            log.warn("이미지 검색 API 요청 실패: {}", response.getStatusCode());
             return null;
         }
 
         List<Map<String, Object>> documents = (List<Map<String, Object>>) response.getBody().get("documents");
         if (documents == null || documents.isEmpty()) {
-            System.out.println("이미지 검색 결과 없음: " + address);
+            log.info("이미지 검색 결과 없음: {}", address);
             return null;
         }
 
@@ -118,7 +120,7 @@ public class MapService {
 
         // 이미 존재하는 카페인지 확인
         if (cafeRepository.existsByNameAndAddress(name, address)) {
-            System.out.println("이미 존재하는 카페: " + name + " (" + address + ")");
+            log.info("이미 존재하는 카페: {} ({})", name, address);
             return null;
         }
 
