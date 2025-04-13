@@ -33,7 +33,7 @@ public class ReviewController {
 	private final ReviewService reviewService;
 	private final MemberRepository memberRepository;
 
-	/*@Operation(
+/*	@Operation(
 		summary = "리뷰 추가",
 		description = "리뷰를 추가합니다.")
 	//추후 인증 방식에 따라서 수정 필요.
@@ -43,8 +43,8 @@ public class ReviewController {
 		ReviewRes reviewRes = reviewService.addReview(request,1L);
 		return ResponseEntity.ok(reviewRes);
 		// TODO: 인증 구현 후 userId는 RequestBody에서 제거하고 SecurityContext에서 가져오기
-	}
-*/
+	}*/
+
 	@Operation(
 		summary = "카페 수정",
 		description = "리뷰를 수정합니다")
