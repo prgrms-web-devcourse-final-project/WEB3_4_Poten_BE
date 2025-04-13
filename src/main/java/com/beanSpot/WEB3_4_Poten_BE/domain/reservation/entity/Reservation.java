@@ -95,6 +95,10 @@ public class Reservation {
 		return status;
 	}
 
+	public boolean isOwner(Long memberId) {
+		return memberId != null && member.getId().equals(memberId);
+	}
+
 	//예약 업데이트 메소드
 	public void update(LocalDateTime startTime, LocalDateTime endTime, int partySize) {
 		updateReservationTime(startTime, endTime);

@@ -47,7 +47,7 @@ public class ReservationService {
                 dto.getReservationTime().endTime());
 
         if (getMaxOccupiedSeatsCount(overlappingReservations) + dto.getPartySize() > cafe.getCapacity()) {
-            throw new IllegalStateException("선택한 예약시간에 빈좌석이 없습니다.");
+            throw new ServiceException(400, "선택한 예약시간에 빈좌석이 없습니다.");
         }
 
         Reservation reservation = Reservation.of(dto, cafe, member);
@@ -63,6 +63,10 @@ public class ReservationService {
         //예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ServiceException(400, "해당 예약을 찾을 수 없습니다."));
+
+        if (!reservation.isOwner(member.getId())) {
+            throw new ServiceException(400, "해당 예약은 수정 권한이 없습니다.");
+        }
 
         //원래 예약시간 0분전 변경 가능하게 체크
         if (!reservation.isModifiable(timeProvider.now(), 0, member)) {
@@ -91,8 +95,11 @@ public class ReservationService {
     public void checkout(long reservationId, Member member) {
         // 예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ServiceException(400, "해당 예약을 찾을 수 없습니다."));
 
+        if (!reservation.isOwner(member.getId())) {
+            throw new ServiceException(400, "해당 예약은 퇴실 권한이 없습니다.");
+        }
 
         if (!reservation.isCheckoutTimeValid(timeProvider.nowMinute(), member)) {
             throw new ServiceException(400, "잘못된 체크아웃 시간대 입니다");
@@ -106,7 +113,11 @@ public class ReservationService {
     public void cancelReservation(long reservationId, Member member) {
         // 예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ServiceException(400, "해당 예약을 찾을 수 없습니다."));
+
+        if (!reservation.isOwner(member.getId())) {
+            throw new ServiceException(400, "해당 예약은 취소 권한이 없습니다.");
+        }
 
         //시작시간 0분전 취소 불가능
         if (!reservation.isModifiable(timeProvider.now(), 0, member)) {
@@ -151,9 +162,9 @@ public class ReservationService {
     public ReservationDetailRes getReservationDetail(Long reservationId, Member member) {
 
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ServiceException(400, "해당 예약을 찾을 수 없습니다."));
 
-        if (!reservation.isOwner(member)) {
+        if (!reservation.isOwner(member) && !reservation.getCafe().getOwner().getId().equals(member.getId())) {
             throw new ServiceException(400, "해당 예약조회 권한이 없습니다");
         }
 
@@ -172,13 +183,19 @@ public class ReservationService {
 
     //특정 카페의 예약 조회 (날짜 기준 필터링)
     @Transactional(readOnly = true)
-    public List<CafeReservationRes> getCafeReservations(Long cafeId, LocalDate date) {
+    public List<CafeReservationRes> getCafeReservations(Long cafeId, LocalDate date, Long memberId) {
+
+        Cafe cafe = cafeRepository.findById(cafeId)
+                .orElseThrow(() -> new ServiceException(400, "해당 카페가 존재하지 않습니다"));
+
+        if (!memberId.equals(cafe.getOwner().getId())) {
+            throw new ServiceException(400, "해당 카페의 접근권한이 없습니다");
+        }
+
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime startOfNextDay = startOfDay.plusDays(1);
 
         List<Reservation> reservations = reservationRepository.findByCafeIdAndDate(cafeId, startOfDay, startOfNextDay);
-
-        //TODO: 멤버가 카페의 멤버와 다른면 에러 던지게 하기
 
         return reservations.stream()
                 .map(CafeReservationRes::from)
