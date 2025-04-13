@@ -30,7 +30,7 @@ public class FavoriteController {
 
     private final FavoriteService favoriteService;
 
-    @PostMapping("/{memberId}/{cafeId}")
+   /* @PostMapping("/{memberId}/{cafeId}")
     public ResponseEntity<String> addFavorite(@PathVariable Long memberId, @PathVariable Long cafeId) {
         favoriteService.addFavorite(memberId, cafeId);
         return ResponseEntity.ok().build();
@@ -46,7 +46,7 @@ public class FavoriteController {
     public ResponseEntity<List<FavoriteCafeRes>> getFavorites(@PathVariable Long memberId) {
         List<FavoriteCafeRes> favoriteCafes = favoriteService.getFavoriteCafes(memberId);
         return ResponseEntity.ok(favoriteCafes);
-    }
+    }*/
 
     //TODO: 인증 구현 후 userId는 RequestBody에서 제거하고 SecurityContext에서 가져오기
     @PostMapping("/{cafeId}")
