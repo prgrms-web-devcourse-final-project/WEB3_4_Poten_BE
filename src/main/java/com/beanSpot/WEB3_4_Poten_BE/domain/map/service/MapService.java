@@ -2,14 +2,13 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.map.service;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
+import com.beanSpot.WEB3_4_Poten_BE.global.client.RestClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,11 +47,7 @@ public class MapService {
         );
 
         // API 요청 및 응답 처리
-        ResponseEntity<Map> response = restClient.get()
-                .uri(apiUrl)
-                .header("Authorization", "KakaoAK " + kakaoKey)
-                .retrieve()
-                .toEntity(Map.class);
+        ResponseEntity<Map> response = restClient.get(apiUrl, "KakaoAK " + kakaoKey);
 
         if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
             throw new RuntimeException("카카오 API 요청 실패: " + response.getStatusCode());
@@ -85,11 +80,7 @@ public class MapService {
     private String searchCafeImage(String address) {
         String apiUrl = String.format("%s?query=%s&size=1", kakaoImageUrl, address);
 
-        ResponseEntity<Map> response = restClient.get()
-                .uri(apiUrl)
-                .header("Authorization", "KakaoAK " + kakaoKey)
-                .retrieve()
-                .toEntity(Map.class);
+        ResponseEntity<Map> response = restClient.get(apiUrl, "KakaoAK " + kakaoKey);
 
         // 디버깅용 응답 데이터
         log.debug("이미지 검색 응답: {}", response.getBody());
