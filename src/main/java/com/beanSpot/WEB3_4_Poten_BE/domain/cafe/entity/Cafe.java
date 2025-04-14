@@ -37,7 +37,6 @@ public class Cafe {
 	@JoinColumn(name = "owner_id")
 	private Member owner;
 
-
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "application_id", nullable = false, unique = true)
 	private Application application;
