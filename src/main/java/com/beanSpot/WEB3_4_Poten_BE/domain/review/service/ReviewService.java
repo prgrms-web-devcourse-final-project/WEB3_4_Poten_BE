@@ -90,4 +90,11 @@ public class ReviewService {
 
 		return reviews.map(ReviewRes::fromEntity);
 	}
+
+	public List<ReviewRes> getReviewsByOwner(Long ownerId) {
+		List<Review> reviews = reviewRepository.findByOwnerId(ownerId);
+		return reviews.stream()
+			.map(ReviewRes::fromEntity)
+			.collect(Collectors.toList());
+	}
 }
