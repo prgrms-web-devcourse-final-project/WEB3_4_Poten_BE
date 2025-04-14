@@ -19,25 +19,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReservationController implements ReservationApi{
     private final ReservationService reservationService;
-    //TODO: 추후삭제
-//    private final MemberRepository memberRepository;
-//    private Member member = Member.builder()
-//            .email("user0@google.com")
-//            .name("user0")
-//            .memberType(Member.MemberType.USER)
-//            .oAuthId("user0")
-//            .password("1234")
-//            .username("user0")
-//            .build();
-
-//    @PostConstruct
-//    public void initMember() {
-//        member = memberRepository.save(member);
-//    }
-    // 끝
-
 
     // 예약 생성 API
+    @Override
     @PostMapping("/{cafeId}")
     public ResponseEntity<ReservationPostRes> createReservation(
             @RequestParam Long cafeId,
@@ -49,6 +33,7 @@ public class ReservationController implements ReservationApi{
         return ResponseEntity.ok(response);
     }
 
+    @Override
     @PatchMapping("/{reservationId}")
     public ResponseEntity<ReservationPostRes> updateReservation(
             @Valid @RequestBody ReservationPatchReq dto,
@@ -59,6 +44,7 @@ public class ReservationController implements ReservationApi{
         return ResponseEntity.ok(response);
     }
 
+    @Override
     @PatchMapping("/checkout/{reservationId}")
     public ResponseEntity<Void> checkout(
             @PathVariable Long reservationId,
@@ -68,6 +54,7 @@ public class ReservationController implements ReservationApi{
         return ResponseEntity.ok().build();
     }
 
+    @Override
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<Void> deleteReservation(
             @Valid @RequestBody ReservationPostReq dto,
@@ -78,6 +65,7 @@ public class ReservationController implements ReservationApi{
         return ResponseEntity.ok().build();
     }
 
+    @Override
     @GetMapping("/availableCounts/{cafeId}")
     public ResponseEntity<AvailableSeatsCount> getAvailableSeatsCount(
             @PathVariable Long cafeId,
@@ -87,6 +75,7 @@ public class ReservationController implements ReservationApi{
         return ResponseEntity.ok(res);
     }
 
+    @Override
     @GetMapping("/availableTimeSlots/{cafeId}")
     public ResponseEntity<List<TimeSlot>> getAvailableTimeSlots(
             @PathVariable Long cafeId,
@@ -97,6 +86,7 @@ public class ReservationController implements ReservationApi{
     }
 
     //예약 디테일 조회
+    @Override
     @GetMapping("/{reservationId}")
     public ResponseEntity<ReservationDetailRes> getReservationDetail(
             @PathVariable Long reservationId,
@@ -107,6 +97,7 @@ public class ReservationController implements ReservationApi{
     }
 
     //특정 사용자의 예약 목록 조회
+    @Override
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<UserReservationRes>> getUserReservations(
             @RequestParam(required = false) Long cursorId,
@@ -118,6 +109,7 @@ public class ReservationController implements ReservationApi{
 
 
     //특정 카페의 예약 조회 (날짜 기준 필터링)
+    @Override
     @GetMapping("/cafe/{cafeId}")
     public ResponseEntity<List<CafeReservationRes>> getCafeReservations(
             @PathVariable Long cafeId,
