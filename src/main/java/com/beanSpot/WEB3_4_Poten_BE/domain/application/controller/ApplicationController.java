@@ -3,6 +3,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.application.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +16,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.req.ApplicationReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.res.ApplicationRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.service.ApplicationService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.oauth.SecurityUser;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,8 +37,9 @@ public class ApplicationController {
 		summary = "신청 추가",
 		description = "신청을 추가합니다. 추가 시 신청의 상태 기본값은 PENDING입니다.")
 	@PostMapping
-	public ResponseEntity<ApplicationRes> createApplication(@RequestBody ApplicationReq applicationReq) {
-		ApplicationRes applicationRes = applicationService.createApplication(applicationReq, 1L);
+	public ResponseEntity<ApplicationRes> createApplication(@RequestBody ApplicationReq applicationReq,
+			@AuthenticationPrincipal SecurityUser securityUser) {
+		ApplicationRes applicationRes = applicationService.createApplication(applicationReq, securityUser.getId());
 		return ResponseEntity.ok(applicationRes);
 	}
 
