@@ -79,10 +79,9 @@ public class CafeService {
 	}
 
 	@Transactional
-	public List<CafeInfoRes> getCafeList() {
-		return cafeRepository.findAllByDisabledFalse().stream()
-			.map(cafe -> CafeInfoRes.fromEntity(cafe, s3Service.getFileUrl(cafe.getImageFilename())))
-			.collect(Collectors.toList());
+	public Page<CafeInfoRes> getCafeList(Pageable pageable) {
+		return cafeRepository.findAllByDisabledFalse(pageable)
+			.map(cafe -> CafeInfoRes.fromEntity(cafe, s3Service.getFileUrl(cafe.getImageFilename())));
 	}
 
 	@Transactional
@@ -90,24 +89,24 @@ public class CafeService {
 		Cafe cafe = cafeRepository.findBycafeIdAndDisabledFalse(cafeId)
 			.orElseThrow(() -> new CafeNotFoundException(cafeId));
 
-		List<Review> review = reviewRepository.findByCafe(cafe);
-
 		String imageUrl = s3Service.getFileUrl(cafe.getImageFilename());
-		return CafeDetailRes.fromEntity(cafe, imageUrl, review);
+		return CafeDetailRes.fromEntity(cafe, imageUrl);
 	}
 
 	@Transactional
-	public CafeInfoRes updateCafe(Long id, CafeUpdateReq request) {
-		Cafe cafe = cafeRepository.findById(id)
-			.orElseThrow(() -> new CafeNotFoundException(id));
+	public CafeInfoRes updateCafe(Long cafeId, Long userId, CafeUpdateReq request) {
+		Cafe cafe = cafeRepository.findById(cafeId)
+			.orElseThrow(() -> new CafeNotFoundException(cafeId));
+
+		if (!cafe.getOwner().getId().equals(userId)) {
+			throw new ServiceException(403, "본인이 등록한 카페만 수정할 수 있습니다.");
+		}
 
 		cafe.update(request);
-
 		String imageUrl = s3Service.getFileUrl(cafe.getImageFilename());
 		return CafeInfoRes.fromEntity(cafe, imageUrl);
 	}
 
-	//일단 CafeInfoRes dto 활용, 추후 필요에 따라 변경 가능
 	@Transactional
 	public List<CafeInfoRes> searchCafe(String keyword) {
 		if (keyword == null || keyword.trim().isEmpty()) {
@@ -122,14 +121,15 @@ public class CafeService {
 	}
 
 	@Transactional
-	public void deleteCafe(Long cafeId) {
+	public void deleteCafe(Long cafeId, Long userId) {
 		Cafe cafe = cafeRepository.findById(cafeId)
 			.orElseThrow(() -> new CafeNotFoundException(cafeId));
 
-		// Application 삭제
-		applicationRepository.delete(cafe.getApplication());
+		if (!cafe.getOwner().getId().equals(userId)) {
+			throw new ServiceException(403, "본인이 등록한 카페만 삭제할 수 있습니다.");
+		}
 
-		// Cafe soft delete 처리
+		applicationRepository.delete(cafe.getApplication());
 		cafe.disable();
 	}
 
@@ -138,5 +138,15 @@ public class CafeService {
 		Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 		Page<Cafe> cafePage = cafeRepository.findAllByDisabledFalseWithOwner(pageable);
 		return cafePage.map(AdminCafeListRes::fromEntity);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<CafeInfoRes> getCafesByOwner(Long ownerId, Pageable pageable) {
+		Member owner = memberRepository.findById(ownerId)
+			.orElseThrow(() -> new ServiceException("사용자를 찾을 수 없습니다. ID: " + ownerId));
+
+		Page<Cafe> cafes = cafeRepository.findByOwnerAndDisabledFalse(owner, pageable);
+
+		return cafes.map(cafe -> CafeInfoRes.fromEntity(cafe, s3Service.getFileUrl(cafe.getImageFilename())));
 	}
 }

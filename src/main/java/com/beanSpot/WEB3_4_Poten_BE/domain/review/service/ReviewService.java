@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
@@ -31,13 +33,13 @@ public class ReviewService {
 	private final CafeRepository cafeRepository;
 
 	@Transactional
-	public ReviewRes addReview(ReviewCreateReq request, Long userId) {
+	public ReviewRes addReview(Long cafeId, Long userId, ReviewCreateReq request) {
 
 		Member member = memberRepository.findById(userId)
 			.orElseThrow(() -> new ServiceException(400, "사용자를 찾을 수 없습니다."));
 
-		Cafe cafe = cafeRepository.findById(request.cafeId())
-			.orElseThrow(() -> new CafeNotFoundException(request.cafeId()));
+		Cafe cafe = cafeRepository.findById(cafeId)
+			.orElseThrow(() -> new CafeNotFoundException(cafeId));
 
 		Review review = Review.builder()
 			.member(member)
@@ -53,9 +55,13 @@ public class ReviewService {
 	}
 
 	@Transactional
-	public ReviewRes updateReview(Long reviewId, ReviewUpdateReq request) {
+	public ReviewRes updateReview(Long reviewId, Long userId, ReviewUpdateReq request) {
 		Review review = reviewRepository.findById(reviewId)
 			.orElseThrow(() -> new ReviewNotFoundException(reviewId));
+
+		if (!review.getMember().getId().equals(userId)) {
+			throw new ServiceException(403, "본인이 작성한 리뷰만 수정할 수 있습니다.");
+		}
 
 		review.updateReview(
 			request.rating(),
@@ -64,21 +70,24 @@ public class ReviewService {
 		return ReviewRes.fromEntity(review);
 	}
 
-	public void deleteReview(Long reviewId) {
+	public void deleteReview(Long reviewId,Long userId) {
 		Review review = reviewRepository.findById(reviewId)
 			.orElseThrow(() -> new ReviewNotFoundException(reviewId));
+
+		if (!review.getMember().getId().equals(userId)) {
+			throw new ServiceException(403, "본인이 작성한 리뷰만 삭제할 수 있습니다.");
+		}
 
 		reviewRepository.delete(review);
 	}
 
-	public List<ReviewRes> getReviewsByCafeId(Long cafeId) {
+	@Transactional
+	public Page<ReviewRes> getReviewsByCafeId(Long cafeId, Pageable pageable) {
 		Cafe cafe = cafeRepository.findById(cafeId)
 			.orElseThrow(() -> new CafeNotFoundException(cafeId));
 
-		List<Review> reviews = reviewRepository.findByCafe(cafe);
-		return reviews.stream()
-			.map(ReviewRes::fromEntity)
-			.collect(Collectors.toList());
-	}
+		Page<Review> reviews = reviewRepository.findByCafe(cafe, pageable);
 
+		return reviews.map(ReviewRes::fromEntity);
+	}
 }
