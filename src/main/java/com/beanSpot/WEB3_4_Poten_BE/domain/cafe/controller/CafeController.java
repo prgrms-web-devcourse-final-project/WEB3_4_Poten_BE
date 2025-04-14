@@ -38,20 +38,6 @@ public class CafeController {
 	private final CafeService cafeService;
 
 	@Operation(
-		summary = "카페 수정",
-		description = "카페를 수정합니다. 이름, 주소, 전화번호, 설명, 이미지 데이터를 넘겨받습니다.")
-	@PutMapping("/{id}")
-	public ResponseEntity<CafeInfoRes> updateCafe(
-		@PathVariable Long id,
-		@RequestBody CafeUpdateReq request,
-		@AuthenticationPrincipal SecurityUser securityUser
-	) {
-		Long userId = securityUser.getMember().getId();
-		CafeInfoRes updatedCafe = cafeService.updateCafe(id, userId, request);
-		return ResponseEntity.ok(updatedCafe);
-	}
-
-	@Operation(
 		summary = "카페 리스트 (페이징)",
 		description = "존재하는 카페의 리스트를 페이징 형태로 반환합니다. page, size, sort 파라미터를 사용할 수 있습니다."
 	)
@@ -65,6 +51,7 @@ public class CafeController {
 		Page<CafeInfoRes> result = cafeService.getCafeList(pageable);
 		return ResponseEntity.ok(result);
 	}
+
 	@Operation(
 		summary = "카페 검색",
 		description = "주어진 키워드를 기반으로 카페를 검색해 검색된 카페 목록은 카페의 정보를 포함한 리스트로 반환됩니다. 검색은 카페의 이름과 주소로 이루어집니다.")
@@ -72,6 +59,33 @@ public class CafeController {
 	public ResponseEntity<List<CafeInfoRes>> searchCafe(@RequestParam String keyword) {
 		List<CafeInfoRes> result = cafeService.searchCafe(keyword);
 		return ResponseEntity.ok(result);
+	}
+
+	@Operation(summary = "점주가 등록한 카페 목록 조회", description = "현재 로그인한 점주가 등록한 카페 목록을 페이징 형태로 조회합니다.")
+	@GetMapping("/my")
+	public ResponseEntity<Page<CafeInfoRes>> getCafesByOwner(
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size,
+		@RequestParam(defaultValue = "createdAt,desc") String sort,
+		@AuthenticationPrincipal SecurityUser securityUser
+	) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
+		Page<CafeInfoRes> result = cafeService.getCafesByOwner(securityUser.getId(), pageable);
+		return ResponseEntity.ok(result);
+	}
+
+	@Operation(
+		summary = "카페 수정",
+		description = "카페를 수정합니다. 이름, 주소, 전화번호, 설명, 이미지 데이터를 넘겨받습니다.")
+	@PutMapping("/{id}")
+	public ResponseEntity<CafeInfoRes> updateCafe(
+		@PathVariable Long id,
+		@RequestBody CafeUpdateReq request,
+		@AuthenticationPrincipal SecurityUser securityUser
+	) {
+		Long userId = securityUser.getMember().getId();
+		CafeInfoRes updatedCafe = cafeService.updateCafe(id, userId, request);
+		return ResponseEntity.ok(updatedCafe);
 	}
 
 	@Operation(
@@ -107,4 +121,3 @@ public class CafeController {
 		return ResponseEntity.ok(cafeInfoRes);
 	}
 }
-

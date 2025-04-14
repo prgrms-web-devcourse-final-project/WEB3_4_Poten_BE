@@ -139,4 +139,14 @@ public class CafeService {
 		Page<Cafe> cafePage = cafeRepository.findAllByDisabledFalseWithOwner(pageable);
 		return cafePage.map(AdminCafeListRes::fromEntity);
 	}
+
+	@Transactional(readOnly = true)
+	public Page<CafeInfoRes> getCafesByOwner(Long ownerId, Pageable pageable) {
+		Member owner = memberRepository.findById(ownerId)
+			.orElseThrow(() -> new ServiceException("사용자를 찾을 수 없습니다. ID: " + ownerId));
+
+		Page<Cafe> cafes = cafeRepository.findByOwnerAndDisabledFalse(owner, pageable);
+
+		return cafes.map(cafe -> CafeInfoRes.fromEntity(cafe, s3Service.getFileUrl(cafe.getImageFilename())));
+	}
 }

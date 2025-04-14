@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 
 @Repository
 public interface CafeRepository extends JpaRepository<Cafe, Long> {
@@ -28,5 +29,7 @@ public interface CafeRepository extends JpaRepository<Cafe, Long> {
 	Page<Cafe> findAllByDisabledFalseWithOwner(Pageable pageable);
 
 	Page<Cafe> findAllByDisabledFalse(Pageable pageable);
+
+	Page<Cafe> findByOwnerAndDisabledFalse(Member owner, Pageable pageable);
 }
 
