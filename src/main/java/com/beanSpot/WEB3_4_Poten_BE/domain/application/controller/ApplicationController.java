@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.req.ApplicationReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.res.ApplicationRes;
-import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.service.ApplicationService;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 
@@ -51,6 +50,7 @@ public class ApplicationController {
 			.build();
 	}
 
+	//아래 3개 기능 관리자로 이동
 	@Operation(
 		summary = "대기중인 신청 리스트 반환",
 		description = "PENDING 상태인 신청의 리스트를 반환합니다.")

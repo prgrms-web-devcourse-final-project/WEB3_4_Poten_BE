@@ -57,6 +57,7 @@ public class Member implements UserDetails {
 
 	private String profileImg;
 
+	@Column(nullable = false, unique = true)
 	private String oAuthId;
 
 	private String phoneNumber;

@@ -4,26 +4,31 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.beanSpot.WEB3_4_Poten_BE.domain.admin.dto.res.AdminCafeListRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Status;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.repository.ApplicationRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeCreateReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.res.CafeDetailRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.res.CafeInfoRes;
-import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.exception.CafeNotFoundException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
-import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.entity.Review;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.repository.ReviewRepository;
 import com.beanSpot.WEB3_4_Poten_BE.global.aws.S3Service;
+import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -36,6 +41,7 @@ public class CafeService {
 	private final ApplicationRepository applicationRepository;
 	private final S3Service s3Service;
 
+	//이 부분 관리자가 신청서 승인시 신청서 바탕으로 카페를 생성해주고 owner는 수정만 하는지 아니면 관리자는 신청만 수락하는지 알려주세요
 	@Transactional
 	public CafeInfoRes createCafe(CafeCreateReq request, Long ownerId) {
 		Member owner = memberRepository.findById(ownerId)
@@ -125,5 +131,12 @@ public class CafeService {
 
 		// Cafe soft delete 처리
 		cafe.disable();
+	}
+
+	@Transactional(readOnly = true)
+	public Page<AdminCafeListRes> getAdminCafeList(int page, int size) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+		Page<Cafe> cafePage = cafeRepository.findAllByDisabledFalseWithOwner(pageable);
+		return cafePage.map(AdminCafeListRes::fromEntity);
 	}
 }

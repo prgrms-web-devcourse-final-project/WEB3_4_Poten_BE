@@ -59,6 +59,7 @@ public class ApplicationService {
 		}
 	}
 
+	//아래 3개 메서드는 관리자로 이동
 	public List<ApplicationRes> getPendingRequests() {
 		return applicationRepository.findByStatus(Status.PENDING)
 			.stream()
