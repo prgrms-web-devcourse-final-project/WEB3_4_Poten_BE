@@ -31,13 +31,13 @@ public class ReviewService {
 	private final CafeRepository cafeRepository;
 
 	@Transactional
-	public ReviewRes addReview(ReviewCreateReq request, Long userId) {
+	public ReviewRes addReview(Long cafeId, Long userId, ReviewCreateReq request) {
 
 		Member member = memberRepository.findById(userId)
 			.orElseThrow(() -> new ServiceException(400, "사용자를 찾을 수 없습니다."));
 
-		Cafe cafe = cafeRepository.findById(request.cafeId())
-			.orElseThrow(() -> new CafeNotFoundException(request.cafeId()));
+		Cafe cafe = cafeRepository.findById(cafeId)
+			.orElseThrow(() -> new CafeNotFoundException(cafeId));
 
 		Review review = Review.builder()
 			.member(member)

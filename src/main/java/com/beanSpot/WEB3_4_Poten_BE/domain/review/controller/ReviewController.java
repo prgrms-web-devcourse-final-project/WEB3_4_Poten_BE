@@ -73,7 +73,6 @@ public class ReviewController {
 		return ResponseEntity.ok(reviews);
 	}
 
-
 	//TODO: 인증 구현 후 userId는 RequestBody에서 제거하고 SecurityContext에서 가져오기
 	@PostMapping
 	public ResponseEntity<ReviewRes> addReview(
@@ -81,10 +80,9 @@ public class ReviewController {
 		@RequestBody ReviewCreateReq request,
 		@AuthenticationPrincipal SecurityUser securityUser
 	) {
-		// userId 파라미터를 제거하고 인증된 사용자 ID를 사용
-		ReviewRes reviewRes = reviewService.addReview(
-			new ReviewCreateReq(securityUser.getMember().getId(), cafeId, request.rating(), request.comment()),
-			securityUser.getMember().getId());
+		Long userId = securityUser.getMember().getId();
+		ReviewRes reviewRes = reviewService.addReview(cafeId, userId, request);
 		return ResponseEntity.ok(reviewRes);
 	}
 }
+
