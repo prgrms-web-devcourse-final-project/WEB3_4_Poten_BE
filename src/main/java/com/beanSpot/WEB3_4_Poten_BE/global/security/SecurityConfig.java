@@ -14,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -93,16 +94,20 @@ public class SecurityConfig {
                         //.requestMatchers("/reservations/**").authenticated()
                         .requestMatchers("/reservations/**").permitAll()
 
+                        // 즐겨찾기, 지도 추가
+                        .requestMatchers("/favorite/**").authenticated()
+                        .requestMatchers("/map/**").permitAll()
+
                         //테스트환경용 추가
                         .requestMatchers("/api/cafe-application/**").permitAll()
                         .requestMatchers("/api/auth/me/**").permitAll()
 
                         // 이미지 업로드, 다운로드
-                        .requestMatchers(HttpMethod.POST, "/api/images/upload").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/images/upload").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/images/download/{imageId}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/images/download-by-name/{fileName}").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/images/{imageId}").permitAll()
-
+                        .requestMatchers("/api/files/**").permitAll()
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
@@ -134,15 +139,20 @@ public class SecurityConfig {
                             response.getWriter().write("{\"message\":\"접근 권한이 없습니다.\",\"code\":\"FORBIDDEN\"}");
                         })
                 )
-                .oauth2Login(oauth2 -> oauth2
-                        .authorizationEndpoint(authorization -> authorization
-                                .authorizationRequestResolver(authorizationRequestResolver)
-                        )
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService)
-                        )
-                        .successHandler(oAuth2SuccessHandler())
+            .oauth2Login(oauth2 -> oauth2
+                .authorizationEndpoint(authorization -> authorization
+                    .baseUri("/oauth2/authorization")
+                    .authorizationRequestRepository(new HttpSessionOAuth2AuthorizationRequestRepository())
                 )
+                .redirectionEndpoint(redirection -> redirection
+                    .baseUri("/login/oauth2/code/*")
+                )
+                .successHandler(oAuth2SuccessHandler())
+                .userInfoEndpoint(userInfo -> userInfo
+                    .userService(customOAuth2UserService)
+                )
+            )
+
                 .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -153,8 +163,8 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOrigins(List.of(
-                "http://localhost:3000",
-                "https://www.beanspot.shop",
+            "http://localhost:3000",
+            "https://www.beanspot.shop",
             "http://localhost:5173",
             "https://api.beanspot.shop"
         ));

@@ -5,6 +5,8 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.req.PaymentConfirmReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.dto.res.PaymentRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.exception.PaymentException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.payment.service.PaymentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.Map;
 
+@Tag(name = "Payment", description = "Payment Controller")
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -27,6 +30,9 @@ public class PaymentController {
 	/**
 	 * 결제 성공 시 처리
 	 */
+	@Operation(
+			summary = "결제 성공",
+			description = "결제 성공")
 	@GetMapping("/success")
 	public ResponseEntity<?> tossPaymentSuccess(
 		@RequestParam String paymentKey,
@@ -48,6 +54,9 @@ public class PaymentController {
 	/**
 	 * 결제 실패 시 처리
 	 */
+	@Operation(
+			summary = "결제 실패",
+			description = "결제 실패")
 	@GetMapping("/fail")
 	public ResponseEntity<?> tossPaymentFail(
 		@RequestParam String code,
@@ -71,6 +80,9 @@ public class PaymentController {
 	/**
 	 * 프론트에서 결제 확인 요청
 	 */
+	@Operation(
+			summary = "결제 확인 요청",
+			description = "결제 확인 요청")
 	@PostMapping("/confirm")
 	public ResponseEntity<?> confirmPayment(@RequestBody PaymentConfirmReq request) {
 		try {
@@ -100,6 +112,9 @@ public class PaymentController {
 	 * @author -- 김남우 --
 	 * @since -- 4월 5일 --
 	 */
+	@Operation(
+			summary = "결제 취소",
+			description = "결제 취소")
 	@PostMapping("/cancel")
 	public ResponseEntity<?> cancelPayment(@RequestBody PaymentCancelReq request) {
 		try {
