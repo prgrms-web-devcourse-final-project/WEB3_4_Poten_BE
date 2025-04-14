@@ -18,6 +18,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin")
+@Tag(name = "Admin", description = "Admin Login")
 public class AdminLoginController {
 
 	private final MemberRepository memberRepository;
