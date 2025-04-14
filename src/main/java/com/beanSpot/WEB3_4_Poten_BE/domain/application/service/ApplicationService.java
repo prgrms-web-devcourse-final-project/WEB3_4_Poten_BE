@@ -25,8 +25,6 @@ public class ApplicationService {
 	private final ApplicationRepository applicationRepository;
 	private final CafeRepository cafeRepository;
 	private final MemberRepository memberRepository;
-	// private final UserRepository userRepository;
-
 
 	@Transactional
 	public ApplicationRes createApplication(ApplicationReq request, Long memberId) {
