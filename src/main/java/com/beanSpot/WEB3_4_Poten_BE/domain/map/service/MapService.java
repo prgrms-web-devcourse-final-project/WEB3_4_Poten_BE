@@ -79,7 +79,7 @@ public class MapService {
     /**
      * 카카오 장소 검색 API를 호출하여 카페 정보를 가져옴
      */
-    private List<KakaoPlaceDocument> fetchCafesFromKakao(double x, double y, int page) {
+    public List<KakaoPlaceDocument> fetchCafesFromKakao(double x, double y, int page) {
         String apiUrl = String.format(
                 "%s?query=%s&x=%f&y=%f&radius=%d&category_group_code=%s&size=%d&page=%d",
                 kakaoPlaceUrl, "cafe", x, y, 2000, "CE7", 15, page
