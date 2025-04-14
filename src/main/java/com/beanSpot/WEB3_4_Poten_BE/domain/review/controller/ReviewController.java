@@ -33,34 +33,31 @@ public class ReviewController {
 	private final ReviewService reviewService;
 	private final MemberRepository memberRepository;
 
-/*	@Operation(
-		summary = "리뷰 추가",
-		description = "리뷰를 추가합니다.")
-	//추후 인증 방식에 따라서 수정 필요.
-	@PostMapping
-	public ResponseEntity<ReviewRes> addReview(@PathVariable Long cafeId, @RequestBody ReviewCreateReq request) {
-		request = new ReviewCreateReq(request.userId(), cafeId, request.rating(), request.comment());
-		ReviewRes reviewRes = reviewService.addReview(request,1L);
-		return ResponseEntity.ok(reviewRes);
-		// TODO: 인증 구현 후 userId는 RequestBody에서 제거하고 SecurityContext에서 가져오기
-	}*/
-
 	@Operation(
-		summary = "카페 수정",
+		summary = "리뷰 수정",
 		description = "리뷰를 수정합니다")
 	@PutMapping("/{reviewId}")
-	public ResponseEntity<ReviewRes> updateReview(@PathVariable Long cafeId, @PathVariable Long reviewId,
-		@RequestBody ReviewUpdateReq request) {
-		ReviewRes reviewRes = reviewService.updateReview(reviewId, request);
+	public ResponseEntity<ReviewRes> updateReview(
+		@PathVariable Long cafeId,
+		@PathVariable Long reviewId,
+		@RequestBody ReviewUpdateReq request,
+		@AuthenticationPrincipal SecurityUser securityUser
+	) {
+		Long userId = securityUser.getMember().getId();
+		ReviewRes reviewRes = reviewService.updateReview(reviewId, userId, request);
 		return ResponseEntity.ok(reviewRes);
 	}
 
 	@Operation(
 		summary = "리뷰 삭제",
 		description = "리뷰를 삭제합니다")
-	@DeleteMapping("/{reviewId}")
-	public ResponseEntity<Void> deleteReview(@PathVariable Long cafeId, @PathVariable Long reviewId) {
-		reviewService.deleteReview(reviewId);
+	public ResponseEntity<Void> deleteReview(
+		@PathVariable Long cafeId,
+		@PathVariable Long reviewId,
+		@AuthenticationPrincipal SecurityUser securityUser
+	) {
+		Long userId = securityUser.getMember().getId();
+		reviewService.deleteReview(reviewId, userId);
 		return ResponseEntity.noContent().build();
 	}
 

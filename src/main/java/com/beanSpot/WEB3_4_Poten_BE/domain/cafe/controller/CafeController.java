@@ -37,8 +37,13 @@ public class CafeController {
 		summary = "카페 수정",
 		description = "카페를 수정합니다. 이름, 주소, 전화번호, 설명, 이미지 데이터를 넘겨받습니다.")
 	@PutMapping("/{id}")
-	public ResponseEntity<CafeInfoRes> updateCafe(@PathVariable Long id, @RequestBody CafeUpdateReq request) {
-		CafeInfoRes updatedCafe = cafeService.updateCafe(id, request);
+	public ResponseEntity<CafeInfoRes> updateCafe(
+		@PathVariable Long id,
+		@RequestBody CafeUpdateReq request,
+		@AuthenticationPrincipal SecurityUser securityUser
+	) {
+		Long userId = securityUser.getMember().getId();
+		CafeInfoRes updatedCafe = cafeService.updateCafe(id, userId, request);
 		return ResponseEntity.ok(updatedCafe);
 	}
 
@@ -63,8 +68,12 @@ public class CafeController {
 		summary = "카페 삭제",
 		description = "카페를 삭제합니다.")
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteCafe(@PathVariable Long id) {
-		cafeService.deleteCafe(id);
+	public ResponseEntity<Void> deleteCafe(
+		@PathVariable Long id,
+		@AuthenticationPrincipal SecurityUser securityUser
+	) {
+		Long userId = securityUser.getMember().getId();
+		cafeService.deleteCafe(id, userId);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 

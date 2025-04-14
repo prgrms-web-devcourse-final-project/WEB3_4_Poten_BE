@@ -97,17 +97,19 @@ public class CafeService {
 	}
 
 	@Transactional
-	public CafeInfoRes updateCafe(Long id, CafeUpdateReq request) {
-		Cafe cafe = cafeRepository.findById(id)
-			.orElseThrow(() -> new CafeNotFoundException(id));
+	public CafeInfoRes updateCafe(Long cafeId, Long userId, CafeUpdateReq request) {
+		Cafe cafe = cafeRepository.findById(cafeId)
+			.orElseThrow(() -> new CafeNotFoundException(cafeId));
+
+		if (!cafe.getOwner().getId().equals(userId)) {
+			throw new ServiceException(403, "본인이 등록한 카페만 수정할 수 있습니다.");
+		}
 
 		cafe.update(request);
-
 		String imageUrl = s3Service.getFileUrl(cafe.getImageFilename());
 		return CafeInfoRes.fromEntity(cafe, imageUrl);
 	}
 
-	//일단 CafeInfoRes dto 활용, 추후 필요에 따라 변경 가능
 	@Transactional
 	public List<CafeInfoRes> searchCafe(String keyword) {
 		if (keyword == null || keyword.trim().isEmpty()) {
@@ -122,14 +124,15 @@ public class CafeService {
 	}
 
 	@Transactional
-	public void deleteCafe(Long cafeId) {
+	public void deleteCafe(Long cafeId, Long userId) {
 		Cafe cafe = cafeRepository.findById(cafeId)
 			.orElseThrow(() -> new CafeNotFoundException(cafeId));
 
-		// Application 삭제
-		applicationRepository.delete(cafe.getApplication());
+		if (!cafe.getOwner().getId().equals(userId)) {
+			throw new ServiceException(403, "본인이 등록한 카페만 삭제할 수 있습니다.");
+		}
 
-		// Cafe soft delete 처리
+		applicationRepository.delete(cafe.getApplication());
 		cafe.disable();
 	}
 

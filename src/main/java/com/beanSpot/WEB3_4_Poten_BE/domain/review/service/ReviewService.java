@@ -53,9 +53,13 @@ public class ReviewService {
 	}
 
 	@Transactional
-	public ReviewRes updateReview(Long reviewId, ReviewUpdateReq request) {
+	public ReviewRes updateReview(Long reviewId, Long userId, ReviewUpdateReq request) {
 		Review review = reviewRepository.findById(reviewId)
 			.orElseThrow(() -> new ReviewNotFoundException(reviewId));
+
+		if (!review.getMember().getId().equals(userId)) {
+			throw new ServiceException(403, "본인이 작성한 리뷰만 수정할 수 있습니다.");
+		}
 
 		review.updateReview(
 			request.rating(),
@@ -64,9 +68,13 @@ public class ReviewService {
 		return ReviewRes.fromEntity(review);
 	}
 
-	public void deleteReview(Long reviewId) {
+	public void deleteReview(Long reviewId,Long userId) {
 		Review review = reviewRepository.findById(reviewId)
 			.orElseThrow(() -> new ReviewNotFoundException(reviewId));
+
+		if (!review.getMember().getId().equals(userId)) {
+			throw new ServiceException(403, "본인이 작성한 리뷰만 삭제할 수 있습니다.");
+		}
 
 		reviewRepository.delete(review);
 	}
