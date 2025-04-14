@@ -57,7 +57,6 @@ public class ReservationController implements ReservationApi{
     @Override
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<Void> deleteReservation(
-            @Valid @RequestBody ReservationPostReq dto,
             @PathVariable Long reservationId,
             @AuthenticationPrincipal SecurityUser user
     ) {
