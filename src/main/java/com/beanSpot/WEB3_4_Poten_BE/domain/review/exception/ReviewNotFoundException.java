@@ -1,7 +1,9 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.review.exception;
 
-public class ReviewNotFoundException extends RuntimeException {
+import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
+
+public class ReviewNotFoundException extends ServiceException {
 	public ReviewNotFoundException(Long id) {
-		super("리뷰를 찾을 수 없습니다. ID:" + id);
+		super(404, "리뷰를 찾을 수 없습니다. ID:" + id);
 	}
 }

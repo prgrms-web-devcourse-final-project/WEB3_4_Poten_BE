@@ -270,8 +270,7 @@ public class InitializerService implements ApplicationRunner {
 
 	private void addReviewIfNotExists(Member member, Cafe cafe, int rating, String comment) {
 		// 기존 리뷰가 있는지 확인
-		boolean hasExistingReview = reviewRepository.findByCafe(cafe).stream()
-			.anyMatch(review -> review.getMember().getId().equals(member.getId()));
+		boolean hasExistingReview = reviewRepository.existsByCafeAndMember(cafe, member);
 
 		if (!hasExistingReview) {
 			Review review = Review.builder()
