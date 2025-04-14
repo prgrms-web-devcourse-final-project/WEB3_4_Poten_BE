@@ -5,6 +5,12 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.function.Supplier;
 
+/**
+ * 트랜잭션 처리를 도와주는 유틸리티 클래스
+ *
+ * @author -- 김남우 --
+ * @since -- 4월 12일 --
+ */
 @Component
 public class TransactionHelper {
 

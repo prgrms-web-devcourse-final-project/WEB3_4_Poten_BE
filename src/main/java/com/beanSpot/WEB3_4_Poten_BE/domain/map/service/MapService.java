@@ -77,7 +77,7 @@ public class MapService {
     }
 
     /**
-     * 카카오 장소 검색 API를 호출하여 카페 정보를 가져옵니다.
+     * 카카오 장소 검색 API를 호출하여 카페 정보를 가져옴
      */
     private List<KakaoPlaceDocument> fetchCafesFromKakao(double x, double y, int page) {
         String apiUrl = String.format(
