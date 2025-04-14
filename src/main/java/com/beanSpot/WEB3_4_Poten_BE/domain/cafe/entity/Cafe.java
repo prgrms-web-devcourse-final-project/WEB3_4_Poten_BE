@@ -1,26 +1,12 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity;
 
-import java.time.LocalDateTime;
-
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
+import jakarta.persistence.*;
+import lombok.*;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
 @Entity
 @Builder
@@ -37,9 +23,8 @@ public class Cafe {
 	@JoinColumn(name = "owner_id")
 	private Member owner;
 
-
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "application_id", nullable = false, unique = true)
+	@JoinColumn(name = "application_id", unique = true)
 	private Application application;
 
 	@Column(nullable = false)
@@ -66,10 +51,10 @@ public class Cafe {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
-	@Column(name = "image_filename", nullable = true)
+	@Column(name = "image_filename", columnDefinition = "TEXT")
 	private String imageFilename;
 
-	@Column(nullable = false)
+	@Column
 	private int capacity;
 
 	@Column(nullable = false)

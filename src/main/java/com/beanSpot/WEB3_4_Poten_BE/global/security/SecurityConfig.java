@@ -94,6 +94,10 @@ public class SecurityConfig {
                         //.requestMatchers("/reservations/**").authenticated()
                         .requestMatchers("/reservations/**").permitAll()
 
+                        // 즐겨찾기, 지도 추가
+                        .requestMatchers("/favorite/**").authenticated()
+                        .requestMatchers("/map/**").permitAll()
+
                         //테스트환경용 추가
                         .requestMatchers("/api/cafe-application/**").permitAll()
                         .requestMatchers("/api/auth/me/**").permitAll()
