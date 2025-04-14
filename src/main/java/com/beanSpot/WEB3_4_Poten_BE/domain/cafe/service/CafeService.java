@@ -79,10 +79,9 @@ public class CafeService {
 	}
 
 	@Transactional
-	public List<CafeInfoRes> getCafeList() {
-		return cafeRepository.findAllByDisabledFalse().stream()
-			.map(cafe -> CafeInfoRes.fromEntity(cafe, s3Service.getFileUrl(cafe.getImageFilename())))
-			.collect(Collectors.toList());
+	public Page<CafeInfoRes> getCafeList(Pageable pageable) {
+		return cafeRepository.findAllByDisabledFalse(pageable)
+			.map(cafe -> CafeInfoRes.fromEntity(cafe, s3Service.getFileUrl(cafe.getImageFilename())));
 	}
 
 	@Transactional

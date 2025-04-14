@@ -2,6 +2,10 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -48,13 +52,19 @@ public class CafeController {
 	}
 
 	@Operation(
-		summary = "카페 리스트 반환",
-		description = "존재하는 카페의 리스트를 반환합니다.")
+		summary = "카페 리스트 (페이징)",
+		description = "존재하는 카페의 리스트를 페이징 형태로 반환합니다. page, size, sort 파라미터를 사용할 수 있습니다."
+	)
 	@GetMapping
-	public List<CafeInfoRes> getCafeList() {
-		return cafeService.getCafeList();
+	public ResponseEntity<Page<CafeInfoRes>> getCafeList(
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size,
+		@RequestParam(defaultValue = "createdAt,desc") String sort
+	) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
+		Page<CafeInfoRes> result = cafeService.getCafeList(pageable);
+		return ResponseEntity.ok(result);
 	}
-
 	@Operation(
 		summary = "카페 검색",
 		description = "주어진 키워드를 기반으로 카페를 검색해 검색된 카페 목록은 카페의 정보를 포함한 리스트로 반환됩니다. 검색은 카페의 이름과 주소로 이루어집니다.")

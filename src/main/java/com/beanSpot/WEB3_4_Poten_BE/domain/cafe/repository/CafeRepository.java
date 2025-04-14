@@ -26,5 +26,7 @@ public interface CafeRepository extends JpaRepository<Cafe, Long> {
 
 	@Query("SELECT c FROM Cafe c LEFT JOIN FETCH c.owner WHERE c.disabled = false")
 	Page<Cafe> findAllByDisabledFalseWithOwner(Pageable pageable);
+
+	Page<Cafe> findAllByDisabledFalse(Pageable pageable);
 }
 
