@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
@@ -79,14 +81,13 @@ public class ReviewService {
 		reviewRepository.delete(review);
 	}
 
-	public List<ReviewRes> getReviewsByCafeId(Long cafeId) {
+	@Transactional
+	public Page<ReviewRes> getReviewsByCafeId(Long cafeId, Pageable pageable) {
 		Cafe cafe = cafeRepository.findById(cafeId)
 			.orElseThrow(() -> new CafeNotFoundException(cafeId));
 
-		List<Review> reviews = reviewRepository.findByCafe(cafe);
-		return reviews.stream()
-			.map(ReviewRes::fromEntity)
-			.collect(Collectors.toList());
-	}
+		Page<Review> reviews = reviewRepository.findByCafe(cafe, pageable);
 
+		return reviews.map(ReviewRes::fromEntity);
+	}
 }

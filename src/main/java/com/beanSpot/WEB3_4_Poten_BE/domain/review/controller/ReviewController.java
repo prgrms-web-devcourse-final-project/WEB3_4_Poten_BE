@@ -2,6 +2,10 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.review.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
@@ -62,11 +67,17 @@ public class ReviewController {
 	}
 
 	@Operation(
-		summary = "카페별 리뷰 조회",
-		description = "카페별 리뷰 리스트들을 반환합니다.")
+		summary = "카페별 리뷰 리스트 조회 (페이징)",
+		description = "카페별 리뷰 리스트를 페이징으로 반환합니다. page, size 파라미터를 사용할 수 있습니다."
+	)
 	@GetMapping
-	public ResponseEntity<List<ReviewRes>> getReviewsByCafe(@PathVariable Long cafeId) {
-		List<ReviewRes> reviews = reviewService.getReviewsByCafeId(cafeId);
+	public ResponseEntity<Page<ReviewRes>> getReviewsByCafe(
+		@PathVariable Long cafeId,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "5") int size
+	) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
+		Page<ReviewRes> reviews = reviewService.getReviewsByCafeId(cafeId, pageable);
 		return ResponseEntity.ok(reviews);
 	}
 

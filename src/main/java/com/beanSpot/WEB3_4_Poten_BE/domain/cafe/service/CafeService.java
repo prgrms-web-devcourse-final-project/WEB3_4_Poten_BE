@@ -89,10 +89,8 @@ public class CafeService {
 		Cafe cafe = cafeRepository.findBycafeIdAndDisabledFalse(cafeId)
 			.orElseThrow(() -> new CafeNotFoundException(cafeId));
 
-		List<Review> review = reviewRepository.findByCafe(cafe);
-
 		String imageUrl = s3Service.getFileUrl(cafe.getImageFilename());
-		return CafeDetailRes.fromEntity(cafe, imageUrl, review);
+		return CafeDetailRes.fromEntity(cafe, imageUrl);
 	}
 
 	@Transactional

@@ -89,7 +89,8 @@ public class CafeController {
 
 	@Operation(
 		summary = "카페 상세 조회",
-		description = "카페의 상세 정보를 조회합니다.")
+		description = "카페의 상세 정보를 조회합니다."
+	)
 	@GetMapping("/{id}")
 	public ResponseEntity<CafeDetailRes> getCafeDetail(@PathVariable Long id) {
 		CafeDetailRes cafeDetailRes = cafeService.getCafeDetail(id);
