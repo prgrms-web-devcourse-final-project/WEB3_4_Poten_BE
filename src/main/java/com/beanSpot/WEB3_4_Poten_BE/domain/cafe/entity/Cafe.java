@@ -88,6 +88,9 @@ public class Cafe {
 		if (request.description() != null) {
 			this.description = request.description();
 		}
+		if (request.description() != null) {
+			this.capacity = request.capacity();
+		}
 		if (request.imageFilename() != null) {
 			this.imageFilename = request.imageFilename();
 		}

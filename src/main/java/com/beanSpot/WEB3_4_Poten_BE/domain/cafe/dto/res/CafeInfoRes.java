@@ -19,6 +19,7 @@ public record CafeInfoRes(
 	Double longitude,
 	String phone,
 	String description,
+	int capacity,
 	LocalDateTime createdAt,
 	LocalDateTime updatedAt,
 	String image
@@ -35,6 +36,7 @@ public record CafeInfoRes(
 			.longitude(cafe.getLongitude())
 			.phone(cafe.getPhone())
 			.description(cafe.getDescription())
+			.capacity(cafe.getCapacity())
 			.createdAt(cafe.getCreatedAt())
 			.updatedAt(cafe.getUpdatedAt())
 			.image(imageUrl)
