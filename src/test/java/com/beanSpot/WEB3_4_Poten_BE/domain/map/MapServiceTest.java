@@ -18,7 +18,7 @@ public class MapServiceTest {
     private MapService mapService;
 
     @Test
-    public void testFetchCafesFromKakao() {
+    public void Fetch_카카오_API_테스트() {
         List<KakaoPlaceDocument> cafes = mapService.fetchCafesFromKakao(128.9783, 35.1627, 1);
         
         assertNotNull(cafes);
