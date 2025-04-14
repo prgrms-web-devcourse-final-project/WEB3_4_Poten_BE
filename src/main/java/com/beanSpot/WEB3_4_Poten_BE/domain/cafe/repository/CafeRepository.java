@@ -31,5 +31,7 @@ public interface CafeRepository extends JpaRepository<Cafe, Long> {
 	Page<Cafe> findAllByDisabledFalse(Pageable pageable);
 
 	Page<Cafe> findByOwnerAndDisabledFalse(Member owner, Pageable pageable);
+
+	List<Cafe> findByOwnerId(Long ownerId);
 }
 

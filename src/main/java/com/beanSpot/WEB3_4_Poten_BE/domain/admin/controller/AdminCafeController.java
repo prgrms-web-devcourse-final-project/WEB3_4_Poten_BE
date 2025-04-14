@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin")
-@Tag(name = "Admin", description = "Admin CafeC ontroller")
+@Tag(name = "Admin", description = "Admin Cafe Controller")
 public class AdminCafeController {
 
 	private final CafeAdminService cafeAdminService;
