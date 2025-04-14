@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin")
-@Tag(name = "Admin", description = "Admin Login")
+@Tag(name = "Admin-Auth", description = "관리자 인증 API")
 public class AdminLoginController {
 
 	private final MemberRepository memberRepository;
