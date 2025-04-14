@@ -24,7 +24,7 @@ public class ReservationController implements ReservationApi{
     @Override
     @PostMapping("/{cafeId}")
     public ResponseEntity<ReservationPostRes> createReservation(
-            @RequestParam Long cafeId,
+            @PathVariable Long cafeId,
             @Valid @RequestBody ReservationPostReq dto,
             @AuthenticationPrincipal SecurityUser user
     ) {
