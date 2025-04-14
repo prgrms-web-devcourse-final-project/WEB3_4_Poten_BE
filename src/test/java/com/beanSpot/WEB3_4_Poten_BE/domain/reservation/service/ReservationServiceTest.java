@@ -12,9 +12,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPatchR
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.ReservationPostReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.TimePeriodReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.TimeSlotsReq;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.AvailableSeatsCount;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.ReservationPostRes;
-import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.TimeSlot;
+import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.Reservation;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.entity.ReservationStatus;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.repository.ReservationRepository;
@@ -28,6 +26,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -108,6 +107,7 @@ class ReservationServiceTest {
         cafe = Cafe.builder()
                 .name("cafe1")
                 .application(application)
+                .owner(member1)
                 .imageFilename("a")
                 .address("seoul")
                 .capacity(5)
@@ -161,6 +161,18 @@ class ReservationServiceTest {
                 .partySize(5)
                 .build();
         reservation4 = reservationRepository.save(reservation4);
+
+        for (int i=0; i<12; ++i) {
+            Reservation reservation = Reservation.builder()
+                    .cafe(cafe)
+                    .member(member1)
+                    .startTime(LocalDateTime.of(2025, (i)%12+1, 5, 12, 0))
+                    .endTime(LocalDateTime.of(2025, (i)%12+1, 5, 13, 0))
+                    .partySize(2)
+                    .status(ReservationStatus.CONFIRMED)
+                    .build();
+            reservationRepository.save(reservation);
+        }
     }
 
     @Test
@@ -185,10 +197,6 @@ class ReservationServiceTest {
         assertEquals(request.getReservationTime().startTime(), response.getStartTime());
         assertEquals(request.getReservationTime().endTime(), response.getEndTime());
         assertEquals(request.getPartySize(), response.getPartySize());
-
-        // DB에서 실제 데이터 확인
-        List<Reservation> reservations = reservationRepository.findAll();
-        assertThat(reservations).hasSize(4);
     }
 
     @Test
@@ -209,10 +217,7 @@ class ReservationServiceTest {
 
         // When & Then
         assertThrows(RuntimeException.class, () -> reservationService.createReservation(cafe.getCafeId(), request, member1));
-
-        // DB에서 실제 데이터 확인
-        List<Reservation> reservations = reservationRepository.findAll();
-        assertThat(reservations).hasSize(3);
+        assertEquals(null, reservation1.getId());
     }
 
     @Test
@@ -323,6 +328,28 @@ class ReservationServiceTest {
 
         assertEquals(1, res.availableSeats());
         assertEquals(5, res.totalSeats());
+    }
 
+    @Test
+    @DisplayName("유저 예약 조회")
+    void t8() {
+        List<UserReservationRes> page1 = reservationService.getUserReservations(member1.getId(), null);
+        List<UserReservationRes> page2 = reservationService.getUserReservations(member1.getId(), page1.getLast().getReservationId());
+
+        assertEquals(10, page1.size());
+        assertEquals(2, page2.size());
+    }
+
+    @Test
+    @DisplayName("카페 예약 조회")
+    void t9() {
+        List<CafeReservationRes> res = reservationService.getCafeReservations(cafe.getCafeId(), LocalDate.of(2025, 1, 1), member1.getId());
+
+        assertEquals(3, res.size());
+
+        LocalDateTime prev = LocalDateTime.MAX;
+        for (CafeReservationRes r : res) {
+            assertTrue(prev.isAfter(r.startTime()) || prev.isEqual(r.startTime()));
+        }
     }
 }

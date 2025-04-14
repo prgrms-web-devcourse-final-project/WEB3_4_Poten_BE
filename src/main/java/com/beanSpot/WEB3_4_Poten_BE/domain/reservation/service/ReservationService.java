@@ -183,12 +183,12 @@ public class ReservationService {
 
     //특정 카페의 예약 조회 (날짜 기준 필터링)
     @Transactional(readOnly = true)
-    public List<CafeReservationRes> getCafeReservations(Long cafeId, LocalDate date, Long memberId) {
+    public List<CafeReservationRes> getCafeReservations(Long cafeId, LocalDate date, Long ownerId) {
 
         Cafe cafe = cafeRepository.findById(cafeId)
                 .orElseThrow(() -> new ServiceException(400, "해당 카페가 존재하지 않습니다"));
 
-        if (!memberId.equals(cafe.getOwner().getId())) {
+        if (!ownerId.equals(cafe.getOwner().getId())) {
             throw new ServiceException(400, "해당 카페의 접근권한이 없습니다");
         }
 

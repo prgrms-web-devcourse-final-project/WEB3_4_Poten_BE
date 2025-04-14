@@ -10,7 +10,8 @@ import lombok.Builder;
 @Builder
 public record CafeReservationRes(
 	Long id,
-	//String username, 유저 관련정보 추후 추가하기
+	String name,
+	String phoneNumber,
 	LocalDateTime startTime,
 	LocalDateTime endTime,
 	ReservationStatus status,
@@ -21,6 +22,8 @@ public record CafeReservationRes(
 	public static CafeReservationRes from(Reservation reservation) {
 		return CafeReservationRes.builder()
 			.id(reservation.getId())
+				.name(reservation.getMember().getName())
+				.phoneNumber(reservation.getMember().getPhoneNumber())
 			.startTime(reservation.getStartTime())
 			.endTime(reservation.getEndTime())
 			.status(reservation.getStatus())
