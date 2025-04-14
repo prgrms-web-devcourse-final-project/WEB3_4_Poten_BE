@@ -36,7 +36,6 @@ public interface ReservationApi {
 
     @Operation(summary = "예약취소")
     public ResponseEntity<Void> deleteReservation(
-            ReservationPostReq dto,
             Long reservationId,
             SecurityUser user
     );
