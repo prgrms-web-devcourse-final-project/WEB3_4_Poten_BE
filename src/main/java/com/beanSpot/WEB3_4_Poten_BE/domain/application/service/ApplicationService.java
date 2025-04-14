@@ -38,6 +38,7 @@ public class ApplicationService {
 			.name(request.name())
 			.address(request.address())
 			.phone(request.phone())
+			.capacity(request.capacity())
 			.status(Status.PENDING)
 			.createdAt(LocalDateTime.now())
 			.build();

@@ -80,7 +80,7 @@ public class AdminService {
 				.createdAt(LocalDateTime.now())
 				.updatedAt(LocalDateTime.now())
 				.imageFilename("default-cafe.jpg") // 기본 이미지 (추후 업데이트 필요)
-				.capacity(20) // 기본 수용 인원 (추후 업데이트 필요)
+				.capacity(application.getCapacity()) // 기본 수용 인원 (추후 업데이트 필요)
 				.disabled(false)
 				.build();
 

@@ -10,6 +10,9 @@ public record ApplicationReq(
 	String address,
 
 	@NotEmpty
-	String phone
+	String phone,
+
+	@NotEmpty
+	int capacity
 ) {
 }
