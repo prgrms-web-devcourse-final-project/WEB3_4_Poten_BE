@@ -118,4 +118,14 @@ public class ReservationController implements ReservationApi{
         List<CafeReservationRes> res = reservationService.getCafeReservations(cafeId, date, user.getId());
         return ResponseEntity.ok(res);
     }
+
+    @Override
+    @GetMapping("/owner")
+    public ResponseEntity<List<CafeReservationRes>> getOwnerReservations(
+        @RequestParam LocalDate date,
+        @AuthenticationPrincipal SecurityUser user
+    ) {
+        List<CafeReservationRes> reservations = reservationService.getOwnerReservations(date, user.getMember().getId());
+        return ResponseEntity.ok(reservations);
+    }
 }

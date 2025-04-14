@@ -72,4 +72,10 @@ public interface ReservationApi {
             LocalDate date,
             SecurityUser user
     );
+
+    @Operation(summary = "점주의 카페 예약 조회", description = "점주가 소유한 카페들의 예약을 날짜 기준으로 조회합니다.")
+    public ResponseEntity<List<CafeReservationRes>> getOwnerReservations(
+        LocalDate date,
+        SecurityUser user
+    );
 }
