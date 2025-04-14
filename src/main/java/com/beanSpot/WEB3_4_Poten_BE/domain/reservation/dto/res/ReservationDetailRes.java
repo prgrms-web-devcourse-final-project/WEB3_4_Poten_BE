@@ -9,8 +9,6 @@ import java.time.LocalDateTime;
 @Builder
 public record ReservationDetailRes(
         Long id,
-        //String username,
-        //String userId
         Long cafeId,
         String cafeName,
         String cafeAddress,

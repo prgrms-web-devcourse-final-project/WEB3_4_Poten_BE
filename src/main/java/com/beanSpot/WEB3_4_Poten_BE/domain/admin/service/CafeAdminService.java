@@ -15,6 +15,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.review.repository.ReviewRepository;
 import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
 
 import lombok.RequiredArgsConstructor;
@@ -23,11 +24,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AdminService {
+public class CafeAdminService {
 
 	private final MemberRepository memberRepository;
 	private final ApplicationService applicationService;
 	private final ApplicationRepository applicationRepository;
+	private final ReviewRepository reviewRepository;
 	private final CafeRepository cafeRepository;
 
 	// 대기 중인 신청 목록 조회
@@ -101,22 +103,4 @@ public class AdminService {
 		return applicationService.rejectCafe(applicationId);
 	}
 
-	// 전체 회원 목록 조회
-	public List<Member> getAllMembers() {
-		log.info("전체 회원 목록 조회");
-		return memberRepository.findAll();
-	}
-
-	// 회원 유형별 목록 조회
-	public List<Member> getMembersByType(Member.MemberType memberType) {
-		log.info("회원 유형별 목록 조회: {}", memberType);
-		return memberRepository.findByMemberType(memberType);
-	}
-
-	// 회원 상세 정보 조회
-	public Member getMemberById(Long memberId) {
-		log.info("회원 상세 정보 조회: ID={}", memberId);
-		return memberRepository.findById(memberId)
-			.orElseThrow(() -> new ServiceException(400, "회원을 찾을 수 없습니다."));
-	}
 }

@@ -3,6 +3,7 @@ package com.beanSpot.WEB3_4_Poten_BE.global.init;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -231,6 +232,9 @@ public class InitializerService implements ApplicationRunner {
 			.build();
 
 		// 양방향 관계 설정을 위해 owner의 ownedCafes에 카페 추가
+		if (owner.getOwnedCafes() == null) {
+			owner.setOwnedCafes(new ArrayList<>());
+		}
 		owner.getOwnedCafes().add(cafe);
 		memberRepository.save(owner); // 변경된 owner 저장
 

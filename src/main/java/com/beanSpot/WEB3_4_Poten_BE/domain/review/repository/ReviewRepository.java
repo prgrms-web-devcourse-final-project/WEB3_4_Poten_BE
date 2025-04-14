@@ -16,4 +16,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 	Page<Review> findByCafe(Cafe cafe, Pageable pageable);
 
 	boolean existsByCafeAndMember(Cafe cafe, Member member);
+
+	List<Review> findByCafe(Cafe cafe);
+
+	List<Review> findByMemberId(Long memberId);
+
+	List<Review> findByMember(Member member);
+
+	void deleteByIdIn(List<Long> reviewIds);
 }
