@@ -6,9 +6,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
+import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.entity.Review;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 	List<Review> findByCafe(Cafe cafe);
+	List<Review> findByMemberId(Long memberId);
+
+	List<Review> findByMember(Member member);
+
+	void deleteByIdIn(List<Long> reviewIds);
 }
