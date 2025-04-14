@@ -1,6 +1,7 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 public record CafeUpdateReq(
 	@NotEmpty
@@ -14,6 +15,9 @@ public record CafeUpdateReq(
 
 	@NotEmpty
 	String description,
+
+	@NotNull
+	int capacity,
 
 	@NotEmpty
 	String imageFilename

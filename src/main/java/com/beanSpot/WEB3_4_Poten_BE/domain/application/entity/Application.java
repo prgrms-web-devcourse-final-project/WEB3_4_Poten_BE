@@ -14,6 +14,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -48,13 +49,16 @@ public class Application {
 	@Column(nullable = false)
 	private String phone;
 
+	@Column(nullable = false)
+	private int capacity;
+
 	@Enumerated(EnumType.STRING)
 	private Status status = Status.PENDING;
 
 	@Column(nullable = false)
 	private LocalDateTime createdAt;
 
-	@OneToOne
+	@ManyToOne
 	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
 
@@ -64,5 +68,9 @@ public class Application {
 
 	public void reject() {
 		this.status = Status.REJECTED;
+	}
+
+	public Long getUserId() {
+		return member != null ? member.getId() : null;
 	}
 }

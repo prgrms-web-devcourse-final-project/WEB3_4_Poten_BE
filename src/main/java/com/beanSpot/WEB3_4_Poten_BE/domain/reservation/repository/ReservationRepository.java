@@ -34,27 +34,40 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         AND (r.startTime < :endTime)
         AND (r.endTime > :startTime)
         AND (r.valid = true)
-        AND (:reservationId IS NULL OR :reservationId != r.id)
     """;
+
+    String SELECT_OVERLAPPING_RESERVATIONS_UPDATE =
+            SELECT_OVERLAPPING_RESERVATIONS +
+            """
+            AND (:reservationId IS NULL OR :reservationId != r.id)
+            """;
 
     // 락이 없는 버전
     @Query(SELECT_OVERLAPPING_RESERVATIONS)
     List<Reservation> getOverlappingReservations(
             @Param("cafeId") long cafeId,
             @Param("startTime") LocalDateTime startTime,
-            @Param("endTime") LocalDateTime endTime,
-            @Param("reservationId") Long reservationIdForUpdate
+            @Param("endTime") LocalDateTime endTime
     );
+
 
     // 락이 있는 버전
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query(SELECT_OVERLAPPING_RESERVATIONS)
+    @Query(SELECT_OVERLAPPING_RESERVATIONS_UPDATE)
     List<Reservation> getOverlappingReservationsWithLock(
             @Param("cafeId") long cafeId,
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime,
             @Param("reservationId") Long reservationIdForUpdate
     );
+
+    default List<Reservation> getOverlappingReservationsWithLock(
+            Long cafeId,
+            LocalDateTime startTime,
+            LocalDateTime endTime
+    ) {
+        return getOverlappingReservationsWithLock(cafeId, startTime, endTime, null);
+    }
 
     //특정카페 날짜별로 조회
     @Query("""

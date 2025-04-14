@@ -3,6 +3,7 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.application.dto.res;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 
 public record ApplicationRes(
@@ -21,6 +22,9 @@ public record ApplicationRes(
 	@NotEmpty
 	String phone,
 
+	@NotNull
+	int capacity,
+
 	@NotEmpty
 	String status
 ) {
@@ -32,6 +36,7 @@ public record ApplicationRes(
 			application.getName(),
 			application.getAddress(),
 			application.getPhone(),
+			application.getCapacity(),
 			application.getStatus().name()
 		);
 	}

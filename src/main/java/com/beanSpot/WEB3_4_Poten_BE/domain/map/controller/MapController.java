@@ -2,7 +2,6 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.map.controller;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.map.service.MapService;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +19,7 @@ import java.util.List;
  * @author -- 김남우 --
  * @since -- 3월 25일 --
  */
+@Tag(name = "Map", description = "Map Controller")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/map")
@@ -28,6 +28,9 @@ public class MapController {
 
     private final MapService mapService;
 
+    @Operation(
+            summary = "지도 API로 카페 검색 및 저장",
+            description = "지도 API로 카페 검색 및 저장")
     @GetMapping
     public ResponseEntity<List<Cafe>> searchAndSaveCafes(
             @RequestParam double x,

@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.dto.res.ReviewRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.entity.Review;
@@ -17,12 +19,12 @@ public record CafeDetailRes(
 	Double longitude,
 	String phone,
 	String description,
+	int capacity,
 	LocalDateTime createdAt,
 	LocalDateTime updatedAt,
-	String image,
-	List<ReviewRes> reviews
+	String image
 ) {
-	public static CafeDetailRes fromEntity(Cafe cafe, String imageUrl, List<Review> reviews) {
+	public static CafeDetailRes fromEntity(Cafe cafe, String imageUrl) {
 		return new CafeDetailRes(
 			cafe.getCafeId(),
 			cafe.getOwner().getId(),
@@ -32,10 +34,10 @@ public record CafeDetailRes(
 			cafe.getLongitude(),
 			cafe.getPhone(),
 			cafe.getDescription(),
+			cafe.getCapacity(),
 			cafe.getCreatedAt(),
 			cafe.getUpdatedAt(),
-			imageUrl,
-			reviews.stream().map(ReviewRes::fromEntity).collect(Collectors.toList())
+			imageUrl
 		);
 	}
 }

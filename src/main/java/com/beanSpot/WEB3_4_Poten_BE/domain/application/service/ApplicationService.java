@@ -25,8 +25,6 @@ public class ApplicationService {
 	private final ApplicationRepository applicationRepository;
 	private final CafeRepository cafeRepository;
 	private final MemberRepository memberRepository;
-	// private final UserRepository userRepository;
-
 
 	@Transactional
 	public ApplicationRes createApplication(ApplicationReq request, Long memberId) {
@@ -38,6 +36,7 @@ public class ApplicationService {
 			.name(request.name())
 			.address(request.address())
 			.phone(request.phone())
+			.capacity(request.capacity())
 			.status(Status.PENDING)
 			.createdAt(LocalDateTime.now())
 			.build();
@@ -59,6 +58,7 @@ public class ApplicationService {
 		}
 	}
 
+	//아래 3개 메서드는 관리자로 이동
 	public List<ApplicationRes> getPendingRequests() {
 		return applicationRepository.findByStatus(Status.PENDING)
 			.stream()

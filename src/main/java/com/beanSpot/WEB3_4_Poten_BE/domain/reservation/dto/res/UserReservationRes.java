@@ -26,7 +26,7 @@ public class UserReservationRes {
 			.startTime(reservation.getStartTime())
 			.endTime(reservation.getEndTime())
 			.cafeName(reservation.getCafe().getName())
-			//.userName(userName)
+				.cafeId(reservation.getCafe().getCafeId())
 		    .createdAt(reservation.getCreatedAt())
 				.partySize(reservation.getPartySize())
 				.build();

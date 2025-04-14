@@ -57,6 +57,7 @@ public class Member implements UserDetails {
 
 	private String profileImg;
 
+	@Column(nullable = false, unique = true)
 	private String oAuthId;
 
 	private String phoneNumber;
@@ -74,8 +75,8 @@ public class Member implements UserDetails {
 	@LastModifiedDate
 	private LocalDateTime updatedAt;
 
-	@OneToOne(mappedBy = "member")
-	private Application application;
+	@OneToMany(mappedBy = "member")
+	private List<Application> applications = new ArrayList<>();
 
 	@OneToMany(mappedBy = "member")
 	private List<Review> reviews = new ArrayList<>();

@@ -46,3 +46,4 @@ db_dev.trace.db
 
 ### application-secret ###
 /src/main/resources/application-secret.yml
+.DS_Store

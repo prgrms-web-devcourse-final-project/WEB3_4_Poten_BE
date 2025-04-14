@@ -2,17 +2,23 @@ package com.beanSpot.WEB3_4_Poten_BE.domain.map.service;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
+import com.beanSpot.WEB3_4_Poten_BE.domain.map.dto.KakaoImageDocument;
+import com.beanSpot.WEB3_4_Poten_BE.domain.map.dto.KakaoImageResponse;
+import com.beanSpot.WEB3_4_Poten_BE.domain.map.dto.KakaoPlaceDocument;
+import com.beanSpot.WEB3_4_Poten_BE.domain.map.dto.KakaoPlaceResponse;
+import com.beanSpot.WEB3_4_Poten_BE.global.common.TransactionHelper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * -- 지도 서비스 --
@@ -22,10 +28,12 @@ import java.util.Map;
  */
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class MapService {
 
     private final CafeRepository cafeRepository;
     private final RestClient restClient;
+    private final TransactionTemplate transactionTemplate;
 
     @Value("${kakao.key}")
     private String kakaoKey;
@@ -40,41 +48,61 @@ public class MapService {
      * 카카오 API를 호출하여 카페 정보를 검색, Cafe 엔티티로 저장하여 리스트로 반환
      */
     public List<Cafe> searchAndSaveCafes(double x, double y, int page) {
+        return transactionTemplate.execute(status -> {
+            try {
+                List<KakaoPlaceDocument> documents = fetchCafesFromKakao(x, y, page);
+
+                List<Cafe> savedCafes = new ArrayList<>();
+                for (KakaoPlaceDocument doc : documents) {
+                    try {
+                        Cafe cafe = TransactionHelper.execute(() -> saveCafeFromPlaceDocument(doc));
+                        if (cafe != null) {
+                            savedCafes.add(cafe);
+                        }
+                    } catch (Exception e) {
+                        log.warn("카페 저장 실패 - 무시하고 계속 진행: {}", doc.getPlace_name(), e);
+                    }
+                }
+
+                if (savedCafes.isEmpty()) {
+                    throw new RuntimeException("카페 저장에 실패했습니다. 롤백합니다.");
+                }
+
+                return savedCafes;
+            } catch (Exception e) {
+                status.setRollbackOnly();
+                throw e;
+            }
+        });
+    }
+
+    /**
+     * 카카오 장소 검색 API를 호출하여 카페 정보를 가져옴
+     */
+    private List<KakaoPlaceDocument> fetchCafesFromKakao(double x, double y, int page) {
         String apiUrl = String.format(
                 "%s?query=%s&x=%f&y=%f&radius=%d&category_group_code=%s&size=%d&page=%d",
                 kakaoPlaceUrl, "cafe", x, y, 2000, "CE7", 15, page
         );
 
-        // API 요청 및 응답 처리
-        ResponseEntity<Map> response = restClient.get()
+        ResponseEntity<KakaoPlaceResponse> response = restClient.get()
                 .uri(apiUrl)
                 .header("Authorization", "KakaoAK " + kakaoKey)
                 .retrieve()
-                .toEntity(Map.class);
+                .toEntity(KakaoPlaceResponse.class);
 
         if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
             throw new RuntimeException("카카오 API 요청 실패: " + response.getStatusCode());
         }
 
-        // 디버깅용 카카오 API 응답 데이터
-        System.out.println("카카오 API 응답: " + response.getBody());
+        log.debug("카카오 API 응답: {}", response.getBody());
 
-        // documents 리스트 추출
-        List<Map<String, Object>> documents = (List<Map<String, Object>>) response.getBody().get("documents");
+        List<KakaoPlaceDocument> documents = response.getBody().getDocuments();
         if (documents == null || documents.isEmpty()) {
             throw new RuntimeException("조회된 카페 정보가 없습니다.");
         }
 
-        // 응답 데이터 저장
-        List<Cafe> savedCafes = new ArrayList<>();
-        for (Map<String, Object> doc : documents) {
-            Cafe cafe = saveCafeFromApiResponse(doc);
-            if (cafe != null) {
-                savedCafes.add(cafe);
-            }
-        }
-
-        return savedCafes;
+        return documents;
     }
 
     /**
@@ -83,49 +111,43 @@ public class MapService {
     private String searchCafeImage(String address) {
         String apiUrl = String.format("%s?query=%s&size=1", kakaoImageUrl, address);
 
-        ResponseEntity<Map> response = restClient.get()
+        ResponseEntity<KakaoImageResponse> response = restClient.get()
                 .uri(apiUrl)
                 .header("Authorization", "KakaoAK " + kakaoKey)
                 .retrieve()
-                .toEntity(Map.class);
-
-        // 디버깅용 응답 데이터
-        System.out.println("응답: " + response.getBody());
+                .toEntity(KakaoImageResponse.class);
 
         if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
-            System.out.println("이미지 검색 API 요청 실패: " + response.getStatusCode());
+            log.warn("이미지 검색 API 요청 실패: {}", response.getStatusCode());
             return null;
         }
 
-        List<Map<String, Object>> documents = (List<Map<String, Object>>) response.getBody().get("documents");
+        List<KakaoImageDocument> documents = response.getBody().getDocuments();
         if (documents == null || documents.isEmpty()) {
-            System.out.println("이미지 검색 결과 없음: " + address);
+            log.info("이미지 검색 결과 없음: {}", address);
             return null;
         }
 
-        return (String) documents.get(0).get("image_url"); // 첫 번째 이미지 URL 반환
+        return documents.get(0).getImage_url();
     }
 
     /**
      * API 응답 데이터를 Cafe 엔티티로 변환 후 저장
      */
-    private Cafe saveCafeFromApiResponse(Map<String, Object> doc) {
-        String name = (String) doc.get("place_name");
-        String address = (String) doc.get("road_address_name");
-        String phone = (String) doc.get("phone");
-        Double latitude = Double.valueOf(doc.get("y").toString());
-        Double longitude = Double.valueOf(doc.get("x").toString());
+    private Cafe saveCafeFromPlaceDocument(KakaoPlaceDocument doc) {
+        String name = doc.getPlace_name();
+        String address = doc.getRoad_address_name();
+        String phone = doc.getPhone();
+        Double latitude = Double.valueOf(doc.getY());
+        Double longitude = Double.valueOf(doc.getX());
 
-        // 이미 존재하는 카페인지 확인
         if (cafeRepository.existsByNameAndAddress(name, address)) {
-            System.out.println("이미 존재하는 카페: " + name + " (" + address + ")");
+            log.info("이미 존재하는 카페: {} ({})", name, address);
             return null;
         }
 
-        // 이미지 검색 추가
         String imageUrl = searchCafeImage(address);
 
-        // 카페 엔티티 생성
         Cafe cafe = Cafe.builder()
                 .name(name)
                 .address(address)
