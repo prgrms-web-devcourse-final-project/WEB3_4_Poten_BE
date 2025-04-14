@@ -12,7 +12,12 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Status;
@@ -47,22 +52,112 @@ public class InitializerService implements ApplicationRunner {
 	private final ReviewRepository reviewRepository;
 	private final FavoriteRepository favoriteRepository;
 	private final ReservationRepository reservationRepository;
+	private final PlatformTransactionManager transactionManager;
 
 	@Override
-	@Transactional
-	public void run(ApplicationArguments args) throws Exception {
-		initAdminAccount();
-		resetAdminPassword();
-		initTestUsers();
-		createTestCafes();
-		setupTestUserRoles();
-		createAdditionalTestData();
-		generateTestUserTokens();
+	public void run(ApplicationArguments args) {
+		TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+
+		// Check if we already have data
+		if (isInitialized()) {
+			log.info("데이터가 이미 초기화되어 있습니다. 초기화 작업을 건너뜁니다.");
+			generateTestUserTokens(); // Still generate tokens for convenience
+			return;
+		}
+
+		try {
+			// Initialize admin account in its own transaction
+			transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus status) {
+					try {
+						initAdminAccount();
+					} catch (Exception e) {
+						log.error("관리자 계정 초기화 중 오류 발생: {}", e.getMessage(), e);
+						status.setRollbackOnly();
+					}
+				}
+			});
+
+			// Initialize test users in its own transaction
+			transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus status) {
+					try {
+						initTestUsers();
+					} catch (Exception e) {
+						log.error("테스트 사용자 초기화 중 오류 발생: {}", e.getMessage(), e);
+						status.setRollbackOnly();
+					}
+				}
+			});
+
+			// Create test cafes in its own transaction
+			transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus status) {
+					try {
+						createTestCafes();
+					} catch (Exception e) {
+						log.error("테스트 카페 생성 중 오류 발생: {}", e.getMessage(), e);
+						status.setRollbackOnly();
+					}
+				}
+			});
+
+			// Setup test user roles in its own transaction
+			transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus status) {
+					try {
+						setupTestUserRoles();
+					} catch (Exception e) {
+						log.error("테스트 사용자 역할 설정 중 오류 발생: {}", e.getMessage(), e);
+						status.setRollbackOnly();
+					}
+				}
+			});
+
+			// Create additional test data in its own transaction
+			transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus status) {
+					try {
+						createAdditionalTestData();
+					} catch (Exception e) {
+						log.error("추가 테스트 데이터 생성 중 오류 발생: {}", e.getMessage(), e);
+						status.setRollbackOnly();
+					}
+				}
+			});
+
+			// Generate tokens (no transaction needed)
+			generateTestUserTokens();
+
+		} catch (Exception e) {
+			log.error("데이터 초기화 중 오류 발생: {}", e.getMessage(), e);
+		}
 	}
 
-	private void initAdminAccount() {
+	/**
+	 * 이미 초기화가 완료되었는지 확인
+	 */
+	private boolean isInitialized() {
+		// 관리자 계정, 테스트 사용자, 카페 등이 이미 있는지 확인
+		boolean hasAdmin = memberRepository.findByEmailAndMemberType("admin@beanspot.com", Member.MemberType.ADMIN).isPresent();
+		boolean hasTestUsers = memberRepository.findByEmail("test-kakao@example.com").isPresent() &&
+			memberRepository.findByEmail("test-naver@example.com").isPresent() &&
+			memberRepository.findByEmail("test-google@example.com").isPresent();
+		boolean hasCafes = cafeRepository.count() > 0;
+
+		return hasAdmin && hasTestUsers && hasCafes;
+	}
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	protected void initAdminAccount() {
 		if (memberRepository.findByEmailAndMemberType("admin@beanspot.com", Member.MemberType.ADMIN).isPresent()) {
 			log.info("관리자 계정이 이미 존재합니다.");
+			resetAdminPassword();
 			return;
 		}
 
@@ -72,6 +167,8 @@ public class InitializerService implements ApplicationRunner {
 			.password(passwordEncoder.encode("adminPassword"))
 			.oAuthId("admin")
 			.memberType(Member.MemberType.ADMIN)
+			.createdAt(LocalDateTime.now())
+			.updatedAt(LocalDateTime.now())
 			.build();
 
 		memberRepository.save(admin);
@@ -79,7 +176,8 @@ public class InitializerService implements ApplicationRunner {
 	}
 
 	// 기존 관리자 비밀번호 초기화 메서드
-	private void resetAdminPassword() {
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	protected void resetAdminPassword() {
 		memberRepository.findByEmailAndMemberType("admin@beanspot.com", Member.MemberType.ADMIN)
 			.ifPresent(admin -> {
 				admin.setPassword(passwordEncoder.encode("adminPassword"));
@@ -88,7 +186,8 @@ public class InitializerService implements ApplicationRunner {
 			});
 	}
 
-	private void initTestUsers() {
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	protected void initTestUsers() {
 		// 기존 사용자 유지
 		createUserIfNotExists("카카오테스트사용자", "test-kakao@example.com", "oauth-kakao-id-12345",
 			Member.MemberType.USER, Member.SnsType.KAKAO);
@@ -122,7 +221,8 @@ public class InitializerService implements ApplicationRunner {
 			Member.MemberType.USER, Member.SnsType.KAKAO);
 	}
 
-	private Member createUserIfNotExists(String name, String email, String oAuthId,
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	protected Member createUserIfNotExists(String name, String email, String oAuthId,
 		Member.MemberType memberType, Member.SnsType snsType) {
 		Optional<Member> existingMember = memberRepository.findByEmail(email);
 		if (existingMember.isPresent()) {
@@ -145,7 +245,8 @@ public class InitializerService implements ApplicationRunner {
 		return savedMember;
 	}
 
-	private void createTestCafes() {
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	protected void createTestCafes() {
 		// 기존 카페가 있는지 확인
 		if (cafeRepository.count() > 0) {
 			log.info("테스트 카페가 이미 존재합니다.");
@@ -165,13 +266,13 @@ public class InitializerService implements ApplicationRunner {
 				.orElseThrow(() -> new RuntimeException("세 번째 소유자를 찾을 수 없습니다."));
 
 			// 첫 번째 소유자의 신청서 생성
-			Application application1 = createOrGetApplication(owner1, "구글 테스트 카페", "서울시 강남구 테헤란로 123");
+			Application application1 = createOrGetApplication(owner1, "구글 테스트 카페", "서울시 강남구 테헤란로 123", 20);
 
 			// 두 번째 소유자의 신청서 생성
-			Application application2 = createOrGetApplication(owner2, "코딩 카페", "서울시 서초구 반포대로 111");
+			Application application2 = createOrGetApplication(owner2, "코딩 카페", "서울시 서초구 반포대로 111", 30);
 
 			// 세 번째 소유자의 신청서 생성
-			Application application3 = createOrGetApplication(owner3, "북스타 카페", "서울시 강남구 도산대로 222");
+			Application application3 = createOrGetApplication(owner3, "북스타 카페", "서울시 강남구 도산대로 222", 25);
 
 			// 첫 번째 카페 생성
 			Cafe cafe1 = createTestCafe("비앤브레드 카페", "서울시 강남구 역삼동 123-45", "02-1234-5678",
@@ -188,11 +289,12 @@ public class InitializerService implements ApplicationRunner {
 			log.info("테스트 카페 3개가 생성되었습니다.");
 		} catch (Exception e) {
 			log.error("테스트 카페 생성 중 오류 발생: {}", e.getMessage());
-			e.printStackTrace();
+			throw e; // Propagate for transaction rollback
 		}
 	}
 
-	private Application createOrGetApplication(Member owner, String name, String address) {
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	protected Application createOrGetApplication(Member owner, String name, String address, int capacity) {
 		// 해당 멤버의 기존 Application이 있는지 확인
 		Optional<Application> existingApplication = applicationRepository.findByMemberIdAndStatus(owner.getId(), Status.APPROVED);
 		if (existingApplication.isPresent()) {
@@ -206,6 +308,7 @@ public class InitializerService implements ApplicationRunner {
 			.address(address)
 			.phone("02-" + (1000 + owner.getId()) + "-" + (5000 + owner.getId()))
 			.status(Status.APPROVED)  // 이미 승인된 상태로 생성
+			.capacity(capacity)  // 추가된 필드
 			.member(owner)
 			.createdAt(LocalDateTime.now())
 			.build();
@@ -213,8 +316,22 @@ public class InitializerService implements ApplicationRunner {
 		return applicationRepository.save(application);
 	}
 
-	private Cafe createTestCafe(String name, String address, String phone, String description,
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	protected Cafe createTestCafe(String name, String address, String phone, String description,
 		double latitude, double longitude, int capacity, Member owner, Application application) {
+
+		// 이미 존재하는 카페인지 확인
+		boolean cafeExists = cafeRepository.existsByNameAndAddress(name, address);
+		if (cafeExists) {
+			log.info("카페가 이미 존재합니다: {}, {}", name, address);
+			// 기존 카페를 반환하기 위해 조회
+			List<Cafe> existingCafes = cafeRepository.searchByKeywordAndDisabledFalse(name);
+			for (Cafe cafe : existingCafes) {
+				if (cafe.getName().equals(name) && cafe.getAddress().equals(address)) {
+					return cafe;
+				}
+			}
+		}
 
 		// 카페 생성
 		Cafe cafe = Cafe.builder()
@@ -243,7 +360,8 @@ public class InitializerService implements ApplicationRunner {
 		return cafeRepository.save(cafe);
 	}
 
-	private void setupTestUserRoles() {
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	protected void setupTestUserRoles() {
 		try {
 			// 구글 사용자를 카페 소유자로 변경 (기존 로직)
 			Member googleUser = memberRepository.findByEmail("test-google@example.com")
@@ -267,10 +385,12 @@ public class InitializerService implements ApplicationRunner {
 			}
 		} catch (Exception e) {
 			log.error("테스트 사용자 역할 설정 중 오류 발생: {}", e.getMessage());
+			throw e; // Propagate for transaction rollback
 		}
 	}
 
-	private void addReviewIfNotExists(Member member, Cafe cafe, int rating, String comment) {
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	protected void addReviewIfNotExists(Member member, Cafe cafe, int rating, String comment) {
 		// 기존 리뷰가 있는지 확인
 		boolean hasExistingReview = reviewRepository.existsByCafeAndMember(cafe, member);
 
@@ -289,7 +409,8 @@ public class InitializerService implements ApplicationRunner {
 		}
 	}
 
-	private void addFavoriteIfNotExists(Member member, Cafe cafe) {
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	protected void addFavoriteIfNotExists(Member member, Cafe cafe) {
 		try {
 			// 이미 즐겨찾기에 있는지 확인
 			boolean favoriteExists = favoriteRepository.findByMemberAndCafe(member, cafe).isPresent();
@@ -301,10 +422,12 @@ public class InitializerService implements ApplicationRunner {
 			}
 		} catch (Exception e) {
 			log.error("즐겨찾기 추가 중 오류 발생: {}", e.getMessage());
+			throw e; // Propagate for transaction rollback
 		}
 	}
 
-	private void createAdditionalTestData() {
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	protected void createAdditionalTestData() {
 		try {
 			List<Cafe> cafes = cafeRepository.findAll();
 			if (cafes.isEmpty()) {
@@ -330,6 +453,7 @@ public class InitializerService implements ApplicationRunner {
 					.address("서울시 마포구 홍대입구역 123")
 					.phone("02-9876-5432")
 					.status(Status.PENDING)
+					.capacity(15)  // 추가된 필드
 					.member(applicantUser)
 					.createdAt(LocalDateTime.now())
 					.build();
@@ -339,80 +463,102 @@ public class InitializerService implements ApplicationRunner {
 			}
 
 			// 예약 데이터 생성
-			Member reservationUser1 = memberRepository.findByEmail("reservation1@example.com")
-				.orElseThrow(() -> new RuntimeException("예약 사용자 1을 찾을 수 없습니다."));
-
-			Member reservationUser2 = memberRepository.findByEmail("reservation2@example.com")
-				.orElseThrow(() -> new RuntimeException("예약 사용자 2를 찾을 수 없습니다."));
-
-			Member reviewReservationUser = memberRepository.findByEmail("review-reservation@example.com")
-				.orElseThrow(() -> new RuntimeException("리뷰+예약 사용자를 찾을 수 없습니다."));
-
-			// 현재 날짜 기준으로 예약 생성
-			LocalDate today = LocalDate.now();
-			LocalDate tomorrow = today.plusDays(1);
-			LocalDate dayAfterTomorrow = today.plusDays(2);
-			LocalDate yesterday = today.minusDays(1);
-
-			// 첫 번째 카페에 예약 추가
-			Cafe cafe1 = cafes.get(0);
-
-			// 예약 사용자 1의 예약
-			createReservation(reservationUser1, cafe1, today,
-				LocalTime.of(10, 0), LocalTime.of(12, 0), 2, ReservationStatus.CONFIRMED);
-
-			createReservation(reservationUser1, cafe1, tomorrow,
-				LocalTime.of(14, 0), LocalTime.of(16, 0), 3, ReservationStatus.CONFIRMED);
-
-			// 예약 사용자 2의 예약
-			createReservation(reservationUser2, cafe1, today,
-				LocalTime.of(13, 0), LocalTime.of(15, 0), 1, ReservationStatus.CONFIRMED);
-
-			createReservation(reservationUser2, cafe1, dayAfterTomorrow,
-				LocalTime.of(9, 0), LocalTime.of(11, 0), 4, ReservationStatus.CONFIRMED);
-
-			// 두 번째 카페가 있다면
-			if (cafes.size() > 1) {
-				Cafe cafe2 = cafes.get(1);
-
-				// 리뷰+예약 사용자의 예약
-				createReservation(reviewReservationUser, cafe2, today,
-					LocalTime.of(15, 0), LocalTime.of(17, 0), 2, ReservationStatus.CONFIRMED);
-
-				// 리뷰 추가
-				addReviewIfNotExists(reviewReservationUser, cafe2, 4, "좋은 분위기에서 일하기 좋은 카페입니다. 다음에 또 방문할 예정입니다.");
-
-				// 즐겨찾기 추가
-				addFavoriteIfNotExists(reviewReservationUser, cafe2);
-			}
-
-			// 세 번째 카페가 있다면
-			if (cafes.size() > 2) {
-				Cafe cafe3 = cafes.get(2);
-
-				// 취소된 예약 추가
-				createReservation(reservationUser1, cafe3, yesterday,
-					LocalTime.of(10, 0), LocalTime.of(12, 0), 2, ReservationStatus.CANCELLED);
-
-				// 노쇼 예약 추가
-				createReservation(reservationUser2, cafe3, yesterday,
-					LocalTime.of(14, 0), LocalTime.of(16, 0), 1, ReservationStatus.NO_SHOW);
-			}
-
-			log.info("추가 테스트 데이터가 성공적으로 생성되었습니다.");
+			createReservationTestData(cafes);
 
 		} catch (Exception e) {
 			log.error("추가 테스트 데이터 생성 중 오류 발생: {}", e.getMessage());
-			e.printStackTrace();
+			throw e; // Propagate for transaction rollback
 		}
 	}
 
-	private Reservation createReservation(Member member, Cafe cafe, LocalDate date,
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	protected void createReservationTestData(List<Cafe> cafes) {
+		// 예약 데이터 생성
+		Member reservationUser1 = memberRepository.findByEmail("reservation1@example.com")
+			.orElseThrow(() -> new RuntimeException("예약 사용자 1을 찾을 수 없습니다."));
+
+		Member reservationUser2 = memberRepository.findByEmail("reservation2@example.com")
+			.orElseThrow(() -> new RuntimeException("예약 사용자 2를 찾을 수 없습니다."));
+
+		Member reviewReservationUser = memberRepository.findByEmail("review-reservation@example.com")
+			.orElseThrow(() -> new RuntimeException("리뷰+예약 사용자를 찾을 수 없습니다."));
+
+		// 현재 날짜 기준으로 예약 생성
+		LocalDate today = LocalDate.now();
+		LocalDate tomorrow = today.plusDays(1);
+		LocalDate dayAfterTomorrow = today.plusDays(2);
+		LocalDate yesterday = today.minusDays(1);
+
+		// 첫 번째 카페에 예약 추가
+		Cafe cafe1 = cafes.get(0);
+
+		// 예약 사용자 1의 예약
+		createReservation(reservationUser1, cafe1, today,
+			LocalTime.of(10, 0), LocalTime.of(12, 0), 2, ReservationStatus.CONFIRMED);
+
+		createReservation(reservationUser1, cafe1, tomorrow,
+			LocalTime.of(14, 0), LocalTime.of(16, 0), 3, ReservationStatus.CONFIRMED);
+
+		// 예약 사용자 2의 예약
+		createReservation(reservationUser2, cafe1, today,
+			LocalTime.of(13, 0), LocalTime.of(15, 0), 1, ReservationStatus.CONFIRMED);
+
+		createReservation(reservationUser2, cafe1, dayAfterTomorrow,
+			LocalTime.of(9, 0), LocalTime.of(11, 0), 4, ReservationStatus.CONFIRMED);
+
+		// 두 번째 카페가 있다면
+		if (cafes.size() > 1) {
+			Cafe cafe2 = cafes.get(1);
+
+			// 리뷰+예약 사용자의 예약
+			createReservation(reviewReservationUser, cafe2, today,
+				LocalTime.of(15, 0), LocalTime.of(17, 0), 2, ReservationStatus.CONFIRMED);
+
+			// 리뷰 추가
+			addReviewIfNotExists(reviewReservationUser, cafe2, 4, "좋은 분위기에서 일하기 좋은 카페입니다. 다음에 또 방문할 예정입니다.");
+
+			// 즐겨찾기 추가
+			addFavoriteIfNotExists(reviewReservationUser, cafe2);
+		}
+
+		// 세 번째 카페가 있다면
+		if (cafes.size() > 2) {
+			Cafe cafe3 = cafes.get(2);
+
+			// 취소된 예약 추가
+			createReservation(reservationUser1, cafe3, yesterday,
+				LocalTime.of(10, 0), LocalTime.of(12, 0), 2, ReservationStatus.CANCELLED);
+
+			// 노쇼 예약 추가
+			createReservation(reservationUser2, cafe3, yesterday,
+				LocalTime.of(14, 0), LocalTime.of(16, 0), 1, ReservationStatus.NO_SHOW);
+		}
+
+		log.info("예약 테스트 데이터가 성공적으로 생성되었습니다.");
+	}
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	protected Reservation createReservation(Member member, Cafe cafe, LocalDate date,
 		LocalTime startTime, LocalTime endTime,
 		int partySize, ReservationStatus status) {
 
 		LocalDateTime start = LocalDateTime.of(date, startTime);
 		LocalDateTime end = LocalDateTime.of(date, endTime);
+
+		// 이미 같은 예약이 있는지 확인 - 시간 겹침 확인
+		List<Reservation> existingReservations = reservationRepository.getOverlappingReservations(
+			cafe.getCafeId(), start, end);
+
+		// 같은 사용자의 같은 시간대 예약이 있는지 확인
+		for (Reservation existingReservation : existingReservations) {
+			if (existingReservation.getMember().getId().equals(member.getId()) &&
+				existingReservation.getStartTime().equals(start) &&
+				existingReservation.getEndTime().equals(end) &&
+				existingReservation.getStatus() == status) {
+				log.info("동일한 예약이 이미 존재합니다. ID: {}", existingReservation.getId());
+				return existingReservation;
+			}
+		}
 
 		Reservation reservation = Reservation.builder()
 			.member(member)
@@ -433,7 +579,7 @@ public class InitializerService implements ApplicationRunner {
 		return savedReservation;
 	}
 
-	private void generateTestUserTokens() {
+	protected void generateTestUserTokens() {
 		// 기존 테스트 사용자 토큰
 		generateTokenForUser("test-kakao@example.com", "카카오 테스트 사용자");
 		generateTokenForUser("test-naver@example.com", "네이버 테스트 사용자");
@@ -450,10 +596,16 @@ public class InitializerService implements ApplicationRunner {
 	}
 
 	private void generateTokenForUser(String email, String userDescription) {
-		Member user = memberRepository.findByEmail(email).orElse(null);
-		if (user != null) {
-			String accessToken = jwtService.generateToken(user);
-			log.info("{} 액세스 토큰: {}", userDescription, accessToken);
+		try {
+			Member user = memberRepository.findByEmail(email).orElse(null);
+			if (user != null) {
+				String accessToken = jwtService.generateToken(user);
+				log.info("{} 액세스 토큰: {}", userDescription, accessToken);
+			} else {
+				log.warn("토큰 생성 실패: 사용자를 찾을 수 없음 - {}", email);
+			}
+		} catch (Exception e) {
+			log.error("토큰 생성 중 오류 발생 ({}) - {}", userDescription, e.getMessage());
 		}
 	}
 }
