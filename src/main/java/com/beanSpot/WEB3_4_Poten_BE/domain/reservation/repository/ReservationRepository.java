@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -81,7 +82,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime
     );
-//이거 없어도 될듯?..
+
+    @Query("SELECT r FROM Reservation r WHERE r.cafe.id = :cafeId AND DATE(r.startTime) = :date")
+    List<Reservation> findByCafeAndDate(@Param("cafeId") Long cafeId, @Param("date") LocalDate date);
+
+    //이거 없어도 될듯?..
 //    @Query("""
 //        SELECT r FROM Reservation r
 //        WHERE r.cafe.id = :cafeId

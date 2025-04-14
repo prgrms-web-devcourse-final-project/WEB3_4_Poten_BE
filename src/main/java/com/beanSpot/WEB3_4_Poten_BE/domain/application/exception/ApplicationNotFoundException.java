@@ -1,7 +1,9 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.application.exception;
 
-public class ApplicationNotFoundException extends RuntimeException {
+import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
+
+public class ApplicationNotFoundException extends ServiceException {
 	public ApplicationNotFoundException(Long id) {
-		super("신청을 찾을 수 없습니다. ID:" + id);
+		super(404, "신청을 찾을 수 없습니다. ID:" + id);
 	}
 }

@@ -8,6 +8,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.req.TimeSlotsReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.reservation.dto.res.*;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,7 +17,7 @@ public interface ReservationApi {
 
     @Operation(summary = "예약 생성")
     public ResponseEntity<ReservationPostRes> createReservation(
-            Long cafeId,
+            @PathVariable Long cafeId,
             ReservationPostReq dto,
             SecurityUser user
     );
@@ -36,7 +37,6 @@ public interface ReservationApi {
 
     @Operation(summary = "예약취소")
     public ResponseEntity<Void> deleteReservation(
-            ReservationPostReq dto,
             Long reservationId,
             SecurityUser user
     );
@@ -71,5 +71,11 @@ public interface ReservationApi {
             Long cafeId,
             LocalDate date,
             SecurityUser user
+    );
+
+    @Operation(summary = "점주의 카페 예약 조회", description = "점주가 소유한 카페들의 예약을 날짜 기준으로 조회합니다.")
+    public ResponseEntity<List<CafeReservationRes>> getOwnerReservations(
+        LocalDate date,
+        SecurityUser user
     );
 }

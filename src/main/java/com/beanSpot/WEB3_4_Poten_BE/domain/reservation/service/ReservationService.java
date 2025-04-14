@@ -308,4 +308,24 @@ public class ReservationService {
 
         return maxSeats;
     }
+    @Transactional(readOnly = true)
+    public List<CafeReservationRes> getOwnerReservations(LocalDate date, Long ownerId) {
+        List<Cafe> ownerCafes = cafeRepository.findByOwnerId(ownerId);
+
+        if (ownerCafes.isEmpty()) {
+            throw new ServiceException(404, "해당 점주가 소유한 카페가 없습니다.");
+        }
+
+        List<CafeReservationRes> allReservations = new ArrayList<>();
+
+        for (Cafe cafe : ownerCafes) {
+            List<Reservation> reservations = reservationRepository.findByCafeAndDate(cafe.getCafeId(), date);
+            List<CafeReservationRes> cafeReservations = reservations.stream()
+                .map(CafeReservationRes::from)
+                .collect(Collectors.toList());
+            allReservations.addAll(cafeReservations);
+        }
+
+        return allReservations;
+    }
 }

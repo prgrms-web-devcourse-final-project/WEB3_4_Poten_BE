@@ -24,7 +24,7 @@ public class ReservationController implements ReservationApi{
     @Override
     @PostMapping("/{cafeId}")
     public ResponseEntity<ReservationPostRes> createReservation(
-            @RequestParam Long cafeId,
+            @PathVariable Long cafeId,
             @Valid @RequestBody ReservationPostReq dto,
             @AuthenticationPrincipal SecurityUser user
     ) {
@@ -57,7 +57,6 @@ public class ReservationController implements ReservationApi{
     @Override
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<Void> deleteReservation(
-            @Valid @RequestBody ReservationPostReq dto,
             @PathVariable Long reservationId,
             @AuthenticationPrincipal SecurityUser user
     ) {
@@ -98,7 +97,7 @@ public class ReservationController implements ReservationApi{
 
     //특정 사용자의 예약 목록 조회
     @Override
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user")
     public ResponseEntity<List<UserReservationRes>> getUserReservations(
             @RequestParam(required = false) Long cursorId,
             @AuthenticationPrincipal SecurityUser user
@@ -118,5 +117,15 @@ public class ReservationController implements ReservationApi{
 
         List<CafeReservationRes> res = reservationService.getCafeReservations(cafeId, date, user.getId());
         return ResponseEntity.ok(res);
+    }
+
+    @Override
+    @GetMapping("/owner")
+    public ResponseEntity<List<CafeReservationRes>> getOwnerReservations(
+        @RequestParam LocalDate date,
+        @AuthenticationPrincipal SecurityUser user
+    ) {
+        List<CafeReservationRes> reservations = reservationService.getOwnerReservations(date, user.getMember().getId());
+        return ResponseEntity.ok(reservations);
     }
 }

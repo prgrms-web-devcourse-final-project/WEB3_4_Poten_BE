@@ -70,7 +70,7 @@ spring:
               - profile
             client-name: Google
             authorization-grant-type: authorization_code
-            redirect-uri: "${custom.site.backUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: '{baseUrl}/{action}/oauth2/code/{registrationId}'
           kakao:
             client-Id: ON_SECRET
             scope:
@@ -79,8 +79,7 @@ spring:
               - account_email
             client-name: Kakao
             authorization-grant-type: authorization_code
-            redirect-uri: "${custom.site.backUrl}/{action}/oauth2/code/{registrationId}"
-
+            redirect-uri: '{baseUrl}/{action}/oauth2/code/{registrationId}'
           naver:
             client-id: ON_SECRET
             scope:
@@ -90,8 +89,7 @@ spring:
             client-name: Naver
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
-            redirect-uri: "${custom.site.backUrl}/{action}/oauth2/code/{registrationId}"
-
+            redirect-uri: '{baseUrl}/{action}/oauth2/code/{registrationId}'
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
@@ -126,7 +124,7 @@ custom:
     frontUrl: "http://${custom.dev.cookieDomain}:3000"
     backUrl: "http://${custom.dev.cookieDomain}:${server.port}"
   prod:
-    cookieDomain:
+    cookieDomain: beanspot.shop
     frontUrl: "https://www.${custom.prod.cookieDomain}"
     backUrl: "https://api.${custom.prod.cookieDomain}"
   site:
