@@ -530,8 +530,8 @@ public class InitializerService implements ApplicationRunner {
 				LocalTime.of(10, 0), LocalTime.of(12, 0), 2, ReservationStatus.CANCELLED);
 
 			// 노쇼 예약 추가
-			createReservation(reservationUser2, cafe3, yesterday,
-				LocalTime.of(14, 0), LocalTime.of(16, 0), 1, ReservationStatus.NO_SHOW);
+//			createReservation(reservationUser2, cafe3, yesterday,
+//				LocalTime.of(14, 0), LocalTime.of(16, 0), 1, ReservationStatus.NO_SHOW);
 		}
 
 		log.info("예약 테스트 데이터가 성공적으로 생성되었습니다.");

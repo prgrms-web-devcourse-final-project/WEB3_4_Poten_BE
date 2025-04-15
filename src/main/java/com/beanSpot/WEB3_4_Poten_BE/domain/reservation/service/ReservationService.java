@@ -202,6 +202,30 @@ public class ReservationService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<CafeReservationRes> getOwnerReservations(LocalDate date, Long ownerId) {
+        List<Cafe> ownerCafes = cafeRepository.findByOwnerId(ownerId);
+
+        if (ownerCafes.isEmpty()) {
+            throw new ServiceException(404, "해당 점주가 소유한 카페가 없습니다.");
+        }
+
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime startOfNextDay = startOfDay.plusDays(1);
+
+        List<CafeReservationRes> allReservations = new ArrayList<>();
+
+        for (Cafe cafe : ownerCafes) {
+            List<Reservation> reservations = reservationRepository.findByCafeIdAndDate(cafe.getCafeId(), startOfDay, startOfNextDay);
+            List<CafeReservationRes> cafeReservations = reservations.stream()
+                    .map(CafeReservationRes::from)
+                    .toList();
+            allReservations.addAll(cafeReservations);
+        }
+
+        return allReservations;
+    }
+
     //예약가능 시간대들을 구하는 메소드
     private List<TimeSlot> getAvailableTimeSlotsHelper(List<Reservation> overlappingReservations, int capacity, int partySize, LocalDateTime start, LocalDateTime end) {
 
@@ -307,25 +331,5 @@ public class ReservationService {
         }
 
         return maxSeats;
-    }
-    @Transactional(readOnly = true)
-    public List<CafeReservationRes> getOwnerReservations(LocalDate date, Long ownerId) {
-        List<Cafe> ownerCafes = cafeRepository.findByOwnerId(ownerId);
-
-        if (ownerCafes.isEmpty()) {
-            throw new ServiceException(404, "해당 점주가 소유한 카페가 없습니다.");
-        }
-
-        List<CafeReservationRes> allReservations = new ArrayList<>();
-
-        for (Cafe cafe : ownerCafes) {
-            List<Reservation> reservations = reservationRepository.findByCafeAndDate(cafe.getCafeId(), date);
-            List<CafeReservationRes> cafeReservations = reservations.stream()
-                .map(CafeReservationRes::from)
-                .collect(Collectors.toList());
-            allReservations.addAll(cafeReservations);
-        }
-
-        return allReservations;
     }
 }
