@@ -11,11 +11,10 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Status;
 
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
-	List<Application> findByStatus(Status status);
+	List<Application> findByStatusOrderByCreatedAtDesc(Status status);
 
 	Optional<Application> findByMemberIdAndStatus(Long userId, Status status);
 
 	List<Application> findAllByMemberIdAndStatus(Long userId, Status status);
 
-	Optional<Application> findByMemberId(Long id);
 }
