@@ -12,10 +12,10 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Application;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Status;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.exception.ApplicationNotFoundException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.repository.ApplicationRepository;
-import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
 import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ApplicationService {
 	private final ApplicationRepository applicationRepository;
-	private final CafeRepository cafeRepository;
 	private final MemberRepository memberRepository;
 
 	@Transactional
@@ -58,9 +57,8 @@ public class ApplicationService {
 		}
 	}
 
-	//아래 3개 메서드는 관리자로 이동
 	public List<ApplicationRes> getPendingRequests() {
-		return applicationRepository.findByStatus(Status.PENDING)
+		return applicationRepository.findByStatusOrderByCreatedAtDesc(Status.PENDING)
 			.stream()
 			.map(ApplicationRes::fromEntity)
 			.collect(Collectors.toList());

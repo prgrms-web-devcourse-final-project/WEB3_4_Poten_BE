@@ -1,11 +1,8 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.application.controller;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,33 +48,5 @@ public class ApplicationController {
 		applicationService.deleteRejectedApplication(id);
 		return ResponseEntity.noContent()
 			.build();
-	}
-
-	//아래 3개 기능 관리자로 이동
-	@Operation(
-		summary = "대기중인 신청 리스트 반환",
-		description = "PENDING 상태인 신청의 리스트를 반환합니다.")
-	@GetMapping("/pending")
-	public ResponseEntity<List<ApplicationRes>> getPendingRequests() {
-		List<ApplicationRes> pendingRequests = applicationService.getPendingRequests();
-		return ResponseEntity.ok(pendingRequests);
-	}
-
-	@Operation(
-		summary = "신청 거부",
-		description = "신청을 REJECTED 상태로 바꿉니다.")
-	@PostMapping("/reject/{id}")
-	public ResponseEntity<ApplicationRes> rejectCafe(@PathVariable Long id) {
-		ApplicationRes rejectedCafe = applicationService.rejectCafe(id);
-		return ResponseEntity.ok(rejectedCafe);
-	}
-
-	@Operation(
-		summary = "신청 수락",
-		description = "신청을 APPROVED 상태로 바꿉니다.")
-	@PostMapping("/approve/{id}")
-	public ResponseEntity<ApplicationRes> approveCafe(@PathVariable Long id) {
-		ApplicationRes approved = applicationService.approveCafe(id);
-		return ResponseEntity.ok(approved);
 	}
 }
