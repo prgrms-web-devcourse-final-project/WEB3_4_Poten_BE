@@ -52,7 +52,7 @@ public class Cafe {
 	private LocalDateTime updatedAt;
 
 	@Column(name = "image_filename", columnDefinition = "TEXT")
-	private String imageFilename;
+	private String image;
 
 	@Column
 	private int capacity;
@@ -76,8 +76,8 @@ public class Cafe {
 		if (request.description() != null) {
 			this.capacity = request.capacity();
 		}
-		if (request.imageFilename() != null) {
-			this.imageFilename = request.imageFilename();
+		if (request.image() != null) {
+			this.image = request.image();
 		}
     
 		this.updatedAt = LocalDateTime.now();
