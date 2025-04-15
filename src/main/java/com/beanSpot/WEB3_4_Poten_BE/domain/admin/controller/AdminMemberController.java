@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin")
-@Tag(name = "Admin", description = "Admin Member Controller")
+@Tag(name = "Admin-Member", description = "회원 관리 API")
 public class AdminMemberController {
 
 	private final MemberAdminService memberAdminService;
