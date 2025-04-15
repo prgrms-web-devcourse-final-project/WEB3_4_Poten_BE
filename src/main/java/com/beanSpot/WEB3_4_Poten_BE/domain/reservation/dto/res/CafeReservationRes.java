@@ -11,7 +11,7 @@ import lombok.Builder;
 public record CafeReservationRes(
 	Long id,
 	String name,
-	String phoneNumber,
+	String email,
 	LocalDateTime startTime,
 	LocalDateTime endTime,
 	ReservationStatus status,
@@ -23,7 +23,7 @@ public record CafeReservationRes(
 		return CafeReservationRes.builder()
 			.id(reservation.getId())
 				.name(reservation.getMember().getName())
-				.phoneNumber(reservation.getMember().getPhoneNumber())
+				.email(reservation.getMember().getEmail())
 			.startTime(reservation.getStartTime())
 			.endTime(reservation.getEndTime())
 			.status(reservation.getStatus())

@@ -10,7 +10,5 @@ public class Web34PotenBeApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Web34PotenBeApplication.class, args);
-
 	}
-
 }

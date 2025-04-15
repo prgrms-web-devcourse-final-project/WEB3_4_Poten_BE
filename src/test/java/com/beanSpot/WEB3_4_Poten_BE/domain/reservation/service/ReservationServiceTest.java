@@ -72,6 +72,7 @@ class ReservationServiceTest {
         member1 = Member.builder()
                 .email("user1@google.com")
                 .name("user1")
+                .phoneNumber("010-1234-1234")
                 .memberType(Member.MemberType.USER)
                 .oAuthId("user1")
                 .password("1234")
@@ -82,6 +83,7 @@ class ReservationServiceTest {
                 .email("user2@google.com")
                 .name("user2")
                 .memberType(Member.MemberType.USER)
+                .phoneNumber("010-1234-5678")
                 .oAuthId("user2")
                 .password("1234")
                 .username("user2")
@@ -347,9 +349,22 @@ class ReservationServiceTest {
 
         assertEquals(3, res.size());
 
-        LocalDateTime prev = LocalDateTime.MAX;
+        LocalDateTime prev = LocalDateTime.MIN;
         for (CafeReservationRes r : res) {
-            assertTrue(prev.isAfter(r.startTime()) || prev.isEqual(r.startTime()));
+            assertTrue(prev.isBefore(r.startTime()) || prev.isEqual(r.startTime()));
+        }
+    }
+
+    @Test
+    @DisplayName("카페 예약 조회")
+    void t10() {
+        List<CafeReservationRes> res = reservationService.getOwnerReservations(LocalDate.of(2025, 1, 1), member1.getId());
+
+        assertEquals(3, res.size());
+
+        LocalDateTime prev = LocalDateTime.MIN;
+        for (CafeReservationRes r : res) {
+            assertTrue(prev.isBefore(r.startTime()) || prev.isEqual(r.startTime()));
         }
     }
 }

@@ -75,7 +75,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     SELECT r FROM Reservation r
     WHERE r.cafe.id = :cafeId
     AND (r.startTime < :endTime AND :startTime <= r.startTime)
-    ORDER BY r.startTime DESC
+    ORDER BY r.startTime
     """)
     List<Reservation> findByCafeIdAndDate(
             @Param("cafeId") Long cafeId,
@@ -83,8 +83,12 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("endTime") LocalDateTime endTime
     );
 
-    @Query("SELECT r FROM Reservation r WHERE r.cafe.id = :cafeId AND DATE(r.startTime) = :date")
-    List<Reservation> findByCafeAndDate(@Param("cafeId") Long cafeId, @Param("date") LocalDate date);
+//    @Query("""
+//    SELECT r FROM Reservation r
+//    WHERE r.cafe.id = :cafeId AND DATE(r.startTime) = :date
+//    ORDER BY r.startTime
+//    """)
+//    List<Reservation> findByCafeAndDate(@Param("cafeId") Long cafeId, @Param("date") LocalDate date);
 
     //이거 없어도 될듯?..
 //    @Query("""
