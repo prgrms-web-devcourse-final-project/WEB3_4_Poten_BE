@@ -1,6 +1,7 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -61,16 +62,17 @@ public class CafeController {
 		return ResponseEntity.ok(result);
 	}
 
-	@Operation(summary = "점주가 등록한 카페 목록 조회", description = "현재 로그인한 점주가 등록한 카페 목록을 페이징 형태로 조회합니다.")
+	@Operation(summary = "점주가 등록한 카페 목록 및 신청 내역 조회",
+		description = "현재 로그인한 점주가 등록한 카페 목록과 대기 중인 신청 내역을 함께 조회합니다.")
 	@GetMapping("/my")
-	public ResponseEntity<Page<CafeInfoRes>> getCafesByOwner(
+	public ResponseEntity<Map<String, Object>> getCafesAndApplicationsByOwner(
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size,
 		@RequestParam(defaultValue = "createdAt,desc") String sort,
 		@AuthenticationPrincipal SecurityUser securityUser
 	) {
 		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
-		Page<CafeInfoRes> result = cafeService.getCafesByOwner(securityUser.getId(), pageable);
+		Map<String, Object> result = cafeService.getCafesAndApplicationsByOwner(securityUser.getId(), pageable);
 		return ResponseEntity.ok(result);
 	}
 
