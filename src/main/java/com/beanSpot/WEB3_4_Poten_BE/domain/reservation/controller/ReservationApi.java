@@ -66,14 +66,14 @@ public interface ReservationApi {
     );
 
 
-    @Operation(summary = "특정 카페의 예약 조회 (날짜 기준 필터링)")
+    @Operation(summary = "점주의 특정 한 카페의 예약 조회 (날짜 기준 필터링)")
     public ResponseEntity<List<CafeReservationRes>> getCafeReservations(
             Long cafeId,
             LocalDate date,
             SecurityUser user
     );
 
-    @Operation(summary = "점주의 카페 예약 조회", description = "점주가 소유한 카페들의 예약을 날짜 기준으로 조회합니다.")
+    @Operation(summary = "점주의 모든 카페 예약 조회", description = "점주가 소유한 모든 카페들의 예약을 날짜 기준으로 조회합니다.")
     public ResponseEntity<List<CafeReservationRes>> getOwnerReservations(
         LocalDate date,
         SecurityUser user
