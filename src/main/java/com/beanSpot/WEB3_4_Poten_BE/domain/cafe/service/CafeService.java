@@ -1,10 +1,13 @@
 package com.beanSpot.WEB3_4_Poten_BE.domain.cafe.service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,6 +20,7 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.application.entity.Status;
 import com.beanSpot.WEB3_4_Poten_BE.domain.application.repository.ApplicationRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeCreateReq;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.req.CafeUpdateReq;
+import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.res.CafeApplicationRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.res.CafeDetailRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.dto.res.CafeInfoRes;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.entity.Cafe;
@@ -140,12 +144,26 @@ public class CafeService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<CafeInfoRes> getCafesByOwner(Long ownerId, Pageable pageable) {
+	public Map<String, Object> getCafesAndApplicationsByOwner(Long ownerId, Pageable pageable) {
 		Member owner = memberRepository.findById(ownerId)
 			.orElseThrow(() -> new ServiceException("사용자를 찾을 수 없습니다. ID: " + ownerId));
 
 		Page<Cafe> cafes = cafeRepository.findByOwnerAndDisabledFalse(owner, pageable);
+		List<CafeInfoRes> cafeInfoList = cafes.getContent().stream()
+			.map(cafe -> CafeInfoRes.fromEntity(cafe, s3Service.getFileUrl(cafe.getImage())))
+			.collect(Collectors.toList());
 
-		return cafes.map(cafe -> CafeInfoRes.fromEntity(cafe, s3Service.getFileUrl(cafe.getImage())));
+		List<Application> pendingApplications = applicationRepository
+			.findAllByMemberIdAndStatus(ownerId, Status.PENDING);
+
+		List<CafeApplicationRes> pendingList = pendingApplications.stream()
+			.map(application -> CafeApplicationRes.fromEntity(null, application))
+			.collect(Collectors.toList());
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("cafes", new PageImpl<>(cafeInfoList, pageable, cafes.getTotalElements()));
+		result.put("pendingApplications", pendingList);
+
+		return result;
 	}
 }
