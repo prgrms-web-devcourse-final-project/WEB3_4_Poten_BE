@@ -344,7 +344,7 @@ public class InitializerService implements ApplicationRunner {
 			.description(description)
 			.createdAt(LocalDateTime.now())
 			.updatedAt(LocalDateTime.now())
-			.image("default-cafe-image.jpg")
+			.image("824bb328-4c95-427e-837e-5c1344d0880a-beanSpotDefault.png")
 			.capacity(capacity)
 			.disabled(false)
 			.build();
