@@ -15,5 +15,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
 	Optional<Application> findByMemberIdAndStatus(Long userId, Status status);
 
+	List<Application> findAllByMemberIdAndStatus(Long userId, Status status);
+
 	Optional<Application> findByMemberId(Long id);
 }
