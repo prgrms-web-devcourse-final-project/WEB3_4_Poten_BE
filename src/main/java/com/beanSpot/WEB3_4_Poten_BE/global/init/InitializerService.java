@@ -435,32 +435,32 @@ public class InitializerService implements ApplicationRunner {
 				return;
 			}
 
-			// 신청 대기 중인 사용자 설정
-			Member applicantUser = memberRepository.findByEmail("applicant@example.com")
-				.orElseThrow(() -> new RuntimeException("신청 사용자를 찾을 수 없습니다."));
-
-			// 해당 사용자의 기존 Application이 있는지 확인
-			Optional<Application> existingApplication = applicationRepository.findByMemberId(applicantUser.getId());
-
-			if (existingApplication.isPresent()) {
-				log.info("신청 사용자에게 이미 신청서가 존재합니다. ID: {}", existingApplication.get().getId());
-				log.info("기존 신청서의 상태: {}", existingApplication.get().getStatus());
-				// 이미 신청서가 있으므로 새로 생성하지 않음
-			} else {
-				// 신규 신청서 생성
-				Application pendingApplication = Application.builder()
-					.name("신청 대기 중인 카페")
-					.address("서울시 마포구 홍대입구역 123")
-					.phone("02-9876-5432")
-					.status(Status.PENDING)
-					.capacity(15)  // 추가된 필드
-					.member(applicantUser)
-					.createdAt(LocalDateTime.now())
-					.build();
-
-				applicationRepository.save(pendingApplication);
-				log.info("신청 대기 중인 Application이 생성되었습니다. ID: {}", pendingApplication.getId());
-			}
+			// // 신청 대기 중인 사용자 설정
+			// Member applicantUser = memberRepository.findByEmail("applicant@example.com")
+			// 	.orElseThrow(() -> new RuntimeException("신청 사용자를 찾을 수 없습니다."));
+			//
+			// // 해당 사용자의 기존 Application이 있는지 확인
+			// Optional<Application> existingApplication = applicationRepository.findByMemberId(applicantUser.getId());
+			//
+			// if (existingApplication.isPresent()) {
+			// 	log.info("신청 사용자에게 이미 신청서가 존재합니다. ID: {}", existingApplication.get().getId());
+			// 	log.info("기존 신청서의 상태: {}", existingApplication.get().getStatus());
+			// 	// 이미 신청서가 있으므로 새로 생성하지 않음
+			// } else {
+			// 	// 신규 신청서 생성
+			// 	Application pendingApplication = Application.builder()
+			// 		.name("신청 대기 중인 카페")
+			// 		.address("서울시 마포구 홍대입구역 123")
+			// 		.phone("02-9876-5432")
+			// 		.status(Status.PENDING)
+			// 		.capacity(15)  // 추가된 필드
+			// 		.member(applicantUser)
+			// 		.createdAt(LocalDateTime.now())
+			// 		.build();
+			//
+			// 	applicationRepository.save(pendingApplication);
+			// 	log.info("신청 대기 중인 Application이 생성되었습니다. ID: {}", pendingApplication.getId());
+			// }
 
 			// 예약 데이터 생성
 			createReservationTestData(cafes);
