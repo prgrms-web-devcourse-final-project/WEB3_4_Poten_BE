@@ -40,7 +40,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
-@Profile({"dev", "test"})
 @Slf4j
 public class InitializerService implements ApplicationRunner {
 
