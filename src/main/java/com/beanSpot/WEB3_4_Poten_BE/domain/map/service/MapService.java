@@ -155,7 +155,7 @@ public class MapService {
                 .latitude(latitude)
                 .longitude(longitude)
                 .createdAt(LocalDateTime.now())
-                .imageFilename(imageUrl)
+                .image(imageUrl)
                 .disabled(false)
                 .build();
 

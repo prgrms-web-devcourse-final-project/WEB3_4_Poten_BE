@@ -228,7 +228,7 @@ public class InitializerService implements ApplicationRunner {
 			.description(description)
 			.createdAt(LocalDateTime.now())
 			.updatedAt(LocalDateTime.now())
-			.imageFilename("default-cafe-image.jpg")
+			.image("default-cafe-image.jpg")
 			.capacity(capacity)
 			.disabled(false)
 			.build();

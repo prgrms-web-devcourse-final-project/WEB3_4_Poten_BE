@@ -21,6 +21,6 @@ public record CafeCreateReq(
 	int capacity,
 
 	@NotEmpty
-	String imageFilename
+	String image
 ) {
 }

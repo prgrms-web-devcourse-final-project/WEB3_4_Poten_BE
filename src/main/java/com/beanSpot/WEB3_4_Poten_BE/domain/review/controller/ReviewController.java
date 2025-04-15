@@ -80,7 +80,7 @@ public class ReviewController {
 		Page<ReviewRes> reviews = reviewService.getReviewsByCafeId(cafeId, pageable);
 		return ResponseEntity.ok(reviews);
 	}
-
+//이미지관련 리턴 통일,  리뷰, 예약 줄때 이름으로
 	//TODO: 인증 구현 후 userId는 RequestBody에서 제거하고 SecurityContext에서 가져오기
 	@PostMapping
 	public ResponseEntity<ReviewRes> addReview(

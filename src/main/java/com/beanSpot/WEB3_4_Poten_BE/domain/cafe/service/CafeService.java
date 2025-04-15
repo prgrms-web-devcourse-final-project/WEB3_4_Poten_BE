@@ -24,7 +24,6 @@ import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.exception.CafeNotFoundException;
 import com.beanSpot.WEB3_4_Poten_BE.domain.cafe.repository.CafeRepository;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.entity.Member;
 import com.beanSpot.WEB3_4_Poten_BE.domain.member.repository.MemberRepository;
-import com.beanSpot.WEB3_4_Poten_BE.domain.review.entity.Review;
 import com.beanSpot.WEB3_4_Poten_BE.domain.review.repository.ReviewRepository;
 import com.beanSpot.WEB3_4_Poten_BE.global.aws.S3Service;
 import com.beanSpot.WEB3_4_Poten_BE.global.exceptions.ServiceException;
@@ -67,21 +66,21 @@ public class CafeService {
 			.description(request.description())
 			.createdAt(LocalDateTime.now())
 			.updatedAt(LocalDateTime.now())
-			.imageFilename(request.imageFilename())
+			.image(request.image())
 			.capacity(0) //추후 수정
 			.disabled(false)
 			.build();
 
 		cafeRepository.save(cafe);
 
-		String imageUrl = s3Service.getFileUrl(cafe.getImageFilename());
+		String imageUrl = s3Service.getFileUrl(cafe.getImage());
 		return CafeInfoRes.fromEntity(cafe, imageUrl);
 	}
 
 	@Transactional
 	public Page<CafeInfoRes> getCafeList(Pageable pageable) {
 		return cafeRepository.findAllByDisabledFalse(pageable)
-			.map(cafe -> CafeInfoRes.fromEntity(cafe, s3Service.getFileUrl(cafe.getImageFilename())));
+			.map(cafe -> CafeInfoRes.fromEntity(cafe, s3Service.getFileUrl(cafe.getImage())));
 	}
 
 	@Transactional
@@ -89,7 +88,7 @@ public class CafeService {
 		Cafe cafe = cafeRepository.findBycafeIdAndDisabledFalse(cafeId)
 			.orElseThrow(() -> new CafeNotFoundException(cafeId));
 
-		String imageUrl = s3Service.getFileUrl(cafe.getImageFilename());
+		String imageUrl = s3Service.getFileUrl(cafe.getImage());
 		return CafeDetailRes.fromEntity(cafe, imageUrl);
 	}
 
@@ -103,7 +102,7 @@ public class CafeService {
 		}
 
 		cafe.update(request);
-		String imageUrl = s3Service.getFileUrl(cafe.getImageFilename());
+		String imageUrl = s3Service.getFileUrl(cafe.getImage());
 		return CafeInfoRes.fromEntity(cafe, imageUrl);
 	}
 
@@ -116,7 +115,7 @@ public class CafeService {
 		List<Cafe> cafes = cafeRepository.searchByKeywordAndDisabledFalse(keyword);
 
 		return cafes.stream()
-			.map(cafe -> CafeInfoRes.fromEntity(cafe, s3Service.getFileUrl(cafe.getImageFilename())))
+			.map(cafe -> CafeInfoRes.fromEntity(cafe, s3Service.getFileUrl(cafe.getImage())))
 			.collect(Collectors.toList());
 	}
 
@@ -147,6 +146,6 @@ public class CafeService {
 
 		Page<Cafe> cafes = cafeRepository.findByOwnerAndDisabledFalse(owner, pageable);
 
-		return cafes.map(cafe -> CafeInfoRes.fromEntity(cafe, s3Service.getFileUrl(cafe.getImageFilename())));
+		return cafes.map(cafe -> CafeInfoRes.fromEntity(cafe, s3Service.getFileUrl(cafe.getImage())));
 	}
 }

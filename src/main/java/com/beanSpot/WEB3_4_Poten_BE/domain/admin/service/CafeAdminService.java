@@ -81,7 +81,7 @@ public class CafeAdminService {
 				.description("") // 기본 설명 (추후 업데이트 필요)
 				.createdAt(LocalDateTime.now())
 				.updatedAt(LocalDateTime.now())
-				.imageFilename("default-cafe.jpg") // 기본 이미지 (추후 업데이트 필요)
+				.image("default-cafe.jpg") // 기본 이미지 (추후 업데이트 필요)
 				.capacity(application.getCapacity())
 				.disabled(false)
 				.build();
